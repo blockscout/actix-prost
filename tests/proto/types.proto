@@ -1,0 +1,57 @@
+syntax = "proto3";
+package simple;
+
+option go_package = "github.com/blockscout/actix-prost/tests";
+
+import "google/api/annotations.proto";
+
+message Scalars {
+  double a = 1;
+  int64 b = 2;
+  string c = 3;
+  bytes d = 4;
+  bool e = 5;
+}
+
+enum Values {
+  FOO = 0;
+  BAR = 1;
+}
+
+message Enums { Values values = 1; }
+
+message Repeated { repeated string foo = 1; }
+
+message Maps { map<string, int64> foo = 1; }
+
+message OneOfs {
+  oneof Values {
+    string foo = 1;
+    bytes bar = 2;
+    int64 baz = 3;
+  }
+}
+
+// message Google {
+//   google.protobuf.Timestamp foo = 1;
+//   google.protobuf.Any bar = 2;
+// }
+
+message Complex {
+  Scalars scalars = 1;
+  Enums enums = 2;
+  Repeated repeated = 3;
+  Maps maps = 4;
+  OneOfs oneofs = 5;
+  // Google google = 6;
+}
+
+service TypesRPC {
+  rpc ScalarsRPC(Scalars) returns (Scalars);
+  rpc EnumsRPC(Enums) returns (Enums);
+  rpc RepeatedRPC(Repeated) returns (Repeated);
+  rpc MapsRPC(Maps) returns (Maps);
+  rpc OneOfsRPC(OneOfs) returns (OneOfs);
+  //rpc GoogleRPC(Google) returns (Google);
+  rpc ComplexRPC(Complex) returns (Complex);
+}

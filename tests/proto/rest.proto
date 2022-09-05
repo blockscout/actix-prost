@@ -1,0 +1,23 @@
+syntax = "proto3";
+package simple;
+
+option go_package = "github.com/blockscout/actix-prost/tests";
+
+import "google/api/annotations.proto";
+
+message Get {
+  string foo = 1;
+  int64 bar = 2;
+}
+
+message Post {
+  string foo = 1;
+  int64 bar = 2;
+  double baz = 3;
+}
+
+service RestRPC {
+  rpc GetRPC(Get) returns (Get);
+  rpc PostRPC(Post) returns (Post);
+  rpc PostWildcardRPC(Post) returns (Post);
+}

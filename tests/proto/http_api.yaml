@@ -1,0 +1,35 @@
+type: google.api.Service
+config_version: 3
+
+http:
+  rules:
+  - selector: "simple.RestRPC.GetRPC"
+    get: /rest/get/{foo}/{bar}
+  - selector: "simple.RestRPC.PostRPC"
+    post: /rest/post/{foo}/{bar}
+    body: baz
+  - selector: "simple.RestRPC.PostWildcardRPC"
+    post: /rest/post/{foo}
+    body: "*"
+
+  - selector: "simple.TypesRPC.ScalarsRPC"
+    post: /types/scalars
+    body: "*"
+  - selector: "simple.TypesRPC.EnumsRPC"
+    post: /types/enums
+    body: "*"
+  - selector: "simple.TypesRPC.RepeatedRPC"
+    post: /types/repeated
+    body: "*"
+  - selector: "simple.TypesRPC.MapsRPC"
+    post: /types/maps
+    body: "*"
+  - selector: "simple.TypesRPC.OneOfsRPC"
+    post: /types/oneofs
+    body: "*"
+  # - selector: "simple.TypesRPC.ScalarsRPC"
+  #   post: /types/google
+  #   body: "*"
+  - selector: "simple.TypesRPC.ComplexRPC"
+    post: /types/complex
+    body: "*"

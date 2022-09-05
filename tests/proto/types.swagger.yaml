@@ -1,0 +1,217 @@
+swagger: "2.0"
+info:
+  title: types.proto
+  version: version not set
+tags:
+  - name: TypesRPC
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /types/complex:
+    post:
+      summary: rpc GoogleRPC(Google) returns (Google);
+      operationId: TypesRPC_ComplexRPC
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/simpleComplex'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/simpleComplex'
+      tags:
+        - TypesRPC
+  /types/enums:
+    post:
+      operationId: TypesRPC_EnumsRPC
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/simpleEnums'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/simpleEnums'
+      tags:
+        - TypesRPC
+  /types/maps:
+    post:
+      operationId: TypesRPC_MapsRPC
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/simpleMaps'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/simpleMaps'
+      tags:
+        - TypesRPC
+  /types/oneofs:
+    post:
+      operationId: TypesRPC_OneOfsRPC
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/simpleOneOfs'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/simpleOneOfs'
+      tags:
+        - TypesRPC
+  /types/repeated:
+    post:
+      operationId: TypesRPC_RepeatedRPC
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/simpleRepeated'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/simpleRepeated'
+      tags:
+        - TypesRPC
+  /types/scalars:
+    post:
+      operationId: TypesRPC_ScalarsRPC
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/simpleScalars'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/simpleScalars'
+      tags:
+        - TypesRPC
+definitions:
+  protobufAny:
+    type: object
+    properties:
+      '@type':
+        type: string
+    additionalProperties: {}
+  rpcStatus:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      details:
+        type: array
+        items:
+          $ref: '#/definitions/protobufAny'
+      message:
+        type: string
+  simpleComplex:
+    type: object
+    properties:
+      enums:
+        $ref: '#/definitions/simpleEnums'
+      maps:
+        $ref: '#/definitions/simpleMaps'
+      oneofs:
+        $ref: '#/definitions/simpleOneOfs'
+      repeated:
+        $ref: '#/definitions/simpleRepeated'
+      scalars:
+        $ref: '#/definitions/simpleScalars'
+  simpleEnums:
+    type: object
+    properties:
+      values:
+        $ref: '#/definitions/simpleValues'
+  simpleMaps:
+    type: object
+    properties:
+      foo:
+        type: object
+        additionalProperties:
+          type: string
+          format: int64
+  simpleOneOfs:
+    type: object
+    properties:
+      bar:
+        type: string
+        format: byte
+      baz:
+        type: string
+        format: int64
+      foo:
+        type: string
+  simpleRepeated:
+    type: object
+    properties:
+      foo:
+        type: array
+        items:
+          type: string
+  simpleScalars:
+    type: object
+    properties:
+      a:
+        type: number
+        format: double
+      b:
+        type: string
+        format: int64
+      c:
+        type: string
+      d:
+        type: string
+        format: byte
+      e:
+        type: boolean
+  simpleValues:
+    type: string
+    enum:
+      - FOO
+      - BAR
+    default: FOO

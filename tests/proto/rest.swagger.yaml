@@ -1,0 +1,134 @@
+swagger: "2.0"
+info:
+  title: rest.proto
+  version: version not set
+tags:
+  - name: RestRPC
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /rest/get/{foo}/{bar}:
+    get:
+      operationId: RestRPC_GetRPC
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/simpleGet'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: foo
+          in: path
+          required: true
+          type: string
+        - name: bar
+          in: path
+          required: true
+          type: string
+          format: int64
+      tags:
+        - RestRPC
+  /rest/post/{foo}:
+    post:
+      operationId: RestRPC_PostWildcardRPC
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/simplePost'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: foo
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              bar:
+                type: string
+                format: int64
+              baz:
+                type: number
+                format: double
+      tags:
+        - RestRPC
+  /rest/post/{foo}/{bar}:
+    post:
+      operationId: RestRPC_PostRPC
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/simplePost'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: foo
+          in: path
+          required: true
+          type: string
+        - name: bar
+          in: path
+          required: true
+          type: string
+          format: int64
+        - name: baz
+          in: body
+          required: true
+          schema:
+            type: number
+            format: double
+      tags:
+        - RestRPC
+definitions:
+  protobufAny:
+    type: object
+    properties:
+      '@type':
+        type: string
+    additionalProperties: {}
+  rpcStatus:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      details:
+        type: array
+        items:
+          $ref: '#/definitions/protobufAny'
+      message:
+        type: string
+  simpleGet:
+    type: object
+    properties:
+      bar:
+        type: string
+        format: int64
+      foo:
+        type: string
+  simplePost:
+    type: object
+    properties:
+      bar:
+        type: string
+        format: int64
+      baz:
+        type: number
+        format: double
+      foo:
+        type: string
