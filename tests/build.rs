@@ -15,8 +15,7 @@ fn compile(
         .protoc_arg("--openapiv2_out=proto")
         .protoc_arg("--openapiv2_opt")
         .protoc_arg("grpc_api_configuration=proto/http_api.yaml,output_format=yaml")
-        .type_attribute(".", "#[derive(serde::Serialize, serde::Deserialize)]")
-        .type_attribute("GetAbiRequest", "#[serde(default)]");
+        .type_attribute(".", "#[derive(serde::Serialize, serde::Deserialize)]");
 
     for path in protos.iter() {
         println!("cargo:rerun-if-changed={}", path.as_ref().display())

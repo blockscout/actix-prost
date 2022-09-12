@@ -17,7 +17,7 @@ paths:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/simpleComplex'
+            $ref: '#/definitions/typesComplex'
         default:
           description: An unexpected error response.
           schema:
@@ -27,7 +27,7 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/simpleComplex'
+            $ref: '#/definitions/typesComplex'
       tags:
         - TypesRPC
   /types/enums:
@@ -37,7 +37,7 @@ paths:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/simpleEnums'
+            $ref: '#/definitions/typesEnums'
         default:
           description: An unexpected error response.
           schema:
@@ -47,7 +47,7 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/simpleEnums'
+            $ref: '#/definitions/typesEnums'
       tags:
         - TypesRPC
   /types/maps:
@@ -57,7 +57,7 @@ paths:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/simpleMaps'
+            $ref: '#/definitions/typesMaps'
         default:
           description: An unexpected error response.
           schema:
@@ -67,7 +67,7 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/simpleMaps'
+            $ref: '#/definitions/typesMaps'
       tags:
         - TypesRPC
   /types/oneofs:
@@ -77,7 +77,7 @@ paths:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/simpleOneOfs'
+            $ref: '#/definitions/typesOneOfs'
         default:
           description: An unexpected error response.
           schema:
@@ -87,7 +87,7 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/simpleOneOfs'
+            $ref: '#/definitions/typesOneOfs'
       tags:
         - TypesRPC
   /types/repeated:
@@ -97,7 +97,7 @@ paths:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/simpleRepeated'
+            $ref: '#/definitions/typesRepeated'
         default:
           description: An unexpected error response.
           schema:
@@ -107,7 +107,7 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/simpleRepeated'
+            $ref: '#/definitions/typesRepeated'
       tags:
         - TypesRPC
   /types/scalars:
@@ -117,7 +117,7 @@ paths:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/simpleScalars'
+            $ref: '#/definitions/typesScalars'
         default:
           description: An unexpected error response.
           schema:
@@ -127,7 +127,7 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/simpleScalars'
+            $ref: '#/definitions/typesScalars'
       tags:
         - TypesRPC
 definitions:
@@ -149,25 +149,25 @@ definitions:
           $ref: '#/definitions/protobufAny'
       message:
         type: string
-  simpleComplex:
+  typesComplex:
     type: object
     properties:
       enums:
-        $ref: '#/definitions/simpleEnums'
+        $ref: '#/definitions/typesEnums'
       maps:
-        $ref: '#/definitions/simpleMaps'
+        $ref: '#/definitions/typesMaps'
       oneofs:
-        $ref: '#/definitions/simpleOneOfs'
+        $ref: '#/definitions/typesOneOfs'
       repeated:
-        $ref: '#/definitions/simpleRepeated'
+        $ref: '#/definitions/typesRepeated'
       scalars:
-        $ref: '#/definitions/simpleScalars'
-  simpleEnums:
+        $ref: '#/definitions/typesScalars'
+  typesEnums:
     type: object
     properties:
       values:
-        $ref: '#/definitions/simpleValues'
-  simpleMaps:
+        $ref: '#/definitions/typesValues'
+  typesMaps:
     type: object
     properties:
       foo:
@@ -175,7 +175,7 @@ definitions:
         additionalProperties:
           type: string
           format: int64
-  simpleOneOfs:
+  typesOneOfs:
     type: object
     properties:
       bar:
@@ -186,14 +186,14 @@ definitions:
         format: int64
       foo:
         type: string
-  simpleRepeated:
+  typesRepeated:
     type: object
     properties:
       foo:
         type: array
         items:
           type: string
-  simpleScalars:
+  typesScalars:
     type: object
     properties:
       a:
@@ -209,7 +209,7 @@ definitions:
         format: byte
       e:
         type: boolean
-  simpleValues:
+  typesValues:
     type: string
     enum:
       - FOO

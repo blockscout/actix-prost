@@ -3,33 +3,36 @@ config_version: 3
 
 http:
   rules:
-  - selector: "simple.RestRPC.GetRPC"
+  - selector: "rest.RestRPC.GetRPC"
     get: /rest/get/{foo}/{bar}
-  - selector: "simple.RestRPC.PostRPC"
+  - selector: "rest.RestRPC.PostRPC"
     post: /rest/post/{foo}/{bar}
     body: baz
-  - selector: "simple.RestRPC.PostWildcardRPC"
+  - selector: "rest.RestRPC.PostWildcardRPC"
     post: /rest/post/{foo}
     body: "*"
+  - selector: "rest.RestRPC.PostNoPathRPC"
+    post: /rest/post
+    body: "*"
 
-  - selector: "simple.TypesRPC.ScalarsRPC"
+  - selector: "types.TypesRPC.ScalarsRPC"
     post: /types/scalars
     body: "*"
-  - selector: "simple.TypesRPC.EnumsRPC"
+  - selector: "types.TypesRPC.EnumsRPC"
     post: /types/enums
     body: "*"
-  - selector: "simple.TypesRPC.RepeatedRPC"
+  - selector: "types.TypesRPC.RepeatedRPC"
     post: /types/repeated
     body: "*"
-  - selector: "simple.TypesRPC.MapsRPC"
+  - selector: "types.TypesRPC.MapsRPC"
     post: /types/maps
     body: "*"
-  - selector: "simple.TypesRPC.OneOfsRPC"
+  - selector: "types.TypesRPC.OneOfsRPC"
     post: /types/oneofs
     body: "*"
-  # - selector: "simple.TypesRPC.ScalarsRPC"
+  # - selector: "types.TypesRPC.ScalarsRPC"
   #   post: /types/google
   #   body: "*"
-  - selector: "simple.TypesRPC.ComplexRPC"
+  - selector: "types.TypesRPC.ComplexRPC"
     post: /types/complex
     body: "*"

@@ -1,5 +1,5 @@
 syntax = "proto3";
-package simple;
+package types;
 
 option go_package = "github.com/blockscout/actix-prost/tests";
 

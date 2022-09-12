@@ -16,7 +16,7 @@ paths:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/simpleGet'
+            $ref: '#/definitions/restGet'
         default:
           description: An unexpected error response.
           schema:
@@ -33,6 +33,26 @@ paths:
           format: int64
       tags:
         - RestRPC
+  /rest/post:
+    post:
+      operationId: RestRPC_PostNoPathRPC
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/restPost'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/restPost'
+      tags:
+        - RestRPC
   /rest/post/{foo}:
     post:
       operationId: RestRPC_PostWildcardRPC
@@ -40,7 +60,7 @@ paths:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/simplePost'
+            $ref: '#/definitions/restPost'
         default:
           description: An unexpected error response.
           schema:
@@ -71,7 +91,7 @@ paths:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/simplePost'
+            $ref: '#/definitions/restPost'
         default:
           description: An unexpected error response.
           schema:
@@ -101,6 +121,25 @@ definitions:
       '@type':
         type: string
     additionalProperties: {}
+  restGet:
+    type: object
+    properties:
+      bar:
+        type: string
+        format: int64
+      foo:
+        type: string
+  restPost:
+    type: object
+    properties:
+      bar:
+        type: string
+        format: int64
+      baz:
+        type: number
+        format: double
+      foo:
+        type: string
   rpcStatus:
     type: object
     properties:
@@ -112,23 +151,4 @@ definitions:
         items:
           $ref: '#/definitions/protobufAny'
       message:
-        type: string
-  simpleGet:
-    type: object
-    properties:
-      bar:
-        type: string
-        format: int64
-      foo:
-        type: string
-  simplePost:
-    type: object
-    properties:
-      bar:
-        type: string
-        format: int64
-      baz:
-        type: number
-        format: double
-      foo:
         type: string

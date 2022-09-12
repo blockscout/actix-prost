@@ -1,5 +1,5 @@
 syntax = "proto3";
-package simple;
+package rest;
 
 option go_package = "github.com/blockscout/actix-prost/tests";
 
@@ -19,5 +19,6 @@ message Post {
 service RestRPC {
   rpc GetRPC(Get) returns (Get);
   rpc PostRPC(Post) returns (Post);
+  rpc PostNoPathRPC(Post) returns (Post);
   rpc PostWildcardRPC(Post) returns (Post);
 }
