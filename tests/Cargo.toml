@@ -12,15 +12,13 @@ tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 serde = { version = "1", features = ["derive"] }
 actix-web = "4"
 serde_json = "1"
-anyhow = "1.0"
 thiserror = "1.0"
 prost-types = "0.11"
-prost-wkt = "0.3"
-prost-wkt-types = "0.3"
-reqwest = { version = "0.11", features = ["json"] }
 
 [build-dependencies]
 actix-prost-build = { path = "../actix-prost-build" }
 tonic-build = "0.8"
 prost-build = "0.11"
-prost-wkt-build = "0.3"
+
+[dev-dependencies]
+reqwest = { version = "0.11", features = ["json"] }
