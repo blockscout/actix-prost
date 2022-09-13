@@ -1,0 +1,9 @@
+[package]
+name = "actix-prost"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+http = "0.2"
+tonic = "0.8"
+actix-web = "4"

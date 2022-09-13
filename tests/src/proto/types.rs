@@ -164,7 +164,7 @@ pub mod types_rpc_actix {
                 service
                     .scalars_rpc(request.into_request())
                     .await
-                    .map_err(actix_web::error::ErrorInternalServerError)?
+                    .map_err(::actix_prost::map_tonic_error)?
                     .into_inner(),
             ),
         )
@@ -180,7 +180,7 @@ pub mod types_rpc_actix {
                 service
                     .enums_rpc(request.into_request())
                     .await
-                    .map_err(actix_web::error::ErrorInternalServerError)?
+                    .map_err(::actix_prost::map_tonic_error)?
                     .into_inner(),
             ),
         )
@@ -196,7 +196,7 @@ pub mod types_rpc_actix {
                 service
                     .repeated_rpc(request.into_request())
                     .await
-                    .map_err(actix_web::error::ErrorInternalServerError)?
+                    .map_err(::actix_prost::map_tonic_error)?
                     .into_inner(),
             ),
         )
@@ -212,7 +212,7 @@ pub mod types_rpc_actix {
                 service
                     .maps_rpc(request.into_request())
                     .await
-                    .map_err(actix_web::error::ErrorInternalServerError)?
+                    .map_err(::actix_prost::map_tonic_error)?
                     .into_inner(),
             ),
         )
@@ -228,7 +228,7 @@ pub mod types_rpc_actix {
                 service
                     .one_ofs_rpc(request.into_request())
                     .await
-                    .map_err(actix_web::error::ErrorInternalServerError)?
+                    .map_err(::actix_prost::map_tonic_error)?
                     .into_inner(),
             ),
         )
@@ -250,7 +250,7 @@ pub mod types_rpc_actix {
                 service
                     .complex_rpc(request.into_request())
                     .await
-                    .map_err(actix_web::error::ErrorInternalServerError)?
+                    .map_err(::actix_prost::map_tonic_error)?
                     .into_inner(),
             ),
         )

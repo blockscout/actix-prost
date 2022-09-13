@@ -98,7 +98,7 @@ pub mod rest_rpc_actix {
                 service
                     .get_rpc(request.into_request())
                     .await
-                    .map_err(actix_web::error::ErrorInternalServerError)?
+                    .map_err(::actix_prost::map_tonic_error)?
                     .into_inner(),
             ),
         )
@@ -119,7 +119,7 @@ pub mod rest_rpc_actix {
                 service
                     .get_query_rpc(request.into_request())
                     .await
-                    .map_err(actix_web::error::ErrorInternalServerError)?
+                    .map_err(::actix_prost::map_tonic_error)?
                     .into_inner(),
             ),
         )
@@ -141,7 +141,7 @@ pub mod rest_rpc_actix {
                 service
                     .post_rpc(request.into_request())
                     .await
-                    .map_err(actix_web::error::ErrorInternalServerError)?
+                    .map_err(::actix_prost::map_tonic_error)?
                     .into_inner(),
             ),
         )
@@ -165,7 +165,7 @@ pub mod rest_rpc_actix {
                 service
                     .post_query_rpc(request.into_request())
                     .await
-                    .map_err(actix_web::error::ErrorInternalServerError)?
+                    .map_err(::actix_prost::map_tonic_error)?
                     .into_inner(),
             ),
         )
@@ -185,7 +185,7 @@ pub mod rest_rpc_actix {
                 service
                     .post_no_path_rpc(request.into_request())
                     .await
-                    .map_err(actix_web::error::ErrorInternalServerError)?
+                    .map_err(::actix_prost::map_tonic_error)?
                     .into_inner(),
             ),
         )

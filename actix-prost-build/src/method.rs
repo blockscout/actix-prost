@@ -63,7 +63,7 @@ impl Method {
                         service.
                             #name(request.into_request())
                             .await
-                            .map_err(actix_web::error::ErrorInternalServerError)?
+                            .map_err(::actix_prost::map_tonic_error)?
                             .into_inner()
                     ),
                 )
