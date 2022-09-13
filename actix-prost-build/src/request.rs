@@ -2,11 +2,17 @@ use crate::config::HttpRule;
 use proc_macro2::{Ident, TokenStream};
 use std::{collections::HashSet, iter::FromIterator};
 
+pub struct RequestFields {
+    name: String,
+    fields: Vec<String>,
+}
+
 pub struct Request {
     message: syn::ItemStruct,
     method_name: Ident,
-    path: Vec<String>,
-    body: Vec<String>,
+    path: RequestFields,
+    query: RequestFields,
+    body: RequestFields,
 }
 
 impl Request {
@@ -20,13 +26,23 @@ impl Request {
             .map(|x| x.to_owned())
             .collect();
 
-        let (path, body) = Self::split_fields(&message, &fields, &config.body);
+        let (path, query, body) = Self::split_fields(&message, &fields, &config.body);
 
         Request {
             message,
             method_name,
-            path,
-            body,
+            path: RequestFields {
+                name: "Path".into(),
+                fields: path,
+            },
+            query: RequestFields {
+                name: "Query".into(),
+                fields: query,
+            },
+            body: RequestFields {
+                name: "Json".into(),
+                fields: body,
+            },
         }
     }
 
@@ -34,7 +50,7 @@ impl Request {
         message: &syn::ItemStruct,
         path_fields: &[String],
         body_fields: &Option<String>,
-    ) -> (Vec<String>, Vec<String>) {
+    ) -> (Vec<String>, Vec<String>, Vec<String>) {
         let fields = if let syn::Fields::Named(fields) = &message.fields {
             fields
         } else {
@@ -42,7 +58,7 @@ impl Request {
         };
 
         let path_filter: HashSet<&str> = HashSet::from_iter(path_fields.iter().map(|s| s.as_ref()));
-        let (path, mut body): (Vec<_>, Vec<_>) = fields
+        let (path, non_path): (Vec<_>, Vec<_>) = fields
             .named
             .iter()
             .map(|field| field.ident.as_ref().unwrap().to_string())
@@ -59,17 +75,21 @@ impl Request {
             )
         }
 
-        if let Some(body_fields) = body_fields {
+        let (body, query) = if let Some(body_fields) = body_fields {
             if body_fields != "*" {
-                body = body.into_iter().filter(|f| f == body_fields).collect()
+                non_path.into_iter().partition(|f| f == body_fields)
+            } else {
+                (non_path, Vec::default())
             }
-        }
+        } else {
+            (Vec::default(), non_path)
+        };
 
-        (path, body)
+        (path, query, body)
     }
 
-    pub fn filter_fields(&self, filter: &[String]) -> syn::Fields {
-        let filter: HashSet<&str> = HashSet::from_iter(filter.iter().map(|x| x.as_ref()));
+    pub fn filter_fields(&self, req: &RequestFields) -> syn::Fields {
+        let filter: HashSet<&str> = HashSet::from_iter(req.fields.iter().map(|x| x.as_ref()));
         let fields = self
             .message
             .fields
@@ -88,85 +108,82 @@ impl Request {
         })
     }
 
-    pub fn path_name(&self) -> Option<Ident> {
-        if !self.path.is_empty() {
-            Some(quote::format_ident!("{}Path", self.method_name))
+    pub fn sub_name(&self, req: &RequestFields) -> Option<Ident> {
+        if !req.fields.is_empty() {
+            Some(quote::format_ident!("{}{}", self.method_name, req.name))
         } else {
             None
         }
     }
 
-    pub fn generate_path(&self) -> Option<syn::ItemStruct> {
-        self.path_name().map(|name| {
-            let mut path = self.message.clone();
-            path.ident = name;
-            path.fields = self.filter_fields(&self.path);
-            path
+    fn generate_struct(&self, req: &RequestFields) -> Option<syn::ItemStruct> {
+        self.sub_name(req).map(|name| {
+            let mut generated = self.message.clone();
+            generated.ident = name;
+            generated.fields = self.filter_fields(req);
+            generated
         })
     }
 
-    pub fn body_name(&self) -> Option<Ident> {
-        if !self.body.is_empty() {
-            Some(quote::format_ident!("{}Body", self.method_name))
-        } else {
-            None
-        }
+    pub fn generate_structs(&self) -> TokenStream {
+        let path = self.generate_struct(&self.path);
+        let query = self.generate_struct(&self.query);
+        let body = self.generate_struct(&self.body);
+        quote::quote!(#path #query #body)
     }
 
-    pub fn generate_body(&self) -> Option<syn::ItemStruct> {
-        self.body_name().map(|name| {
-            let mut body = self.message.clone();
-            body.ident = name;
-            body.fields = self.filter_fields(&self.body);
-            body
-        })
+    pub fn generate_fields_init<'a>(
+        req: &'a RequestFields,
+    ) -> impl Iterator<Item = TokenStream> + 'a {
+        req.fields
+            .iter()
+            .map(|f| quote::format_ident!("{}", f))
+            .map(|f| {
+                let field_name = quote::format_ident!("{}", req.name.to_lowercase());
+                quote::quote!(
+                    #f: #field_name.#f,
+                )
+            })
     }
 
     pub fn generate_new_request(&self) -> TokenStream {
         let name = &self.message.ident;
-        let path_fields = self
-            .path
-            .iter()
-            .map(|f| quote::format_ident!("{}", f))
-            .map(|f| {
-                quote::quote!(
-                    #f: path.#f,
-                )
-            });
-        let body_fields = self
-            .body
-            .iter()
-            .map(|f| quote::format_ident!("{}", f))
-            .map(|f| {
-                quote::quote!(
-                    #f: body.#f,
-                )
-            });
+        let path_fields = Self::generate_fields_init(&self.path);
+        let query_fields = Self::generate_fields_init(&self.query);
+        let body_fields = Self::generate_fields_init(&self.body);
         quote::quote!(
             #name {
                 #(#path_fields)*
+                #(#query_fields)*
                 #(#body_fields)*
             }
         )
     }
 
-    pub fn generate_fn_arg(&self) -> TokenStream {
-        let path = self
-            .path_name()
-            .map(|name| quote::quote!(path: Path<#name>,));
-        let body = self
-            .body_name()
-            .map(|name| quote::quote!(body: Json<#name>,));
-        quote::quote!(#path #body)
+    fn generate_fn_arg(&self, req: &RequestFields) -> Option<TokenStream> {
+        let field_name = quote::format_ident!("{}", req.name.to_lowercase());
+        let extractor = quote::format_ident!("{}", req.name);
+        self.sub_name(req)
+            .map(|name| quote::quote!(#field_name: ::actix_web::web::#extractor<#name>,))
     }
 
-    pub fn generate_into_inner(&self) -> TokenStream {
-        let path = self
-            .path_name()
-            .map(|_| quote::quote!(let path = path.into_inner();));
-        let body = self
-            .body_name()
-            .map(|_| quote::quote!(let body = body.into_inner();));
-        quote::quote!(#path #body)
+    pub fn generate_fn_args(&self) -> TokenStream {
+        let path = self.generate_fn_arg(&self.path);
+        let query = self.generate_fn_arg(&self.query);
+        let body = self.generate_fn_arg(&self.body);
+        quote::quote!(#path #query #body)
+    }
+
+    fn generate_into_inner(&self, req: &RequestFields) -> Option<TokenStream> {
+        let field_name = quote::format_ident!("{}", req.name.to_lowercase());
+        self.sub_name(req)
+            .map(|_| quote::quote!(let #field_name = #field_name.into_inner();))
+    }
+
+    pub fn generate_into_inners(&self) -> TokenStream {
+        let path = self.generate_into_inner(&self.path);
+        let query = self.generate_into_inner(&self.query);
+        let body = self.generate_into_inner(&self.body);
+        quote::quote!(#path #query #body)
     }
 }

@@ -75,8 +75,10 @@ impl ActixGenerator {
             })
             .collect();
 
-        let requests_path = methods.iter().map(|m| m.request().generate_path());
-        let requests_body = methods.iter().map(|m| m.request().generate_body());
+        if methods.is_empty() {
+            return quote::quote!();
+        }
+        let request_structs = methods.iter().map(|m| m.request().generate_structs());
         let fns = methods.iter().map(|m| m.generate_route());
         let configs = methods.iter().map(|m| m.generate_config());
         quote::quote!(
@@ -86,19 +88,17 @@ impl ActixGenerator {
                 use super::*;
                 use #full_trait;
                 use tonic::IntoRequest;
-                use actix_web::{web::{self, Json, ServiceConfig, Data, Path}, error::Error};
                 use std::sync::Arc;
 
-                #(#requests_path)*
-                #(#requests_body)*
+                #(#request_structs)*
 
                 #(#fns)*
 
                 pub fn #name(
-                    config: &mut ServiceConfig,
-                    service: Arc<dyn #trait_name>,
+                    config: &mut ::actix_web::web::ServiceConfig,
+                    service: Arc<dyn #trait_name + Send + Sync + 'static>,
                 ) {
-                    config.app_data(Data::from(service));
+                    config.app_data(::actix_web::web::Data::from(service));
                     #(#configs)*
                 }
             }

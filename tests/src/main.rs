@@ -1,3 +1,0 @@
-mod proto;
-
-fn main() {}

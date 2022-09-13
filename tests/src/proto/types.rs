@@ -93,14 +93,10 @@ pub mod types_rpc_actix {
     use super::*;
     use super::types_rpc_server::TypesRpc;
     use tonic::IntoRequest;
-    use actix_web::{
-        web::{self, Json, ServiceConfig, Data, Path},
-        error::Error,
-    };
     use std::sync::Arc;
     #[derive(serde::Serialize, serde::Deserialize)]
     #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct ScalarsRPCBody {
+    pub struct ScalarsRPCJson {
         #[prost(double, tag = "1")]
         pub a: f64,
         #[prost(int64, tag = "2")]
@@ -114,31 +110,31 @@ pub mod types_rpc_actix {
     }
     #[derive(serde::Serialize, serde::Deserialize)]
     #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct EnumsRPCBody {
+    pub struct EnumsRPCJson {
         #[prost(enumeration = "Values", tag = "1")]
         pub values: i32,
     }
     #[derive(serde::Serialize, serde::Deserialize)]
     #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct RepeatedRPCBody {
+    pub struct RepeatedRPCJson {
         #[prost(string, repeated, tag = "1")]
         pub foo: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     }
     #[derive(serde::Serialize, serde::Deserialize)]
     #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct MapsRPCBody {
+    pub struct MapsRPCJson {
         #[prost(map = "string, int64", tag = "1")]
         pub foo: ::std::collections::HashMap<::prost::alloc::string::String, i64>,
     }
     #[derive(serde::Serialize, serde::Deserialize)]
     #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct OneOfsRPCBody {
+    pub struct OneOfsRPCJson {
         #[prost(oneof = "one_ofs::Values", tags = "1, 2, 3")]
         pub values: ::core::option::Option<one_ofs::Values>,
     }
     #[derive(serde::Serialize, serde::Deserialize)]
     #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct ComplexRPCBody {
+    pub struct ComplexRPCJson {
         #[prost(message, optional, tag = "1")]
         pub scalars: ::core::option::Option<Scalars>,
         #[prost(message, optional, tag = "2")]
@@ -152,121 +148,124 @@ pub mod types_rpc_actix {
         pub oneofs: ::core::option::Option<OneOfs>,
     }
     async fn call_scalars_rpc(
-        service: Data<dyn TypesRpc>,
-        body: Json<ScalarsRPCBody>,
-    ) -> Result<Json<Scalars>, Error> {
-        let body = body.into_inner();
+        service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
+        json: ::actix_web::web::Json<ScalarsRPCJson>,
+    ) -> Result<::actix_web::web::Json<Scalars>, ::actix_web::Error> {
+        let json = json.into_inner();
         let request = Scalars {
-            a: body.a,
-            b: body.b,
-            c: body.c,
-            d: body.d,
-            e: body.e,
+            a: json.a,
+            b: json.b,
+            c: json.c,
+            d: json.d,
+            e: json.e,
         };
         Ok(
-            Json(
+            ::actix_web::web::Json(
                 service
                     .scalars_rpc(request.into_request())
                     .await
-                    .map_err(actix_web::error::ErrorNotImplemented)?
+                    .map_err(actix_web::error::ErrorInternalServerError)?
                     .into_inner(),
             ),
         )
     }
     async fn call_enums_rpc(
-        service: Data<dyn TypesRpc>,
-        body: Json<EnumsRPCBody>,
-    ) -> Result<Json<Enums>, Error> {
-        let body = body.into_inner();
-        let request = Enums { values: body.values };
+        service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
+        json: ::actix_web::web::Json<EnumsRPCJson>,
+    ) -> Result<::actix_web::web::Json<Enums>, ::actix_web::Error> {
+        let json = json.into_inner();
+        let request = Enums { values: json.values };
         Ok(
-            Json(
+            ::actix_web::web::Json(
                 service
                     .enums_rpc(request.into_request())
                     .await
-                    .map_err(actix_web::error::ErrorNotImplemented)?
+                    .map_err(actix_web::error::ErrorInternalServerError)?
                     .into_inner(),
             ),
         )
     }
     async fn call_repeated_rpc(
-        service: Data<dyn TypesRpc>,
-        body: Json<RepeatedRPCBody>,
-    ) -> Result<Json<Repeated>, Error> {
-        let body = body.into_inner();
-        let request = Repeated { foo: body.foo };
+        service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
+        json: ::actix_web::web::Json<RepeatedRPCJson>,
+    ) -> Result<::actix_web::web::Json<Repeated>, ::actix_web::Error> {
+        let json = json.into_inner();
+        let request = Repeated { foo: json.foo };
         Ok(
-            Json(
+            ::actix_web::web::Json(
                 service
                     .repeated_rpc(request.into_request())
                     .await
-                    .map_err(actix_web::error::ErrorNotImplemented)?
+                    .map_err(actix_web::error::ErrorInternalServerError)?
                     .into_inner(),
             ),
         )
     }
     async fn call_maps_rpc(
-        service: Data<dyn TypesRpc>,
-        body: Json<MapsRPCBody>,
-    ) -> Result<Json<Maps>, Error> {
-        let body = body.into_inner();
-        let request = Maps { foo: body.foo };
+        service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
+        json: ::actix_web::web::Json<MapsRPCJson>,
+    ) -> Result<::actix_web::web::Json<Maps>, ::actix_web::Error> {
+        let json = json.into_inner();
+        let request = Maps { foo: json.foo };
         Ok(
-            Json(
+            ::actix_web::web::Json(
                 service
                     .maps_rpc(request.into_request())
                     .await
-                    .map_err(actix_web::error::ErrorNotImplemented)?
+                    .map_err(actix_web::error::ErrorInternalServerError)?
                     .into_inner(),
             ),
         )
     }
     async fn call_one_ofs_rpc(
-        service: Data<dyn TypesRpc>,
-        body: Json<OneOfsRPCBody>,
-    ) -> Result<Json<OneOfs>, Error> {
-        let body = body.into_inner();
-        let request = OneOfs { values: body.values };
+        service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
+        json: ::actix_web::web::Json<OneOfsRPCJson>,
+    ) -> Result<::actix_web::web::Json<OneOfs>, ::actix_web::Error> {
+        let json = json.into_inner();
+        let request = OneOfs { values: json.values };
         Ok(
-            Json(
+            ::actix_web::web::Json(
                 service
                     .one_ofs_rpc(request.into_request())
                     .await
-                    .map_err(actix_web::error::ErrorNotImplemented)?
+                    .map_err(actix_web::error::ErrorInternalServerError)?
                     .into_inner(),
             ),
         )
     }
     async fn call_complex_rpc(
-        service: Data<dyn TypesRpc>,
-        body: Json<ComplexRPCBody>,
-    ) -> Result<Json<Complex>, Error> {
-        let body = body.into_inner();
+        service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
+        json: ::actix_web::web::Json<ComplexRPCJson>,
+    ) -> Result<::actix_web::web::Json<Complex>, ::actix_web::Error> {
+        let json = json.into_inner();
         let request = Complex {
-            scalars: body.scalars,
-            enums: body.enums,
-            repeated: body.repeated,
-            maps: body.maps,
-            oneofs: body.oneofs,
+            scalars: json.scalars,
+            enums: json.enums,
+            repeated: json.repeated,
+            maps: json.maps,
+            oneofs: json.oneofs,
         };
         Ok(
-            Json(
+            ::actix_web::web::Json(
                 service
                     .complex_rpc(request.into_request())
                     .await
-                    .map_err(actix_web::error::ErrorNotImplemented)?
+                    .map_err(actix_web::error::ErrorInternalServerError)?
                     .into_inner(),
             ),
         )
     }
-    pub fn route_types_rpc(config: &mut ServiceConfig, service: Arc<dyn TypesRpc>) {
-        config.app_data(Data::from(service));
-        config.route("/types/scalars", web::post().to(call_scalars_rpc));
-        config.route("/types/enums", web::post().to(call_enums_rpc));
-        config.route("/types/repeated", web::post().to(call_repeated_rpc));
-        config.route("/types/maps", web::post().to(call_maps_rpc));
-        config.route("/types/oneofs", web::post().to(call_one_ofs_rpc));
-        config.route("/types/complex", web::post().to(call_complex_rpc));
+    pub fn route_types_rpc(
+        config: &mut ::actix_web::web::ServiceConfig,
+        service: Arc<dyn TypesRpc + Send + Sync + 'static>,
+    ) {
+        config.app_data(::actix_web::web::Data::from(service));
+        config.route("/types/scalars", ::actix_web::web::post().to(call_scalars_rpc));
+        config.route("/types/enums", ::actix_web::web::post().to(call_enums_rpc));
+        config.route("/types/repeated", ::actix_web::web::post().to(call_repeated_rpc));
+        config.route("/types/maps", ::actix_web::web::post().to(call_maps_rpc));
+        config.route("/types/oneofs", ::actix_web::web::post().to(call_one_ofs_rpc));
+        config.route("/types/complex", ::actix_web::web::post().to(call_complex_rpc));
     }
 }
 /// Generated client implementations.
@@ -427,7 +426,7 @@ pub mod types_rpc_client {
             let path = http::uri::PathAndQuery::from_static("/types.TypesRPC/OneOfsRPC");
             self.inner.unary(request.into_request(), path, codec).await
         }
-        ///rpc GoogleRPC(Google) returns (Google);
+        /// rpc GoogleRPC(Google) returns (Google);
         pub async fn complex_rpc(
             &mut self,
             request: impl tonic::IntoRequest<super::Complex>,
@@ -476,7 +475,7 @@ pub mod types_rpc_server {
             &self,
             request: tonic::Request<super::OneOfs>,
         ) -> Result<tonic::Response<super::OneOfs>, tonic::Status>;
-        ///rpc GoogleRPC(Google) returns (Google);
+        /// rpc GoogleRPC(Google) returns (Google);
         async fn complex_rpc(
             &self,
             request: tonic::Request<super::Complex>,

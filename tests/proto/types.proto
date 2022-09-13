@@ -3,7 +3,8 @@ package types;
 
 option go_package = "github.com/blockscout/actix-prost/tests";
 
-import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
 
 message Scalars {
   double a = 1;
@@ -52,6 +53,6 @@ service TypesRPC {
   rpc RepeatedRPC(Repeated) returns (Repeated);
   rpc MapsRPC(Maps) returns (Maps);
   rpc OneOfsRPC(OneOfs) returns (OneOfs);
-  //rpc GoogleRPC(Google) returns (Google);
+  // rpc GoogleRPC(Google) returns (Google);
   rpc ComplexRPC(Complex) returns (Complex);
 }

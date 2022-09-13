@@ -5,12 +5,14 @@ http:
   rules:
   - selector: "rest.RestRPC.GetRPC"
     get: /rest/get/{foo}/{bar}
+  - selector: "rest.RestRPC.GetQueryRPC"
+    get: /rest/get/{foo}
   - selector: "rest.RestRPC.PostRPC"
     post: /rest/post/{foo}/{bar}
     body: baz
-  - selector: "rest.RestRPC.PostWildcardRPC"
+  - selector: "rest.RestRPC.PostQueryRPC"
     post: /rest/post/{foo}
-    body: "*"
+    body: baz
   - selector: "rest.RestRPC.PostNoPathRPC"
     post: /rest/post
     body: "*"

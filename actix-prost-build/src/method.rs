@@ -39,7 +39,7 @@ impl Method {
         let method_type = quote::format_ident!("{}", self.config.pattern.method());
         let name = self.method_name();
         quote::quote!(
-            config.route(#path, web::#method_type().to(#name));
+            config.route(#path, ::actix_web::web::#method_type().to(#name));
         )
     }
 
@@ -49,21 +49,21 @@ impl Method {
         let trait_name = &self.trait_name;
         let response_type = quote::format_ident!("{}", self.method.input_type);
         let request_init = self.request.generate_new_request();
-        let args = self.request.generate_fn_arg();
-        let into_inners = self.request.generate_into_inner();
+        let args = self.request.generate_fn_args();
+        let into_inners = self.request.generate_into_inners();
         quote::quote!(
             async fn #method_name(
-                service: Data<dyn #trait_name>,
+                service: ::actix_web::web::Data<dyn #trait_name + Sync + Send + 'static>,
                 #args
-            ) -> Result<Json<#response_type>, Error> {
+            ) -> Result<::actix_web::web::Json<#response_type>, ::actix_web::Error> {
                 #into_inners
                 let request = #request_init;
                 Ok(
-                    Json(
+                    ::actix_web::web::Json(
                         service.
                             #name(request.into_request())
                             .await
-                            .map_err(actix_web::error::ErrorNotImplemented)?
+                            .map_err(actix_web::error::ErrorInternalServerError)?
                             .into_inner()
                     ),
                 )
