@@ -11,9 +11,6 @@ prost = "0.11"
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 serde = { version = "1", features = ["derive"] }
 actix-web = "4"
-serde_json = "1"
-thiserror = "1.0"
-prost-types = "0.11"
 
 [build-dependencies]
 actix-prost-build = { path = "../actix-prost-build" }
