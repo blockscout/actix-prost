@@ -137,6 +137,26 @@ paths:
             format: double
       tags:
         - RestRPC
+  /rest/post_get:
+    post:
+      operationId: RestRPC_PostGetRPC
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/restGet'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/restPost'
+      tags:
+        - RestRPC
 definitions:
   protobufAny:
     type: object

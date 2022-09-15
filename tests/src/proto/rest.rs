@@ -84,6 +84,16 @@ pub mod rest_rpc_actix {
         #[prost(double, tag = "3")]
         pub baz: f64,
     }
+    #[derive(serde::Serialize, serde::Deserialize)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct PostGetRPCJson {
+        #[prost(string, tag = "1")]
+        pub foo: ::prost::alloc::string::String,
+        #[prost(int64, tag = "2")]
+        pub bar: i64,
+        #[prost(double, tag = "3")]
+        pub baz: f64,
+    }
     async fn call_get_rpc(
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         path: ::actix_web::web::Path<GetRPCPath>,
@@ -190,6 +200,26 @@ pub mod rest_rpc_actix {
             ),
         )
     }
+    async fn call_post_get_rpc(
+        service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
+        json: ::actix_web::web::Json<PostGetRPCJson>,
+    ) -> Result<::actix_web::web::Json<Get>, ::actix_web::Error> {
+        let json = json.into_inner();
+        let request = Post {
+            foo: json.foo,
+            bar: json.bar,
+            baz: json.baz,
+        };
+        Ok(
+            ::actix_web::web::Json(
+                service
+                    .post_get_rpc(request.into_request())
+                    .await
+                    .map_err(::actix_prost::map_tonic_error)?
+                    .into_inner(),
+            ),
+        )
+    }
     pub fn route_rest_rpc(
         config: &mut ::actix_web::web::ServiceConfig,
         service: Arc<dyn RestRpc + Send + Sync + 'static>,
@@ -202,6 +232,7 @@ pub mod rest_rpc_actix {
         config
             .route("/rest/post/{foo}", ::actix_web::web::post().to(call_post_query_rpc));
         config.route("/rest/post", ::actix_web::web::post().to(call_post_no_path_rpc));
+        config.route("/rest/post_get", ::actix_web::web::post().to(call_post_get_rpc));
     }
 }
 /// Generated client implementations.
@@ -362,6 +393,23 @@ pub mod rest_rpc_client {
             );
             self.inner.unary(request.into_request(), path, codec).await
         }
+        pub async fn post_get_rpc(
+            &mut self,
+            request: impl tonic::IntoRequest<super::Post>,
+        ) -> Result<tonic::Response<super::Get>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/rest.RestRPC/PostGetRPC");
+            self.inner.unary(request.into_request(), path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -391,6 +439,10 @@ pub mod rest_rpc_server {
             &self,
             request: tonic::Request<super::Post>,
         ) -> Result<tonic::Response<super::Post>, tonic::Status>;
+        async fn post_get_rpc(
+            &self,
+            request: tonic::Request<super::Post>,
+        ) -> Result<tonic::Response<super::Get>, tonic::Status>;
     }
     #[derive(Debug)]
     pub struct RestRpcServer<T: RestRpc> {
@@ -626,6 +678,44 @@ pub mod rest_rpc_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = PostNoPathRPCSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/rest.RestRPC/PostGetRPC" => {
+                    #[allow(non_camel_case_types)]
+                    struct PostGetRPCSvc<T: RestRpc>(pub Arc<T>);
+                    impl<T: RestRpc> tonic::server::UnaryService<super::Post>
+                    for PostGetRPCSvc<T> {
+                        type Response = super::Get;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::Post>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).post_get_rpc(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = PostGetRPCSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

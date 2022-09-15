@@ -16,6 +16,9 @@ http:
   - selector: "rest.RestRPC.PostNoPathRPC"
     post: /rest/post
     body: "*"
+  - selector: "rest.RestRPC.PostGetRPC"
+    post: /rest/post_get
+    body: "*"
 
   - selector: "types.TypesRPC.ScalarsRPC"
     post: /types/scalars

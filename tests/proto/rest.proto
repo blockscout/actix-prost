@@ -13,6 +13,8 @@ service RestRPC {
   rpc PostRPC(Post) returns (Post);
   rpc PostQueryRPC(Post) returns (Post);
   rpc PostNoPathRPC(Post) returns (Post);
+
+  rpc PostGetRPC(Post) returns (Get);
 }
 
 message Get {

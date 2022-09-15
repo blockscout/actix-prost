@@ -1,5 +1,6 @@
 use crate::proto::rest::{rest_rpc_actix::route_rest_rpc, rest_rpc_server::RestRpc, Get, Post};
 use actix_web::{App, HttpServer};
+use serde::de::DeserializeOwned;
 use std::{net::SocketAddr, sync::Arc};
 use tonic::{Request, Response, Status};
 
@@ -23,6 +24,13 @@ impl RestRpc for RestServer {
     async fn post_no_path_rpc(&self, request: Request<Post>) -> Result<Response<Post>, Status> {
         Ok(Response::new(request.into_inner()))
     }
+    async fn post_get_rpc(&self, request: Request<Post>) -> Result<Response<Get>, Status> {
+        let request = request.into_inner();
+        Ok(Response::new(Get {
+            foo: request.foo,
+            bar: request.bar,
+        }))
+    }
 }
 
 async fn send_get(path: &str) -> Get {
@@ -34,7 +42,7 @@ async fn send_get(path: &str) -> Get {
         .unwrap()
 }
 
-async fn send_post(path: &str, body: String) -> Post {
+async fn send_post<T: DeserializeOwned>(path: &str, body: String) -> T {
     let client = reqwest::Client::new();
     client
         .post("http://localhost:8042".to_string() + path)
@@ -80,7 +88,7 @@ async fn test_ok() {
     );
 
     assert_eq!(
-        send_post(
+        send_post::<Post>(
             &format!("/rest/post/{}/{}", post.foo, post.bar),
             format!(r#"{{"baz":{}}}"#, post.baz),
         )
@@ -88,7 +96,7 @@ async fn test_ok() {
         post
     );
     assert_eq!(
-        send_post(
+        send_post::<Post>(
             &format!("/rest/post/{}?bar={}", post.foo, post.bar),
             format!(r#"{{"baz":{}}}"#, post.baz),
         )
@@ -96,7 +104,7 @@ async fn test_ok() {
         post
     );
     assert_eq!(
-        send_post(
+        send_post::<Post>(
             &format!("/rest/post"),
             format!(
                 r#"{{"foo":"{}","bar":{},"baz":{}}}"#,
@@ -105,5 +113,20 @@ async fn test_ok() {
         )
         .await,
         post
+    );
+
+    assert_eq!(
+        send_post::<Get>(
+            &format!("/rest/post_get"),
+            format!(
+                r#"{{"foo":"{}","bar":{},"baz":{}}}"#,
+                post.foo, post.bar, post.baz
+            ),
+        )
+        .await,
+        Get {
+            foo: post.foo,
+            bar: post.bar
+        }
     );
 }

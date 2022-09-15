@@ -47,7 +47,7 @@ impl Method {
         let method_name = self.method_name();
         let name = &self.name;
         let trait_name = &self.trait_name;
-        let response_type = quote::format_ident!("{}", self.method.input_type);
+        let response_type = quote::format_ident!("{}", self.method.output_type);
         let request_init = self.request.generate_new_request();
         let args = self.request.generate_fn_args();
         let into_inners = self.request.generate_into_inners();
