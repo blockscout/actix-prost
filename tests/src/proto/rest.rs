@@ -22,14 +22,7 @@ pub mod rest_rpc_actix {
     use super::rest_rpc_server::RestRpc;
     use tonic::IntoRequest;
     use std::sync::Arc;
-    #[derive(serde::Serialize, serde::Deserialize)]
-    #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct GetRPCPath {
-        #[prost(string, tag = "1")]
-        pub foo: ::prost::alloc::string::String,
-        #[prost(int64, tag = "2")]
-        pub bar: i64,
-    }
+    type GetRPCPath = Get;
     #[derive(serde::Serialize, serde::Deserialize)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct GetQueryRPCPath {
@@ -74,26 +67,8 @@ pub mod rest_rpc_actix {
         #[prost(double, tag = "3")]
         pub baz: f64,
     }
-    #[derive(serde::Serialize, serde::Deserialize)]
-    #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct PostNoPathRPCJson {
-        #[prost(string, tag = "1")]
-        pub foo: ::prost::alloc::string::String,
-        #[prost(int64, tag = "2")]
-        pub bar: i64,
-        #[prost(double, tag = "3")]
-        pub baz: f64,
-    }
-    #[derive(serde::Serialize, serde::Deserialize)]
-    #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct PostGetRPCJson {
-        #[prost(string, tag = "1")]
-        pub foo: ::prost::alloc::string::String,
-        #[prost(int64, tag = "2")]
-        pub bar: i64,
-        #[prost(double, tag = "3")]
-        pub baz: f64,
-    }
+    type PostNoPathRPCJson = Post;
+    type PostGetRPCJson = Post;
     async fn call_get_rpc(
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         path: ::actix_web::web::Path<GetRPCPath>,

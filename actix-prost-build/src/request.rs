@@ -116,13 +116,23 @@ impl Request {
         }
     }
 
-    fn generate_struct(&self, req: &RequestFields) -> Option<syn::ItemStruct> {
-        self.sub_name(req).map(|name| {
-            let mut generated = self.message.clone();
-            generated.ident = name;
-            generated.fields = self.filter_fields(req);
-            generated
-        })
+    fn generate_struct(&self, req: &RequestFields) -> Option<TokenStream> {
+        // an optimization: do not generate new struct if all the fields are the same as in message
+        if req.fields.len() == self.message.fields.len() {
+            self.sub_name(req).map(|name| {
+                let message_name = &self.message.ident;
+                quote::quote!(
+                    type #name = #message_name;
+                )
+            })
+        } else {
+            self.sub_name(req).map(|name| {
+                let mut generated = self.message.clone();
+                generated.ident = name;
+                generated.fields = self.filter_fields(req);
+                quote::quote!(#generated)
+            })
+        }
     }
 
     pub fn generate_structs(&self) -> TokenStream {

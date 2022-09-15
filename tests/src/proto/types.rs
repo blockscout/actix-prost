@@ -94,59 +94,12 @@ pub mod types_rpc_actix {
     use super::types_rpc_server::TypesRpc;
     use tonic::IntoRequest;
     use std::sync::Arc;
-    #[derive(serde::Serialize, serde::Deserialize)]
-    #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct ScalarsRPCJson {
-        #[prost(double, tag = "1")]
-        pub a: f64,
-        #[prost(int64, tag = "2")]
-        pub b: i64,
-        #[prost(string, tag = "3")]
-        pub c: ::prost::alloc::string::String,
-        #[prost(bytes = "vec", tag = "4")]
-        pub d: ::prost::alloc::vec::Vec<u8>,
-        #[prost(bool, tag = "5")]
-        pub e: bool,
-    }
-    #[derive(serde::Serialize, serde::Deserialize)]
-    #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct EnumsRPCJson {
-        #[prost(enumeration = "Values", tag = "1")]
-        pub values: i32,
-    }
-    #[derive(serde::Serialize, serde::Deserialize)]
-    #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct RepeatedRPCJson {
-        #[prost(string, repeated, tag = "1")]
-        pub foo: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
-    }
-    #[derive(serde::Serialize, serde::Deserialize)]
-    #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct MapsRPCJson {
-        #[prost(map = "string, int64", tag = "1")]
-        pub foo: ::std::collections::HashMap<::prost::alloc::string::String, i64>,
-    }
-    #[derive(serde::Serialize, serde::Deserialize)]
-    #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct OneOfsRPCJson {
-        #[prost(oneof = "one_ofs::Values", tags = "1, 2, 3")]
-        pub values: ::core::option::Option<one_ofs::Values>,
-    }
-    #[derive(serde::Serialize, serde::Deserialize)]
-    #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct ComplexRPCJson {
-        #[prost(message, optional, tag = "1")]
-        pub scalars: ::core::option::Option<Scalars>,
-        #[prost(message, optional, tag = "2")]
-        pub enums: ::core::option::Option<Enums>,
-        #[prost(message, optional, tag = "3")]
-        pub repeated: ::core::option::Option<Repeated>,
-        #[prost(message, optional, tag = "4")]
-        pub maps: ::core::option::Option<Maps>,
-        /// Google google = 6;
-        #[prost(message, optional, tag = "5")]
-        pub oneofs: ::core::option::Option<OneOfs>,
-    }
+    type ScalarsRPCJson = Scalars;
+    type EnumsRPCJson = Enums;
+    type RepeatedRPCJson = Repeated;
+    type MapsRPCJson = Maps;
+    type OneOfsRPCJson = OneOfs;
+    type ComplexRPCJson = Complex;
     async fn call_scalars_rpc(
         service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
         json: ::actix_web::web::Json<ScalarsRPCJson>,
