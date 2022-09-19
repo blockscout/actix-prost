@@ -108,8 +108,24 @@ impl Request {
         })
     }
 
+    pub fn path(&self) -> &RequestFields {
+        &self.path
+    }
+
+    pub fn body(&self) -> &RequestFields {
+        &self.body
+    }
+
+    pub fn query(&self) -> &RequestFields {
+        &self.query
+    }
+
+    pub fn has_sub(&self, req: &RequestFields) -> bool {
+        !req.fields.is_empty()
+    }
+
     pub fn sub_name(&self, req: &RequestFields) -> Option<Ident> {
-        if !req.fields.is_empty() {
+        if self.has_sub(req) {
             Some(quote::format_ident!("{}{}", self.method_name, req.name))
         } else {
             None
@@ -170,30 +186,28 @@ impl Request {
         )
     }
 
-    fn generate_fn_arg(&self, req: &RequestFields) -> Option<TokenStream> {
+    fn generate_extract(&self, req: &RequestFields) -> Option<TokenStream> {
         let field_name = quote::format_ident!("{}", req.name.to_lowercase());
         let extractor = quote::format_ident!("{}", req.name);
         self.sub_name(req)
-            .map(|name| quote::quote!(#field_name: ::actix_web::web::#extractor<#name>,))
+            .map(|name| quote::quote!(
+                let #field_name = ::actix_web::web::#extractor::<#name>::extract(&http_request).await?.into_inner();
+            ))
     }
 
-    pub fn generate_fn_args(&self) -> TokenStream {
-        let path = self.generate_fn_arg(&self.path);
-        let query = self.generate_fn_arg(&self.query);
-        let body = self.generate_fn_arg(&self.body);
-        quote::quote!(#path #query #body)
-    }
-
-    fn generate_into_inner(&self, req: &RequestFields) -> Option<TokenStream> {
+    fn generate_from_request(&self, req: &RequestFields) -> Option<TokenStream> {
         let field_name = quote::format_ident!("{}", req.name.to_lowercase());
+        let extractor = quote::format_ident!("{}", req.name);
         self.sub_name(req)
-            .map(|_| quote::quote!(let #field_name = #field_name.into_inner();))
+            .map(|name| quote::quote!(
+                let #field_name = ::actix_web::web::#extractor::<#name>::from_request(&http_request, &mut payload).await?.into_inner();
+            ))
     }
 
-    pub fn generate_into_inners(&self) -> TokenStream {
-        let path = self.generate_into_inner(&self.path);
-        let query = self.generate_into_inner(&self.query);
-        let body = self.generate_into_inner(&self.body);
+    pub fn generate_extractors(&self) -> TokenStream {
+        let path = self.generate_extract(&self.path);
+        let query = self.generate_extract(&self.query);
+        let body = self.generate_from_request(&self.body);
         quote::quote!(#path #query #body)
     }
 }

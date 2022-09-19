@@ -90,9 +90,9 @@ impl Values {
 }
 pub mod types_rpc_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
+    use actix_web::FromRequest;
     use super::*;
     use super::types_rpc_server::TypesRpc;
-    use tonic::IntoRequest;
     use std::sync::Arc;
     type ScalarsRPCJson = Scalars;
     type EnumsRPCJson = Enums;
@@ -102,9 +102,15 @@ pub mod types_rpc_actix {
     type ComplexRPCJson = Complex;
     async fn call_scalars_rpc(
         service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
-        json: ::actix_web::web::Json<ScalarsRPCJson>,
+        http_request: ::actix_web::HttpRequest,
+        payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Scalars>, ::actix_web::Error> {
-        let json = json.into_inner();
+        let mut payload = payload.into_inner();
+        let json = ::actix_web::web::Json::<
+            ScalarsRPCJson,
+        >::from_request(&http_request, &mut payload)
+            .await?
+            .into_inner();
         let request = Scalars {
             a: json.a,
             b: json.b,
@@ -112,85 +118,105 @@ pub mod types_rpc_actix {
             d: json.d,
             e: json.e,
         };
-        Ok(
-            ::actix_web::web::Json(
-                service
-                    .scalars_rpc(request.into_request())
-                    .await
-                    .map_err(::actix_prost::map_tonic_error)?
-                    .into_inner(),
-            ),
-        )
+        let request = ::actix_prost::new_request(request, &http_request);
+        let response = service
+            .scalars_rpc(request)
+            .await
+            .map_err(::actix_prost::map_tonic_error)?;
+        let response = response.into_inner();
+        Ok(::actix_web::web::Json(response))
     }
     async fn call_enums_rpc(
         service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
-        json: ::actix_web::web::Json<EnumsRPCJson>,
+        http_request: ::actix_web::HttpRequest,
+        payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Enums>, ::actix_web::Error> {
-        let json = json.into_inner();
+        let mut payload = payload.into_inner();
+        let json = ::actix_web::web::Json::<
+            EnumsRPCJson,
+        >::from_request(&http_request, &mut payload)
+            .await?
+            .into_inner();
         let request = Enums { values: json.values };
-        Ok(
-            ::actix_web::web::Json(
-                service
-                    .enums_rpc(request.into_request())
-                    .await
-                    .map_err(::actix_prost::map_tonic_error)?
-                    .into_inner(),
-            ),
-        )
+        let request = ::actix_prost::new_request(request, &http_request);
+        let response = service
+            .enums_rpc(request)
+            .await
+            .map_err(::actix_prost::map_tonic_error)?;
+        let response = response.into_inner();
+        Ok(::actix_web::web::Json(response))
     }
     async fn call_repeated_rpc(
         service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
-        json: ::actix_web::web::Json<RepeatedRPCJson>,
+        http_request: ::actix_web::HttpRequest,
+        payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Repeated>, ::actix_web::Error> {
-        let json = json.into_inner();
+        let mut payload = payload.into_inner();
+        let json = ::actix_web::web::Json::<
+            RepeatedRPCJson,
+        >::from_request(&http_request, &mut payload)
+            .await?
+            .into_inner();
         let request = Repeated { foo: json.foo };
-        Ok(
-            ::actix_web::web::Json(
-                service
-                    .repeated_rpc(request.into_request())
-                    .await
-                    .map_err(::actix_prost::map_tonic_error)?
-                    .into_inner(),
-            ),
-        )
+        let request = ::actix_prost::new_request(request, &http_request);
+        let response = service
+            .repeated_rpc(request)
+            .await
+            .map_err(::actix_prost::map_tonic_error)?;
+        let response = response.into_inner();
+        Ok(::actix_web::web::Json(response))
     }
     async fn call_maps_rpc(
         service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
-        json: ::actix_web::web::Json<MapsRPCJson>,
+        http_request: ::actix_web::HttpRequest,
+        payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Maps>, ::actix_web::Error> {
-        let json = json.into_inner();
+        let mut payload = payload.into_inner();
+        let json = ::actix_web::web::Json::<
+            MapsRPCJson,
+        >::from_request(&http_request, &mut payload)
+            .await?
+            .into_inner();
         let request = Maps { foo: json.foo };
-        Ok(
-            ::actix_web::web::Json(
-                service
-                    .maps_rpc(request.into_request())
-                    .await
-                    .map_err(::actix_prost::map_tonic_error)?
-                    .into_inner(),
-            ),
-        )
+        let request = ::actix_prost::new_request(request, &http_request);
+        let response = service
+            .maps_rpc(request)
+            .await
+            .map_err(::actix_prost::map_tonic_error)?;
+        let response = response.into_inner();
+        Ok(::actix_web::web::Json(response))
     }
     async fn call_one_ofs_rpc(
         service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
-        json: ::actix_web::web::Json<OneOfsRPCJson>,
+        http_request: ::actix_web::HttpRequest,
+        payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<OneOfs>, ::actix_web::Error> {
-        let json = json.into_inner();
+        let mut payload = payload.into_inner();
+        let json = ::actix_web::web::Json::<
+            OneOfsRPCJson,
+        >::from_request(&http_request, &mut payload)
+            .await?
+            .into_inner();
         let request = OneOfs { values: json.values };
-        Ok(
-            ::actix_web::web::Json(
-                service
-                    .one_ofs_rpc(request.into_request())
-                    .await
-                    .map_err(::actix_prost::map_tonic_error)?
-                    .into_inner(),
-            ),
-        )
+        let request = ::actix_prost::new_request(request, &http_request);
+        let response = service
+            .one_ofs_rpc(request)
+            .await
+            .map_err(::actix_prost::map_tonic_error)?;
+        let response = response.into_inner();
+        Ok(::actix_web::web::Json(response))
     }
     async fn call_complex_rpc(
         service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
-        json: ::actix_web::web::Json<ComplexRPCJson>,
+        http_request: ::actix_web::HttpRequest,
+        payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Complex>, ::actix_web::Error> {
-        let json = json.into_inner();
+        let mut payload = payload.into_inner();
+        let json = ::actix_web::web::Json::<
+            ComplexRPCJson,
+        >::from_request(&http_request, &mut payload)
+            .await?
+            .into_inner();
         let request = Complex {
             scalars: json.scalars,
             enums: json.enums,
@@ -198,15 +224,13 @@ pub mod types_rpc_actix {
             maps: json.maps,
             oneofs: json.oneofs,
         };
-        Ok(
-            ::actix_web::web::Json(
-                service
-                    .complex_rpc(request.into_request())
-                    .await
-                    .map_err(::actix_prost::map_tonic_error)?
-                    .into_inner(),
-            ),
-        )
+        let request = ::actix_prost::new_request(request, &http_request);
+        let response = service
+            .complex_rpc(request)
+            .await
+            .map_err(::actix_prost::map_tonic_error)?;
+        let response = response.into_inner();
+        Ok(::actix_web::web::Json(response))
     }
     pub fn route_types_rpc(
         config: &mut ::actix_web::web::ServiceConfig,

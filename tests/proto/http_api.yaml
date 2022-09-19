@@ -20,6 +20,10 @@ http:
     post: /rest/post_get
     body: "*"
 
+  - selector: "rest.SimpleRPC.PostRPC"
+    post: /rest/post/{foo}
+    body: baz
+
   - selector: "types.TypesRPC.ScalarsRPC"
     post: /types/scalars
     body: "*"

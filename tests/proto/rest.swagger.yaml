@@ -4,6 +4,7 @@ info:
   version: version not set
 tags:
   - name: RestRPC
+  - name: SimpleRPC
 consumes:
   - application/json
 produces:
@@ -77,6 +78,36 @@ paths:
             $ref: '#/definitions/restPost'
       tags:
         - RestRPC
+  /rest/post/{foo_1}:
+    post:
+      operationId: SimpleRPC_PostRPC
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/restPost'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: foo_1
+          in: path
+          required: true
+          type: string
+        - name: baz
+          in: body
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: bar
+          in: query
+          required: false
+          type: string
+          format: int64
+      tags:
+        - SimpleRPC
   /rest/post/{foo}:
     post:
       operationId: RestRPC_PostQueryRPC

@@ -49,24 +49,31 @@ impl Method {
         let trait_name = &self.trait_name;
         let response_type = quote::format_ident!("{}", self.method.output_type);
         let request_init = self.request.generate_new_request();
-        let args = self.request.generate_fn_args();
-        let into_inners = self.request.generate_into_inners();
+        let extractors = self.request.generate_extractors();
+        let (payload, payload_convert) = if self.request.has_sub(self.request.body()) {
+            (
+                Some(quote::quote!(payload: ::actix_web::web::Payload,)),
+                Some(quote::quote!(let mut payload = payload.into_inner();)),
+            )
+        } else {
+            (None, None)
+        };
         quote::quote!(
             async fn #method_name(
                 service: ::actix_web::web::Data<dyn #trait_name + Sync + Send + 'static>,
-                #args
+                http_request: ::actix_web::HttpRequest,
+                #payload
             ) -> Result<::actix_web::web::Json<#response_type>, ::actix_web::Error> {
-                #into_inners
+                #payload_convert
+                #extractors
                 let request = #request_init;
-                Ok(
-                    ::actix_web::web::Json(
-                        service.
-                            #name(request.into_request())
-                            .await
-                            .map_err(::actix_prost::map_tonic_error)?
-                            .into_inner()
-                    ),
-                )
+                let request = ::actix_prost::new_request(request, &http_request);
+                let response = service
+                    .#name(request)
+                    .await
+                    .map_err(::actix_prost::map_tonic_error)?;
+                let response = response.into_inner();
+                Ok(::actix_web::web::Json(response))
             }
         )
     }

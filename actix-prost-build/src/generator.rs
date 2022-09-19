@@ -85,9 +85,9 @@ impl ActixGenerator {
             pub mod #mod_name {
                 #![allow(unused_variables, dead_code, missing_docs)]
 
+                use actix_web::FromRequest;
                 use super::*;
                 use #full_trait;
-                use tonic::IntoRequest;
                 use std::sync::Arc;
 
                 #(#request_structs)*

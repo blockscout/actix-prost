@@ -3,9 +3,6 @@ package rest;
 
 option go_package = "github.com/blockscout/actix-prost/tests";
 
-// import "google/api/annotations.proto";
-import "types.proto";
-
 service RestRPC {
   rpc GetRPC(Get) returns (Get);
   rpc GetQueryRPC(Get) returns (Get);
@@ -15,6 +12,10 @@ service RestRPC {
   rpc PostNoPathRPC(Post) returns (Post);
 
   rpc PostGetRPC(Post) returns (Get);
+}
+
+service SimpleRPC {
+  rpc PostRPC(Post) returns (Post);
 }
 
 message Get {
