@@ -20,8 +20,8 @@ impl Method {
     ) -> Method {
         let method_name = quote::format_ident!("{}", method.proto_name);
         // TODO: accept all fields by reference
-        let request = Request::new(request_message, method_name.clone(), &config);
-        let response = Response::new(response_message, method_name, config.response_body.clone());
+        let request = Request::new(request_message, method_name, &config);
+        let response = Response::new(response_message, config.response_body.clone());
         Method {
             name: quote::format_ident!("{}", method.name),
             // method,
@@ -84,9 +84,5 @@ impl Method {
 
     pub fn request(&self) -> &Request {
         &self.request
-    }
-
-    pub fn response(&self) -> &Response {
-        &self.response
     }
 }

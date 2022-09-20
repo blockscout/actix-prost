@@ -1,10 +1,10 @@
-mod config;
-mod generator;
-mod list;
-mod method;
-mod request;
-mod response;
-mod string;
+pub mod config;
+pub mod generator;
+pub mod list;
+pub mod method;
+pub mod request;
+pub mod response;
+pub mod string;
 
 pub use config::Config;
 pub use generator::ActixGenerator;

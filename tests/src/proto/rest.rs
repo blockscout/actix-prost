@@ -72,9 +72,6 @@ pub mod rest_rpc_actix {
     type GetResponseRPCPath = Get;
     type PostResponseRPCJson = Post;
     type PostResponseGetRPCJson = Post;
-    type GetResponseRPCResponse = ::prost::alloc::string::String;
-    type PostResponseRPCResponse = i64;
-    type PostResponseGetRPCResponse = ::prost::alloc::string::String;
     async fn call_get_rpc(
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
@@ -224,7 +221,10 @@ pub mod rest_rpc_actix {
     async fn call_get_response_rpc(
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
-    ) -> Result<::actix_web::web::Json<GetResponseRPCResponse>, ::actix_web::Error> {
+    ) -> Result<
+        ::actix_web::web::Json<::prost::alloc::string::String>,
+        ::actix_web::Error,
+    > {
         let path = ::actix_web::web::Path::<GetResponseRPCPath>::extract(&http_request)
             .await?
             .into_inner();
@@ -245,7 +245,7 @@ pub mod rest_rpc_actix {
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<PostResponseRPCResponse>, ::actix_web::Error> {
+    ) -> Result<::actix_web::web::Json<i64>, ::actix_web::Error> {
         let mut payload = payload.into_inner();
         let json = ::actix_web::web::Json::<
             PostResponseRPCJson,
@@ -270,7 +270,10 @@ pub mod rest_rpc_actix {
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<PostResponseGetRPCResponse>, ::actix_web::Error> {
+    ) -> Result<
+        ::actix_web::web::Json<::prost::alloc::string::String>,
+        ::actix_web::Error,
+    > {
         let mut payload = payload.into_inner();
         let json = ::actix_web::web::Json::<
             PostResponseGetRPCJson,
