@@ -20,6 +20,18 @@ http:
     post: /rest/post_get
     body: "*"
 
+  - selector: "rest.RestRPC.GetResponseRPC"
+    get: /rest/response/get/{foo}/{bar}
+    response_body: "foo"
+  - selector: "rest.RestRPC.PostResponseRPC"
+    post: /rest/response/post
+    body: "*"
+    response_body: "bar"
+  - selector: "rest.RestRPC.PostResponseGetRPC"
+    post: /rest/response/post_get
+    body: "*"
+    response_body: "foo"
+
   - selector: "rest.SimpleRPC.PostRPC"
     post: /rest/post/{foo}
     body: baz

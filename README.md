@@ -68,8 +68,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
  * ✔️ Return `json` encoded response
  * ✔️ Use recommended mapping from `gRPC` codes to `http` codes
  * ✔️ Generate router which will route all the handlers
- * ⌛ Pass headers into `tonic::Request`
- * ⌛ Map response using `response_body`
+ * ✔️ Pass headers into `tonic::Request`
+ * ✔️ Map response using `response_body`
  * ⌛ Support `google.api.http` options inside proto files (as soon, as `prost` will support them)
  * ❌ Use all the features from `gRPC` path option
  * ❌ `http` client implementation

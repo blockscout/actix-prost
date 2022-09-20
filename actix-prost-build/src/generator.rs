@@ -69,6 +69,7 @@ impl ActixGenerator {
                 Method::new(
                     method.clone(),
                     self.messages.get(&method.input_type).unwrap().clone(),
+                    self.messages.get(&method.output_type).unwrap().clone(),
                     config.clone(),
                     trait_name.clone(),
                 )
@@ -79,6 +80,7 @@ impl ActixGenerator {
             return quote::quote!();
         }
         let request_structs = methods.iter().map(|m| m.request().generate_structs());
+        let response_structs = methods.iter().map(|m| m.response().generate_struct());
         let fns = methods.iter().map(|m| m.generate_route());
         let configs = methods.iter().map(|m| m.generate_config());
         quote::quote!(
@@ -91,6 +93,7 @@ impl ActixGenerator {
                 use std::sync::Arc;
 
                 #(#request_structs)*
+                #(#response_structs)*
 
                 #(#fns)*
 

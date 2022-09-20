@@ -85,6 +85,10 @@ impl Request {
             (Vec::default(), non_path)
         };
 
+        if path.len() + query.len() + body.len() != message.fields.len() {
+            panic!("could not map all message fields to path, query and body parts")
+        }
+
         (path, query, body)
     }
 

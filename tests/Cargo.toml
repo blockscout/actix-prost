@@ -12,6 +12,7 @@ tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 serde = { version = "1", features = ["derive"] }
 actix-web = "4"
 http = "0.2"
+serde_json = "1.0"
 
 [build-dependencies]
 actix-prost-build = { path = "../actix-prost-build" }

@@ -188,6 +188,71 @@ paths:
             $ref: '#/definitions/restPost'
       tags:
         - RestRPC
+  /rest/response/get/{foo}/{bar}:
+    get:
+      operationId: RestRPC_GetResponseRPC
+      responses:
+        "200":
+          description: ""
+          schema:
+            type: string
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: foo
+          in: path
+          required: true
+          type: string
+        - name: bar
+          in: path
+          required: true
+          type: string
+          format: int64
+      tags:
+        - RestRPC
+  /rest/response/post:
+    post:
+      operationId: RestRPC_PostResponseRPC
+      responses:
+        "200":
+          description: ""
+          schema:
+            type: string
+            format: int64
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/restPost'
+      tags:
+        - RestRPC
+  /rest/response/post_get:
+    post:
+      operationId: RestRPC_PostResponseGetRPC
+      responses:
+        "200":
+          description: ""
+          schema:
+            type: string
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/restPost'
+      tags:
+        - RestRPC
 definitions:
   protobufAny:
     type: object

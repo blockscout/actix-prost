@@ -35,9 +35,22 @@ impl RestRpc for RestServer {
             bar: request.bar,
         }))
     }
+    async fn get_response_rpc(&self, request: Request<Get>) -> Result<Response<Get>, Status> {
+        Ok(Response::new(request.into_inner()))
+    }
+    async fn post_response_rpc(&self, request: Request<Post>) -> Result<Response<Post>, Status> {
+        Ok(Response::new(request.into_inner()))
+    }
+    async fn post_response_get_rpc(&self, request: Request<Post>) -> Result<Response<Get>, Status> {
+        let request = request.into_inner();
+        Ok(Response::new(Get {
+            foo: request.foo,
+            bar: request.bar,
+        }))
+    }
 }
 
-async fn send_get(addr: &SocketAddr, path: &str) -> Get {
+async fn send_get<T: DeserializeOwned>(addr: &SocketAddr, path: &str) -> T {
     reqwest::get(format!("http://localhost:{}{}", addr.port(), path))
         .await
         .unwrap()
@@ -61,7 +74,7 @@ async fn send_post<T: DeserializeOwned>(addr: &SocketAddr, path: &str, body: Str
 }
 
 #[tokio::test]
-async fn ping() {
+async fn request() {
     let server = Arc::new(RestServer::default());
     let addr: SocketAddr = "[::]:8042".parse().unwrap();
     let http = HttpServer::new(move || {
@@ -83,11 +96,11 @@ async fn ping() {
     };
 
     assert_eq!(
-        send_get(&addr, &format!("/rest/get/{}/{}", get.foo, get.bar)).await,
+        send_get::<Get>(&addr, &format!("/rest/get/{}/{}", get.foo, get.bar)).await,
         get
     );
     assert_eq!(
-        send_get(&addr, &format!("/rest/get/{}?bar={}", get.foo, get.bar)).await,
+        send_get::<Get>(&addr, &format!("/rest/get/{}?bar={}", get.foo, get.bar)).await,
         get
     );
 
@@ -139,6 +152,63 @@ async fn ping() {
     );
 }
 
+#[tokio::test]
+async fn response() {
+    let server = Arc::new(RestServer::default());
+    let addr: SocketAddr = "[::]:8043".parse().unwrap();
+    let http = HttpServer::new(move || {
+        App::new().configure(|config| route_rest_rpc(config, server.clone()))
+    })
+    .bind(addr)
+    .unwrap();
+
+    tokio::spawn(http.run());
+
+    let get = Get {
+        foo: "hello".into(),
+        bar: 234,
+    };
+    let post = Post {
+        foo: "world".into(),
+        bar: 345,
+        baz: 123.563,
+    };
+
+    assert_eq!(
+        send_get::<String>(
+            &addr,
+            &format!("/rest/response/get/{}/{}", get.foo, get.bar)
+        )
+        .await,
+        get.foo.to_owned()
+    );
+
+    assert_eq!(
+        send_post::<i64>(
+            &addr,
+            &format!("/rest/response/post"),
+            format!(
+                r#"{{"foo":"{}","bar":{},"baz":{}}}"#,
+                post.foo, post.bar, post.baz
+            ),
+        )
+        .await,
+        post.bar
+    );
+
+    assert_eq!(
+        send_post::<String>(
+            &addr,
+            &format!("/rest/response/post_get"),
+            format!(
+                r#"{{"foo":"{}","bar":{},"baz":{}}}"#,
+                post.foo, post.bar, post.baz
+            ),
+        )
+        .await,
+        post.foo
+    );
+}
 #[derive(Default)]
 struct HeaderServer {}
 
@@ -163,7 +233,7 @@ impl SimpleRpc for HeaderServer {
 #[tokio::test]
 async fn headers() {
     let server = Arc::new(HeaderServer::default());
-    let addr: SocketAddr = "[::]:8043".parse().unwrap();
+    let addr: SocketAddr = "[::]:8044".parse().unwrap();
     let http = HttpServer::new(move || {
         App::new().configure(|config| route_simple_rpc(config, server.clone()))
     })
@@ -186,7 +256,7 @@ async fn headers() {
         )
         .await,
         Post {
-            foo: r#"Ascii("accept", "*/*"),Ascii("content-length", "15"),Ascii("content-type", "application/json"),Ascii("host", "localhost:8043")"#.into(),
+            foo: r#"Ascii("accept", "*/*"),Ascii("content-length", "15"),Ascii("content-type", "application/json"),Ascii("host", "localhost:8044")"#.into(),
             bar: post.bar,
             baz: post.baz,
         }

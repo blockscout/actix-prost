@@ -69,6 +69,12 @@ pub mod rest_rpc_actix {
     }
     type PostNoPathRPCJson = Post;
     type PostGetRPCJson = Post;
+    type GetResponseRPCPath = Get;
+    type PostResponseRPCJson = Post;
+    type PostResponseGetRPCJson = Post;
+    type GetResponseRPCResponse = ::prost::alloc::string::String;
+    type PostResponseRPCResponse = i64;
+    type PostResponseGetRPCResponse = ::prost::alloc::string::String;
     async fn call_get_rpc(
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
@@ -215,6 +221,76 @@ pub mod rest_rpc_actix {
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
+    async fn call_get_response_rpc(
+        service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
+        http_request: ::actix_web::HttpRequest,
+    ) -> Result<::actix_web::web::Json<GetResponseRPCResponse>, ::actix_web::Error> {
+        let path = ::actix_web::web::Path::<GetResponseRPCPath>::extract(&http_request)
+            .await?
+            .into_inner();
+        let request = Get {
+            foo: path.foo,
+            bar: path.bar,
+        };
+        let request = ::actix_prost::new_request(request, &http_request);
+        let response = service
+            .get_response_rpc(request)
+            .await
+            .map_err(::actix_prost::map_tonic_error)?;
+        let response = response.into_inner();
+        let response = response.foo;
+        Ok(::actix_web::web::Json(response))
+    }
+    async fn call_post_response_rpc(
+        service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
+        http_request: ::actix_web::HttpRequest,
+        payload: ::actix_web::web::Payload,
+    ) -> Result<::actix_web::web::Json<PostResponseRPCResponse>, ::actix_web::Error> {
+        let mut payload = payload.into_inner();
+        let json = ::actix_web::web::Json::<
+            PostResponseRPCJson,
+        >::from_request(&http_request, &mut payload)
+            .await?
+            .into_inner();
+        let request = Post {
+            foo: json.foo,
+            bar: json.bar,
+            baz: json.baz,
+        };
+        let request = ::actix_prost::new_request(request, &http_request);
+        let response = service
+            .post_response_rpc(request)
+            .await
+            .map_err(::actix_prost::map_tonic_error)?;
+        let response = response.into_inner();
+        let response = response.bar;
+        Ok(::actix_web::web::Json(response))
+    }
+    async fn call_post_response_get_rpc(
+        service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
+        http_request: ::actix_web::HttpRequest,
+        payload: ::actix_web::web::Payload,
+    ) -> Result<::actix_web::web::Json<PostResponseGetRPCResponse>, ::actix_web::Error> {
+        let mut payload = payload.into_inner();
+        let json = ::actix_web::web::Json::<
+            PostResponseGetRPCJson,
+        >::from_request(&http_request, &mut payload)
+            .await?
+            .into_inner();
+        let request = Post {
+            foo: json.foo,
+            bar: json.bar,
+            baz: json.baz,
+        };
+        let request = ::actix_prost::new_request(request, &http_request);
+        let response = service
+            .post_response_get_rpc(request)
+            .await
+            .map_err(::actix_prost::map_tonic_error)?;
+        let response = response.into_inner();
+        let response = response.foo;
+        Ok(::actix_web::web::Json(response))
+    }
     pub fn route_rest_rpc(
         config: &mut ::actix_web::web::ServiceConfig,
         service: Arc<dyn RestRpc + Send + Sync + 'static>,
@@ -228,6 +304,21 @@ pub mod rest_rpc_actix {
             .route("/rest/post/{foo}", ::actix_web::web::post().to(call_post_query_rpc));
         config.route("/rest/post", ::actix_web::web::post().to(call_post_no_path_rpc));
         config.route("/rest/post_get", ::actix_web::web::post().to(call_post_get_rpc));
+        config
+            .route(
+                "/rest/response/get/{foo}/{bar}",
+                ::actix_web::web::get().to(call_get_response_rpc),
+            );
+        config
+            .route(
+                "/rest/response/post",
+                ::actix_web::web::post().to(call_post_response_rpc),
+            );
+        config
+            .route(
+                "/rest/response/post_get",
+                ::actix_web::web::post().to(call_post_response_get_rpc),
+            );
     }
 }
 pub mod simple_rpc_actix {
@@ -467,6 +558,63 @@ pub mod rest_rpc_client {
             let path = http::uri::PathAndQuery::from_static("/rest.RestRPC/PostGetRPC");
             self.inner.unary(request.into_request(), path, codec).await
         }
+        pub async fn get_response_rpc(
+            &mut self,
+            request: impl tonic::IntoRequest<super::Get>,
+        ) -> Result<tonic::Response<super::Get>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/rest.RestRPC/GetResponseRPC",
+            );
+            self.inner.unary(request.into_request(), path, codec).await
+        }
+        pub async fn post_response_rpc(
+            &mut self,
+            request: impl tonic::IntoRequest<super::Post>,
+        ) -> Result<tonic::Response<super::Post>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/rest.RestRPC/PostResponseRPC",
+            );
+            self.inner.unary(request.into_request(), path, codec).await
+        }
+        pub async fn post_response_get_rpc(
+            &mut self,
+            request: impl tonic::IntoRequest<super::Post>,
+        ) -> Result<tonic::Response<super::Get>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/rest.RestRPC/PostResponseGetRPC",
+            );
+            self.inner.unary(request.into_request(), path, codec).await
+        }
     }
 }
 /// Generated client implementations.
@@ -585,6 +733,18 @@ pub mod rest_rpc_server {
             request: tonic::Request<super::Post>,
         ) -> Result<tonic::Response<super::Post>, tonic::Status>;
         async fn post_get_rpc(
+            &self,
+            request: tonic::Request<super::Post>,
+        ) -> Result<tonic::Response<super::Get>, tonic::Status>;
+        async fn get_response_rpc(
+            &self,
+            request: tonic::Request<super::Get>,
+        ) -> Result<tonic::Response<super::Get>, tonic::Status>;
+        async fn post_response_rpc(
+            &self,
+            request: tonic::Request<super::Post>,
+        ) -> Result<tonic::Response<super::Post>, tonic::Status>;
+        async fn post_response_get_rpc(
             &self,
             request: tonic::Request<super::Post>,
         ) -> Result<tonic::Response<super::Get>, tonic::Status>;
@@ -861,6 +1021,120 @@ pub mod rest_rpc_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = PostGetRPCSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/rest.RestRPC/GetResponseRPC" => {
+                    #[allow(non_camel_case_types)]
+                    struct GetResponseRPCSvc<T: RestRpc>(pub Arc<T>);
+                    impl<T: RestRpc> tonic::server::UnaryService<super::Get>
+                    for GetResponseRPCSvc<T> {
+                        type Response = super::Get;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::Get>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).get_response_rpc(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = GetResponseRPCSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/rest.RestRPC/PostResponseRPC" => {
+                    #[allow(non_camel_case_types)]
+                    struct PostResponseRPCSvc<T: RestRpc>(pub Arc<T>);
+                    impl<T: RestRpc> tonic::server::UnaryService<super::Post>
+                    for PostResponseRPCSvc<T> {
+                        type Response = super::Post;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::Post>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).post_response_rpc(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = PostResponseRPCSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/rest.RestRPC/PostResponseGetRPC" => {
+                    #[allow(non_camel_case_types)]
+                    struct PostResponseGetRPCSvc<T: RestRpc>(pub Arc<T>);
+                    impl<T: RestRpc> tonic::server::UnaryService<super::Post>
+                    for PostResponseGetRPCSvc<T> {
+                        type Response = super::Get;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::Post>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).post_response_get_rpc(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = PostResponseGetRPCSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

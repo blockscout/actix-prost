@@ -12,11 +12,13 @@ service RestRPC {
   rpc PostNoPathRPC(Post) returns (Post);
 
   rpc PostGetRPC(Post) returns (Get);
+
+  rpc GetResponseRPC(Get) returns (Get);
+  rpc PostResponseRPC(Post) returns (Post);
+  rpc PostResponseGetRPC(Post) returns (Get);
 }
 
-service SimpleRPC {
-  rpc PostRPC(Post) returns (Post);
-}
+service SimpleRPC { rpc PostRPC(Post) returns (Post); }
 
 message Get {
   string foo = 1;
