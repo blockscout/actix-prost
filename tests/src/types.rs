@@ -1,7 +1,7 @@
 use crate::{
     proto::types::{
         types_rpc_actix::route_types_rpc, types_rpc_server::TypesRpc, Complex, Enums, Maps, OneOfs,
-        Repeated, Scalars, Values,
+        Repeated, Scalars,
     },
     test,
 };
@@ -47,6 +47,8 @@ async fn assert_ping(addr: &SocketAddr, path: &str, body: String) {
         .text()
         .await
         .unwrap();
+    let body: serde_json::Value = serde_json::from_str(&body).unwrap();
+    let resp: serde_json::Value = serde_json::from_str(&resp).unwrap();
     assert_eq!(body, resp);
 }
 
@@ -78,7 +80,7 @@ async fn ping() {
     assert_ping(
         &addr,
         "/types/maps",
-        r#"{"foo":{"foo":123,"bar":432,"baz":12345}}"#.into(),
+        r#"{"foo":{"bar":432,"baz":12345,"foo":123}}"#.into(),
     )
     .await;
     assert_ping(&addr, "/types/oneofs", r#"{"foo":"hello world"}"#.into()).await;

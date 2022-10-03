@@ -64,16 +64,17 @@ async fn send_get<T: DeserializeOwned>(addr: &SocketAddr, path: &str) -> T {
 
 async fn send_post<T: DeserializeOwned>(addr: &SocketAddr, path: &str, body: String) -> T {
     let client = reqwest::Client::new();
-    client
+    let data = client
         .post(format!("http://localhost:{}{}", addr.port(), path))
         .body(body)
         .header("Content-Type", "application/json")
         .send()
         .await
         .unwrap()
-        .json()
+        .text()
         .await
-        .unwrap()
+        .unwrap();
+    serde_json::from_str(&data).expect(&format!("could not parse json, got: {}", data))
 }
 
 #[tokio::test]
@@ -130,7 +131,7 @@ async fn request() {
             &addr,
             &format!("/rest/post"),
             format!(
-                r#"{{"foo":"{}","bar":{},"baz":{}}}"#,
+                r#"{{"foo":"{}","bar":"{}","baz":{}}}"#,
                 post.foo, post.bar, post.baz
             ),
         )
@@ -143,7 +144,7 @@ async fn request() {
             &addr,
             &format!("/rest/post_get"),
             format!(
-                r#"{{"foo":"{}","bar":{},"baz":{}}}"#,
+                r#"{{"foo":"{}","bar":"{}","baz":{}}}"#,
                 post.foo, post.bar, post.baz
             ),
         )
@@ -191,7 +192,7 @@ async fn response() {
             &addr,
             &format!("/rest/response/post"),
             format!(
-                r#"{{"foo":"{}","bar":{},"baz":{}}}"#,
+                r#"{{"foo":"{}","bar":"{}","baz":{}}}"#,
                 post.foo, post.bar, post.baz
             ),
         )
@@ -204,7 +205,7 @@ async fn response() {
             &addr,
             &format!("/rest/response/post_get"),
             format!(
-                r#"{{"foo":"{}","bar":{},"baz":{}}}"#,
+                r#"{{"foo":"{}","bar":"{}","baz":{}}}"#,
                 post.foo, post.bar, post.baz
             ),
         )

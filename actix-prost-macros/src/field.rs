@@ -1,9 +1,7 @@
 use crate::prost::parse_attrs;
-use proc_macro2::TokenStream;
 
 pub struct Field {
     attr: Option<syn::Attribute>,
-    from: Option<TokenStream>,
 }
 
 impl Field {
@@ -29,16 +27,8 @@ impl Field {
             };
             let as_value = format!("serde_with::TryFromInto<{}>", enum_name.value());
             self.attr = Some(syn::parse_quote!(#[serde_as(as = #as_value)]));
-
-            let enum_ident = quote::format_ident!("{}", enum_name.value());
-            self.from = Some(quote::quote!(
-                impl TryFrom<i32> for #enum_ident {
-                    type Error = String;
-                    fn try_from(value: i32) -> Result<Self, Self::Error> {
-                        Self::from_i32(value).ok_or("enum value out of range".into())
-                    }
-                }
-            ));
+        } else if meta.path == syn::parse_quote!(oneof) {
+            self.attr = Some(syn::parse_quote!(#[serde(flatten)]));
         }
     }
 
@@ -54,19 +44,12 @@ impl Field {
     }
 
     pub fn new(f: &syn::Field) -> Self {
-        let mut field = Self {
-            attr: None,
-            from: None,
-        };
+        let mut field = Self { attr: None };
         field.generate(f);
         field
     }
 
     pub fn take_attribute(&mut self) -> Option<syn::Attribute> {
         self.attr.take()
-    }
-
-    pub fn take_from_impl(&mut self) -> Option<TokenStream> {
-        self.from.take()
     }
 }
