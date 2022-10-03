@@ -12,10 +12,12 @@ fn compile(
     config
         .service_generator(generator)
         .out_dir("src/proto")
+        .bytes(["."])
+        .compile_well_known_types()
         .protoc_arg("--openapiv2_out=proto")
         .protoc_arg("--openapiv2_opt")
         .protoc_arg("grpc_api_configuration=proto/http_api.yaml,output_format=yaml")
-        .type_attribute(".", "#[derive(serde::Serialize, serde::Deserialize)]");
+        .type_attribute(".", "#[actix_prost_macros::serde]");
 
     // for path in protos.iter() {
     //     println!("cargo:rerun-if-changed={}", path.as_ref().display())

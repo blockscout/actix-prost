@@ -1,6 +1,9 @@
-use crate::proto::rest::{
-    rest_rpc_actix::route_rest_rpc, rest_rpc_server::RestRpc, simple_rpc_actix::route_simple_rpc,
-    simple_rpc_server::SimpleRpc, Get, Post,
+use crate::{
+    proto::rest::{
+        rest_rpc_actix::route_rest_rpc, rest_rpc_server::RestRpc,
+        simple_rpc_actix::route_simple_rpc, simple_rpc_server::SimpleRpc, Get, Post,
+    },
+    test,
 };
 use actix_web::{App, HttpServer};
 use pretty_assertions::assert_eq;
@@ -76,7 +79,7 @@ async fn send_post<T: DeserializeOwned>(addr: &SocketAddr, path: &str, body: Str
 #[tokio::test]
 async fn request() {
     let server = Arc::new(RestServer::default());
-    let addr: SocketAddr = "[::]:8042".parse().unwrap();
+    let addr = test::get_test_addr();
     let http = HttpServer::new(move || {
         App::new().configure(|config| route_rest_rpc(config, server.clone()))
     })
@@ -155,7 +158,7 @@ async fn request() {
 #[tokio::test]
 async fn response() {
     let server = Arc::new(RestServer::default());
-    let addr: SocketAddr = "[::]:8043".parse().unwrap();
+    let addr = test::get_test_addr();
     let http = HttpServer::new(move || {
         App::new().configure(|config| route_rest_rpc(config, server.clone()))
     })
@@ -233,7 +236,7 @@ impl SimpleRpc for HeaderServer {
 #[tokio::test]
 async fn headers() {
     let server = Arc::new(HeaderServer::default());
-    let addr: SocketAddr = "[::]:8044".parse().unwrap();
+    let addr = test::get_test_addr();
     let http = HttpServer::new(move || {
         App::new().configure(|config| route_simple_rpc(config, server.clone()))
     })
@@ -256,7 +259,10 @@ async fn headers() {
         )
         .await,
         Post {
-            foo: r#"Ascii("accept", "*/*"),Ascii("content-length", "15"),Ascii("content-type", "application/json"),Ascii("host", "localhost:8044")"#.into(),
+            foo: format!(
+                r#"Ascii("accept", "*/*"),Ascii("content-length", "15"),Ascii("content-type", "application/json"),Ascii("host", "localhost:{}")"#,
+                addr.port()
+            ),
             bar: post.bar,
             baz: post.baz,
         }

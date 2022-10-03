@@ -23,7 +23,7 @@ message Enums { Values values = 1; }
 
 message Repeated { repeated string foo = 1; }
 
-message Maps { map<string, int64> foo = 1; }
+message Maps { map<string, int32> foo = 1; }
 
 message OneOfs {
   oneof Values {

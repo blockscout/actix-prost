@@ -1,4 +1,4 @@
-#[derive(serde::Serialize, serde::Deserialize)]
+#[actix_prost_macros::serde]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Get {
     #[prost(string, tag="1")]
@@ -6,7 +6,7 @@ pub struct Get {
     #[prost(int64, tag="2")]
     pub bar: i64,
 }
-#[derive(serde::Serialize, serde::Deserialize)]
+#[actix_prost_macros::serde]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Post {
     #[prost(string, tag="1")]
@@ -23,19 +23,19 @@ pub mod rest_rpc_actix {
     use super::rest_rpc_server::RestRpc;
     use std::sync::Arc;
     type GetRPCPath = Get;
-    #[derive(serde::Serialize, serde::Deserialize)]
+    #[actix_prost_macros::serde]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct GetQueryRPCPath {
         #[prost(string, tag = "1")]
         pub foo: ::prost::alloc::string::String,
     }
-    #[derive(serde::Serialize, serde::Deserialize)]
+    #[actix_prost_macros::serde]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct GetQueryRPCQuery {
         #[prost(int64, tag = "2")]
         pub bar: i64,
     }
-    #[derive(serde::Serialize, serde::Deserialize)]
+    #[actix_prost_macros::serde]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PostRPCPath {
         #[prost(string, tag = "1")]
@@ -43,25 +43,25 @@ pub mod rest_rpc_actix {
         #[prost(int64, tag = "2")]
         pub bar: i64,
     }
-    #[derive(serde::Serialize, serde::Deserialize)]
+    #[actix_prost_macros::serde]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PostRPCJson {
         #[prost(double, tag = "3")]
         pub baz: f64,
     }
-    #[derive(serde::Serialize, serde::Deserialize)]
+    #[actix_prost_macros::serde]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PostQueryRPCPath {
         #[prost(string, tag = "1")]
         pub foo: ::prost::alloc::string::String,
     }
-    #[derive(serde::Serialize, serde::Deserialize)]
+    #[actix_prost_macros::serde]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PostQueryRPCQuery {
         #[prost(int64, tag = "2")]
         pub bar: i64,
     }
-    #[derive(serde::Serialize, serde::Deserialize)]
+    #[actix_prost_macros::serde]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PostQueryRPCJson {
         #[prost(double, tag = "3")]
@@ -330,19 +330,19 @@ pub mod simple_rpc_actix {
     use super::*;
     use super::simple_rpc_server::SimpleRpc;
     use std::sync::Arc;
-    #[derive(serde::Serialize, serde::Deserialize)]
+    #[actix_prost_macros::serde]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PostRPCPath {
         #[prost(string, tag = "1")]
         pub foo: ::prost::alloc::string::String,
     }
-    #[derive(serde::Serialize, serde::Deserialize)]
+    #[actix_prost_macros::serde]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PostRPCQuery {
         #[prost(int64, tag = "2")]
         pub bar: i64,
     }
-    #[derive(serde::Serialize, serde::Deserialize)]
+    #[actix_prost_macros::serde]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PostRPCJson {
         #[prost(double, tag = "3")]

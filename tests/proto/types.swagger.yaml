@@ -284,8 +284,8 @@ definitions:
       foo:
         type: object
         additionalProperties:
-          type: string
-          format: int64
+          type: integer
+          format: int32
   typesOneOfs:
     type: object
     properties:
