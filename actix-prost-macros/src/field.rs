@@ -5,6 +5,7 @@ pub struct Field {
 }
 
 impl Field {
+    #[allow(clippy::if_same_then_else)]
     fn parse_path(&mut self, name: &syn::Path) {
         if name == &syn::parse_quote!(i64) {
             self.attr = Some(syn::parse_quote!(#[serde_as(as = "serde_with::DisplayFromStr")]))

@@ -12,34 +12,28 @@ pub fn process_enum(item: &mut syn::ItemEnum) -> Option<TokenStream> {
         .filter_map(|attr| attr.parse_meta().ok())
         .find(|meta| {
             if let Some(ident) = meta.path().get_ident() {
-                ident.to_string() == "derive"
+                *ident == "derive"
             } else {
                 false
             }
         });
     let derive = match derive {
-        Some(derive) => match derive {
-            syn::Meta::List(derive) => derive,
-            _ => return None,
-        },
-        None => return None,
+        Some(syn::Meta::List(derive)) => derive,
+        _ => return None,
     };
     let kind = derive
         .nested
         .into_iter()
         .filter_map(|meta| match meta {
-            syn::NestedMeta::Meta(meta) => match meta {
-                syn::Meta::Path(path) => {
-                    if path == syn::parse_quote!(::prost::Enumeration) {
-                        Some(Kind::Enum)
-                    } else if path == syn::parse_quote!(::prost::Oneof) {
-                        Some(Kind::OneOf)
-                    } else {
-                        None
-                    }
+            syn::NestedMeta::Meta(syn::Meta::Path(path)) => {
+                if path == syn::parse_quote!(::prost::Enumeration) {
+                    Some(Kind::Enum)
+                } else if path == syn::parse_quote!(::prost::Oneof) {
+                    Some(Kind::OneOf)
+                } else {
+                    None
                 }
-                _ => None,
-            },
+            }
             _ => None,
         })
         .next();

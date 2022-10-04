@@ -2,7 +2,6 @@ use enums::process_enum;
 use field::Field;
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::__private::ToTokens;
 
 mod enums;
 mod field;
