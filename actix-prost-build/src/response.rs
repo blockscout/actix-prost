@@ -14,8 +14,7 @@ impl Response {
         self.message
             .fields
             .iter()
-            .filter(|full_field| &full_field.ident.as_ref().unwrap().to_string() == field)
-            .next()
+            .find(|full_field| *full_field.ident.as_ref().unwrap() == field)
             .cloned()
             .unwrap_or_else(|| {
                 panic!(

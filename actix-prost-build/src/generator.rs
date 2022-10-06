@@ -106,7 +106,7 @@ impl ActixGenerator {
         )
     }
 
-    fn parse_messages(&mut self, buf: &mut String) {
+    fn parse_messages(&mut self, buf: &mut str) {
         let file: syn::File = syn::parse_str(buf).unwrap();
         self.messages.extend(
             file.items

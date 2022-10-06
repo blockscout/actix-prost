@@ -65,7 +65,7 @@ impl Request {
             .partition(|field| path_filter.contains(field.as_str()));
 
         if path_fields.len() != path.len() {
-            let found: HashSet<String> = HashSet::from_iter(path.into_iter().map(|x| x));
+            let found: HashSet<String> = HashSet::from_iter(path.into_iter());
             panic!(
                 "some path fields were not found: {:?}",
                 path_fields
@@ -102,7 +102,7 @@ impl Request {
             .cloned()
             .collect();
         let brace_token = if let syn::Fields::Named(named) = &self.message.fields {
-            named.brace_token.clone()
+            named.brace_token
         } else {
             panic!("not named fields not supported");
         };
@@ -162,9 +162,7 @@ impl Request {
         quote::quote!(#path #query #body)
     }
 
-    pub fn generate_fields_init<'a>(
-        req: &'a RequestFields,
-    ) -> impl Iterator<Item = TokenStream> + 'a {
+    pub fn generate_fields_init(req: &RequestFields) -> impl Iterator<Item = TokenStream> + '_ {
         req.fields
             .iter()
             .map(|f| quote::format_ident!("{}", f))

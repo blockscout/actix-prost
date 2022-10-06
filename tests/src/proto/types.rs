@@ -1,4 +1,4 @@
-#[derive(serde::Serialize, serde::Deserialize)]
+#[actix_prost_macros::serde]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Scalars {
     #[prost(double, tag="1")]
@@ -7,30 +7,30 @@ pub struct Scalars {
     pub b: i64,
     #[prost(string, tag="3")]
     pub c: ::prost::alloc::string::String,
-    #[prost(bytes="vec", tag="4")]
-    pub d: ::prost::alloc::vec::Vec<u8>,
+    #[prost(bytes="bytes", tag="4")]
+    pub d: ::prost::bytes::Bytes,
     #[prost(bool, tag="5")]
     pub e: bool,
 }
-#[derive(serde::Serialize, serde::Deserialize)]
+#[actix_prost_macros::serde]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Enums {
     #[prost(enumeration="Values", tag="1")]
     pub values: i32,
 }
-#[derive(serde::Serialize, serde::Deserialize)]
+#[actix_prost_macros::serde]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Repeated {
     #[prost(string, repeated, tag="1")]
     pub foo: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
-#[derive(serde::Serialize, serde::Deserialize)]
+#[actix_prost_macros::serde]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Maps {
-    #[prost(map="string, int64", tag="1")]
-    pub foo: ::std::collections::HashMap<::prost::alloc::string::String, i64>,
+    #[prost(map="string, int32", tag="1")]
+    pub foo: ::std::collections::HashMap<::prost::alloc::string::String, i32>,
 }
-#[derive(serde::Serialize, serde::Deserialize)]
+#[actix_prost_macros::serde]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct OneOfs {
     #[prost(oneof="one_ofs::Values", tags="1, 2, 3")]
@@ -38,13 +38,13 @@ pub struct OneOfs {
 }
 /// Nested message and enum types in `OneOfs`.
 pub mod one_ofs {
-    #[derive(serde::Serialize, serde::Deserialize)]
+    #[actix_prost_macros::serde]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Values {
         #[prost(string, tag="1")]
         Foo(::prost::alloc::string::String),
         #[prost(bytes, tag="2")]
-        Bar(::prost::alloc::vec::Vec<u8>),
+        Bar(::prost::bytes::Bytes),
         #[prost(int64, tag="3")]
         Baz(i64),
     }
@@ -54,7 +54,7 @@ pub mod one_ofs {
 //    google.protobuf.Any bar = 2;
 // }
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[actix_prost_macros::serde]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Complex {
     #[prost(message, optional, tag="1")]
@@ -69,7 +69,7 @@ pub struct Complex {
     #[prost(message, optional, tag="5")]
     pub oneofs: ::core::option::Option<OneOfs>,
 }
-#[derive(serde::Serialize, serde::Deserialize)]
+#[actix_prost_macros::serde]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum Values {

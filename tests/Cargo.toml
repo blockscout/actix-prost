@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 actix-prost = { path = "../actix-prost" }
+actix-prost-macros = { path = "../actix-prost-macros" }
 async-trait = "0.1"
 tonic = "0.8"
 prost = "0.11"
@@ -13,6 +14,7 @@ serde = { version = "1", features = ["derive"] }
 actix-web = "4"
 http = "0.2"
 serde_json = "1.0"
+serde_with = { version = "2.0", features = ["base64"] }
 
 [build-dependencies]
 actix-prost-build = { path = "../actix-prost-build" }
