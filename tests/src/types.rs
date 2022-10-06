@@ -1,7 +1,7 @@
 use crate::{
     proto::types::{
         types_rpc_actix::route_types_rpc, types_rpc_server::TypesRpc, Complex, Enums, Maps, OneOfs,
-        Repeated, Scalars,
+        OptionalScalars, Repeated, Scalars,
     },
     test,
 };
@@ -16,6 +16,12 @@ struct TypesServer {}
 #[async_trait::async_trait]
 impl TypesRpc for TypesServer {
     async fn scalars_rpc(&self, request: Request<Scalars>) -> Result<Response<Scalars>, Status> {
+        Ok(Response::new(request.into_inner()))
+    }
+    async fn optional_scalars_rpc(
+        &self,
+        request: Request<OptionalScalars>,
+    ) -> Result<Response<OptionalScalars>, Status> {
         Ok(Response::new(request.into_inner()))
     }
     async fn enums_rpc(&self, request: Request<Enums>) -> Result<Response<Enums>, Status> {
@@ -48,7 +54,8 @@ async fn assert_ping(addr: &SocketAddr, path: &str, body: String) {
         .await
         .unwrap();
     let body: serde_json::Value = serde_json::from_str(&body).unwrap();
-    let resp: serde_json::Value = serde_json::from_str(&resp).unwrap();
+    let resp: serde_json::Value =
+        serde_json::from_str(&resp).expect(&format!("could not parse json, got: {}", resp));
     assert_eq!(body, resp);
 }
 
@@ -68,6 +75,18 @@ async fn ping() {
         &addr,
         "/types/scalars", 
         r#"{"a":123.0,"b":"1000000000000000000","c":"hello world","d":"dGhpcyBpcyBiYXNlNjQgZW5jb2RlZCBzdHJpbmc=","e":true}"#.into(),
+    )
+    .await;
+    assert_ping(
+        &addr,
+        "/types/optional_scalars", 
+        r#"{"a":123.0,"b":"1000000000000000000","c":"hello world","d":"dGhpcyBpcyBiYXNlNjQgZW5jb2RlZCBzdHJpbmc=","e":true}"#.into(),
+    )
+    .await;
+    assert_ping(
+        &addr,
+        "/types/optional_scalars",
+        r#"{"a":null,"b":null,"c":null,"d":null,"e":null}"#.into(),
     )
     .await;
     assert_ping(&addr, "/types/enums", r#"{"values":"BAR"}"#.into()).await;

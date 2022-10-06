@@ -8,3 +8,6 @@ http = "0.2"
 tonic = "0.8"
 actix-web = "4"
 actix-http = "3"
+serde = { version = "1", features = ["derive"] }
+serde_with = { version = "2.0", features = ["base64"] }
+prost = "0.11"

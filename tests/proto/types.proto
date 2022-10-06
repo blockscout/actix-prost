@@ -14,6 +14,14 @@ message Scalars {
   bool e = 5;
 }
 
+message OptionalScalars {
+  optional double a = 1;
+  optional int64 b = 2;
+  optional string c = 3;
+  optional bytes d = 4;
+  optional bool e = 5;
+}
+
 enum Values {
   FOO = 0;
   BAR = 1;
@@ -49,6 +57,7 @@ message Complex {
 
 service TypesRPC {
   rpc ScalarsRPC(Scalars) returns (Scalars);
+  rpc OptionalScalarsRPC(OptionalScalars) returns (OptionalScalars);
   rpc EnumsRPC(Enums) returns (Enums);
   rpc RepeatedRPC(Repeated) returns (Repeated);
   rpc MapsRPC(Maps) returns (Maps);
