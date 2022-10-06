@@ -1,56 +1,68 @@
 use crate::prost::parse_attrs;
 
-pub struct Field {
-    attr: Option<syn::Attribute>,
+pub fn process_field(f: &syn::Field) -> (Option<syn::Attribute>, bool) {
+    let metas = parse_attrs(f.attrs.clone());
+    for m in metas {
+        if let (Some(attr), need_serde_as) = parse_meta(&m) {
+            return (Some(attr), need_serde_as);
+        }
+    }
+
+    if let syn::Type::Path(ty) = &f.ty {
+        if let (Some(attr), need_serde_as) = parse_path(&ty.path) {
+            return (Some(attr), need_serde_as);
+        }
+    }
+
+    (None, false)
 }
 
-impl Field {
-    #[allow(clippy::if_same_then_else)]
-    fn parse_path(&mut self, name: &syn::Path) {
-        if name == &syn::parse_quote!(i64) {
-            self.attr = Some(syn::parse_quote!(#[serde_as(as = "serde_with::DisplayFromStr")]))
-        } else if name == &syn::parse_quote!(u64) {
-            self.attr = Some(syn::parse_quote!(#[serde_as(as = "serde_with::DisplayFromStr")]))
-        } else if name == &syn::parse_quote!(::prost::bytes::Bytes) {
-            self.attr = Some(syn::parse_quote!(#[serde_as(as = "serde_with::base64::Base64")]))
-        }
+fn parse_path(name: &syn::Path) -> (Option<syn::Attribute>, bool) {
+    if name == &syn::parse_quote!(i64) || name == &syn::parse_quote!(u64) {
+        (
+            Some(syn::parse_quote!(#[serde_as(as = "serde_with::DisplayFromStr")])),
+            true,
+        )
+    } else if name == &syn::parse_quote!(::core::option::Option<i64>) {
+        (
+            Some(syn::parse_quote!(#[serde(default,with="actix_prost::serde::option_i64")])),
+            false,
+        )
+    } else if name == &syn::parse_quote!(::core::option::Option<u64>) {
+        (
+            Some(syn::parse_quote!(#[serde(default,with="actix_prost::serde::option_u64")])),
+            false,
+        )
+    } else if name == &syn::parse_quote!(::prost::bytes::Bytes) {
+        (
+            Some(syn::parse_quote!(#[serde_as(as = "serde_with::base64::Base64")])),
+            true,
+        )
+    } else if name == &syn::parse_quote!(::core::option::Option<::prost::bytes::Bytes>) {
+        (
+            Some(syn::parse_quote!(#[serde(default,with="actix_prost::serde::option_bytes")])),
+            false,
+        )
+    } else {
+        (None, false)
     }
+}
 
-    fn parse_meta(&mut self, meta: &syn::Meta) {
-        let meta = match meta {
-            syn::Meta::NameValue(value) => value,
-            _ => return,
+fn parse_meta(meta: &syn::Meta) -> (Option<syn::Attribute>, bool) {
+    let meta = match meta {
+        syn::Meta::NameValue(value) => value,
+        _ => return (None, false),
+    };
+    if meta.path == syn::parse_quote!(enumeration) {
+        let enum_name = match &meta.lit {
+            syn::Lit::Str(name) => name,
+            _ => return (None, false),
         };
-        if meta.path == syn::parse_quote!(enumeration) {
-            let enum_name = match &meta.lit {
-                syn::Lit::Str(name) => name,
-                _ => return,
-            };
-            let as_value = format!("serde_with::TryFromInto<{}>", enum_name.value());
-            self.attr = Some(syn::parse_quote!(#[serde_as(as = #as_value)]));
-        } else if meta.path == syn::parse_quote!(oneof) {
-            self.attr = Some(syn::parse_quote!(#[serde(flatten)]));
-        }
-    }
-
-    fn generate(&mut self, f: &syn::Field) {
-        let metas = parse_attrs(f.attrs.clone());
-        for m in metas {
-            self.parse_meta(&m);
-        }
-
-        if let syn::Type::Path(ty) = &f.ty {
-            self.parse_path(&ty.path);
-        }
-    }
-
-    pub fn new(f: &syn::Field) -> Self {
-        let mut field = Self { attr: None };
-        field.generate(f);
-        field
-    }
-
-    pub fn take_attribute(&mut self) -> Option<syn::Attribute> {
-        self.attr.take()
+        let as_value = format!("serde_with::TryFromInto<{}>", enum_name.value());
+        (Some(syn::parse_quote!(#[serde_as(as = #as_value)])), true)
+    } else if meta.path == syn::parse_quote!(oneof) {
+        (Some(syn::parse_quote!(#[serde(flatten)])), false)
+    } else {
+        (None, false)
     }
 }

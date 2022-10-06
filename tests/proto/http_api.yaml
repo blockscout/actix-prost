@@ -39,6 +39,9 @@ http:
   - selector: "types.TypesRPC.ScalarsRPC"
     post: /types/scalars
     body: "*"
+  - selector: "types.TypesRPC.OptionalScalarsRPC"
+    post: /types/optional_scalars
+    body: "*"
   - selector: "types.TypesRPC.EnumsRPC"
     post: /types/enums
     body: "*"

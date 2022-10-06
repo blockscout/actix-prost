@@ -14,6 +14,20 @@ pub struct Scalars {
 }
 #[actix_prost_macros::serde]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct OptionalScalars {
+    #[prost(double, optional, tag="1")]
+    pub a: ::core::option::Option<f64>,
+    #[prost(int64, optional, tag="2")]
+    pub b: ::core::option::Option<i64>,
+    #[prost(string, optional, tag="3")]
+    pub c: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(bytes="bytes", optional, tag="4")]
+    pub d: ::core::option::Option<::prost::bytes::Bytes>,
+    #[prost(bool, optional, tag="5")]
+    pub e: ::core::option::Option<bool>,
+}
+#[actix_prost_macros::serde]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Enums {
     #[prost(enumeration="Values", tag="1")]
     pub values: i32,
@@ -95,6 +109,7 @@ pub mod types_rpc_actix {
     use super::types_rpc_server::TypesRpc;
     use std::sync::Arc;
     type ScalarsRPCJson = Scalars;
+    type OptionalScalarsRPCJson = OptionalScalars;
     type EnumsRPCJson = Enums;
     type RepeatedRPCJson = Repeated;
     type MapsRPCJson = Maps;
@@ -121,6 +136,32 @@ pub mod types_rpc_actix {
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service
             .scalars_rpc(request)
+            .await
+            .map_err(::actix_prost::map_tonic_error)?;
+        let response = response.into_inner();
+        Ok(::actix_web::web::Json(response))
+    }
+    async fn call_optional_scalars_rpc(
+        service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
+        http_request: ::actix_web::HttpRequest,
+        payload: ::actix_web::web::Payload,
+    ) -> Result<::actix_web::web::Json<OptionalScalars>, ::actix_web::Error> {
+        let mut payload = payload.into_inner();
+        let json = ::actix_web::web::Json::<
+            OptionalScalarsRPCJson,
+        >::from_request(&http_request, &mut payload)
+            .await?
+            .into_inner();
+        let request = OptionalScalars {
+            a: json.a,
+            b: json.b,
+            c: json.c,
+            d: json.d,
+            e: json.e,
+        };
+        let request = ::actix_prost::new_request(request, &http_request);
+        let response = service
+            .optional_scalars_rpc(request)
             .await
             .map_err(::actix_prost::map_tonic_error)?;
         let response = response.into_inner();
@@ -238,6 +279,11 @@ pub mod types_rpc_actix {
     ) {
         config.app_data(::actix_web::web::Data::from(service));
         config.route("/types/scalars", ::actix_web::web::post().to(call_scalars_rpc));
+        config
+            .route(
+                "/types/optional_scalars",
+                ::actix_web::web::post().to(call_optional_scalars_rpc),
+            );
         config.route("/types/enums", ::actix_web::web::post().to(call_enums_rpc));
         config.route("/types/repeated", ::actix_web::web::post().to(call_repeated_rpc));
         config.route("/types/maps", ::actix_web::web::post().to(call_maps_rpc));
@@ -330,6 +376,25 @@ pub mod types_rpc_client {
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/types.TypesRPC/ScalarsRPC",
+            );
+            self.inner.unary(request.into_request(), path, codec).await
+        }
+        pub async fn optional_scalars_rpc(
+            &mut self,
+            request: impl tonic::IntoRequest<super::OptionalScalars>,
+        ) -> Result<tonic::Response<super::OptionalScalars>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/types.TypesRPC/OptionalScalarsRPC",
             );
             self.inner.unary(request.into_request(), path, codec).await
         }
@@ -436,6 +501,10 @@ pub mod types_rpc_server {
             &self,
             request: tonic::Request<super::Scalars>,
         ) -> Result<tonic::Response<super::Scalars>, tonic::Status>;
+        async fn optional_scalars_rpc(
+            &self,
+            request: tonic::Request<super::OptionalScalars>,
+        ) -> Result<tonic::Response<super::OptionalScalars>, tonic::Status>;
         async fn enums_rpc(
             &self,
             request: tonic::Request<super::Enums>,
@@ -542,6 +611,44 @@ pub mod types_rpc_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = ScalarsRPCSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/types.TypesRPC/OptionalScalarsRPC" => {
+                    #[allow(non_camel_case_types)]
+                    struct OptionalScalarsRPCSvc<T: TypesRpc>(pub Arc<T>);
+                    impl<T: TypesRpc> tonic::server::UnaryService<super::OptionalScalars>
+                    for OptionalScalarsRPCSvc<T> {
+                        type Response = super::OptionalScalars;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::OptionalScalars>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).optional_scalars_rpc(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = OptionalScalarsRPCSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

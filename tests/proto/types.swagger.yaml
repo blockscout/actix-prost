@@ -90,6 +90,26 @@ paths:
             $ref: '#/definitions/typesOneOfs'
       tags:
         - TypesRPC
+  /types/optional_scalars:
+    post:
+      operationId: TypesRPC_OptionalScalarsRPC
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/typesOptionalScalars'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/typesOptionalScalars'
+      tags:
+        - TypesRPC
   /types/repeated:
     post:
       operationId: TypesRPC_RepeatedRPC
@@ -297,6 +317,22 @@ definitions:
         format: int64
       foo:
         type: string
+  typesOptionalScalars:
+    type: object
+    properties:
+      a:
+        type: number
+        format: double
+      b:
+        type: string
+        format: int64
+      c:
+        type: string
+      d:
+        type: string
+        format: byte
+      e:
+        type: boolean
   typesRepeated:
     type: object
     properties:

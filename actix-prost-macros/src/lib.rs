@@ -1,5 +1,5 @@
 use enums::process_enum;
-use field::Field;
+use field::process_field;
 use proc_macro::TokenStream;
 use quote::quote;
 
@@ -16,10 +16,10 @@ pub fn serde(_: TokenStream, item: TokenStream) -> TokenStream {
             let mut need_serde_as = false;
             for variant in item.variants.iter_mut() {
                 for field in variant.fields.iter_mut() {
-                    let mut generated = Field::new(field);
-                    if let Some(attr) = generated.take_attribute() {
+                    let (attr, need) = process_field(field);
+                    need_serde_as = need || need_serde_as;
+                    if let Some(attr) = attr {
                         field.attrs.push(attr);
-                        need_serde_as = true;
                     }
                 }
             }
@@ -34,10 +34,10 @@ pub fn serde(_: TokenStream, item: TokenStream) -> TokenStream {
         syn::Item::Struct(item) => {
             let mut need_serde_as = false;
             for field in item.fields.iter_mut() {
-                let mut generated = Field::new(field);
-                if let Some(attr) = generated.take_attribute() {
+                let (attr, need) = process_field(field);
+                need_serde_as = need || need_serde_as;
+                if let Some(attr) = attr {
                     field.attrs.push(attr);
-                    need_serde_as = true;
                 }
             }
             if need_serde_as {
