@@ -96,7 +96,7 @@ async fn request() {
     let post = Post {
         foo: "world".into(),
         bar: 345,
-        baz: 123.563,
+        long_name: 123.563,
     };
 
     assert_eq!(
@@ -112,7 +112,7 @@ async fn request() {
         send_post::<Post>(
             &addr,
             &format!("/rest/post/{}/{}", post.foo, post.bar),
-            format!(r#"{{"baz":{}}}"#, post.baz),
+            format!(r#"{{"longName":{}}}"#, post.long_name),
         )
         .await,
         post
@@ -121,7 +121,7 @@ async fn request() {
         send_post::<Post>(
             &addr,
             &format!("/rest/post/{}?bar={}", post.foo, post.bar),
-            format!(r#"{{"baz":{}}}"#, post.baz),
+            format!(r#"{{"longName":{}}}"#, post.long_name),
         )
         .await,
         post
@@ -131,8 +131,8 @@ async fn request() {
             &addr,
             &format!("/rest/post"),
             format!(
-                r#"{{"foo":"{}","bar":"{}","baz":{}}}"#,
-                post.foo, post.bar, post.baz
+                r#"{{"foo":"{}","bar":"{}","longName":{}}}"#,
+                post.foo, post.bar, post.long_name
             ),
         )
         .await,
@@ -144,8 +144,8 @@ async fn request() {
             &addr,
             &format!("/rest/post_get"),
             format!(
-                r#"{{"foo":"{}","bar":"{}","baz":{}}}"#,
-                post.foo, post.bar, post.baz
+                r#"{{"foo":"{}","bar":"{}","longName":{}}}"#,
+                post.foo, post.bar, post.long_name
             ),
         )
         .await,
@@ -175,7 +175,7 @@ async fn response() {
     let post = Post {
         foo: "world".into(),
         bar: 345,
-        baz: 123.563,
+        long_name: 123.563,
     };
 
     assert_eq!(
@@ -192,8 +192,8 @@ async fn response() {
             &addr,
             &format!("/rest/response/post"),
             format!(
-                r#"{{"foo":"{}","bar":"{}","baz":{}}}"#,
-                post.foo, post.bar, post.baz
+                r#"{{"foo":"{}","bar":"{}","longName":{}}}"#,
+                post.foo, post.bar, post.long_name
             ),
         )
         .await,
@@ -205,8 +205,8 @@ async fn response() {
             &addr,
             &format!("/rest/response/post_get"),
             format!(
-                r#"{{"foo":"{}","bar":"{}","baz":{}}}"#,
-                post.foo, post.bar, post.baz
+                r#"{{"foo":"{}","bar":"{}","longName":{}}}"#,
+                post.foo, post.bar, post.long_name
             ),
         )
         .await,
@@ -229,7 +229,7 @@ impl SimpleRpc for HeaderServer {
         Ok(Response::new(Post {
             foo: meta,
             bar: request.get_ref().bar,
-            baz: request.get_ref().baz,
+            long_name: request.get_ref().long_name,
         }))
     }
 }
@@ -249,23 +249,23 @@ async fn headers() {
     let post = Post {
         foo: "world".into(),
         bar: 345,
-        baz: 123.563,
+        long_name: 123.563,
     };
 
     assert_eq!(
         send_post::<Post>(
             &addr,
             &format!("/rest/post/{}?bar={}", post.foo, post.bar),
-            format!(r#"{{"baz":{}}}"#, post.baz),
+            format!(r#"{{"longName":{}}}"#, post.long_name),
         )
         .await,
         Post {
             foo: format!(
-                r#"Ascii("accept", "*/*"),Ascii("content-length", "15"),Ascii("content-type", "application/json"),Ascii("host", "localhost:{}")"#,
+                r#"Ascii("accept", "*/*"),Ascii("content-length", "20"),Ascii("content-type", "application/json"),Ascii("host", "localhost:{}")"#,
                 addr.port()
             ),
             bar: post.bar,
-            baz: post.baz,
+            long_name: post.long_name,
         }
     );
 }

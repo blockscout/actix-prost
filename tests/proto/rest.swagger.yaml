@@ -95,7 +95,7 @@ paths:
           in: path
           required: true
           type: string
-        - name: baz
+        - name: longName
           in: body
           required: true
           schema:
@@ -125,7 +125,7 @@ paths:
           in: path
           required: true
           type: string
-        - name: baz
+        - name: longName
           in: body
           required: true
           schema:
@@ -160,7 +160,7 @@ paths:
           required: true
           type: string
           format: int64
-        - name: baz
+        - name: longName
           in: body
           required: true
           schema:
@@ -385,11 +385,11 @@ definitions:
       bar:
         type: string
         format: int64
-      baz:
-        type: number
-        format: double
       foo:
         type: string
+      longName:
+        type: number
+        format: double
   rpcStatus:
     type: object
     properties:

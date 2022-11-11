@@ -45,6 +45,8 @@ pub fn serde(_: TokenStream, item: TokenStream) -> TokenStream {
             }
             item.attrs
                 .push(syn::parse_quote!(#[derive(serde::Serialize, serde::Deserialize)]));
+            item.attrs
+                .push(syn::parse_quote!(#[serde(rename_all = "camelCase")]));
         }
         _ => {}
     }

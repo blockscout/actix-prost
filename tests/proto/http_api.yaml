@@ -9,10 +9,10 @@ http:
     get: /rest/get/{foo}
   - selector: "rest.RestRPC.PostRPC"
     post: /rest/post/{foo}/{bar}
-    body: baz
+    body: long_name
   - selector: "rest.RestRPC.PostQueryRPC"
     post: /rest/post/{foo}
-    body: baz
+    body: long_name
   - selector: "rest.RestRPC.PostNoPathRPC"
     post: /rest/post
     body: "*"
@@ -34,7 +34,7 @@ http:
 
   - selector: "rest.SimpleRPC.PostRPC"
     post: /rest/post/{foo}
-    body: baz
+    body: long_name
 
   - selector: "types.TypesRPC.ScalarsRPC"
     post: /types/scalars

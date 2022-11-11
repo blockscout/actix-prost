@@ -14,7 +14,7 @@ pub struct Post {
     #[prost(int64, tag="2")]
     pub bar: i64,
     #[prost(double, tag="3")]
-    pub baz: f64,
+    pub long_name: f64,
 }
 pub mod rest_rpc_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
@@ -47,7 +47,7 @@ pub mod rest_rpc_actix {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PostRPCJson {
         #[prost(double, tag = "3")]
-        pub baz: f64,
+        pub long_name: f64,
     }
     #[actix_prost_macros::serde]
     #[derive(Clone, PartialEq, ::prost::Message)]
@@ -65,7 +65,7 @@ pub mod rest_rpc_actix {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PostQueryRPCJson {
         #[prost(double, tag = "3")]
-        pub baz: f64,
+        pub long_name: f64,
     }
     type PostNoPathRPCJson = Post;
     type PostGetRPCJson = Post;
@@ -130,7 +130,7 @@ pub mod rest_rpc_actix {
         let request = Post {
             foo: path.foo,
             bar: path.bar,
-            baz: json.baz,
+            long_name: json.long_name,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service
@@ -160,7 +160,7 @@ pub mod rest_rpc_actix {
         let request = Post {
             foo: path.foo,
             bar: query.bar,
-            baz: json.baz,
+            long_name: json.long_name,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service
@@ -184,7 +184,7 @@ pub mod rest_rpc_actix {
         let request = Post {
             foo: json.foo,
             bar: json.bar,
-            baz: json.baz,
+            long_name: json.long_name,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service
@@ -208,7 +208,7 @@ pub mod rest_rpc_actix {
         let request = Post {
             foo: json.foo,
             bar: json.bar,
-            baz: json.baz,
+            long_name: json.long_name,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service
@@ -255,7 +255,7 @@ pub mod rest_rpc_actix {
         let request = Post {
             foo: json.foo,
             bar: json.bar,
-            baz: json.baz,
+            long_name: json.long_name,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service
@@ -283,7 +283,7 @@ pub mod rest_rpc_actix {
         let request = Post {
             foo: json.foo,
             bar: json.bar,
-            baz: json.baz,
+            long_name: json.long_name,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service
@@ -346,7 +346,7 @@ pub mod simple_rpc_actix {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PostRPCJson {
         #[prost(double, tag = "3")]
-        pub baz: f64,
+        pub long_name: f64,
     }
     async fn call_post_rpc(
         service: ::actix_web::web::Data<dyn SimpleRpc + Sync + Send + 'static>,
@@ -368,7 +368,7 @@ pub mod simple_rpc_actix {
         let request = Post {
             foo: path.foo,
             bar: query.bar,
-            baz: json.baz,
+            long_name: json.long_name,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service
