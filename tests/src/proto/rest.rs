@@ -18,7 +18,6 @@ pub struct Post {
 }
 pub mod rest_rpc_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
-    use actix_web::FromRequest;
     use super::*;
     use super::rest_rpc_server::RestRpc;
     use std::sync::Arc;
@@ -76,7 +75,9 @@ pub mod rest_rpc_actix {
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
     ) -> Result<::actix_web::web::Json<Get>, ::actix_web::Error> {
-        let path = ::actix_web::web::Path::<GetRPCPath>::extract(&http_request)
+        let path = <::actix_web::web::Path::<
+            GetRPCPath,
+        > as ::actix_web::FromRequest>::extract(&http_request)
             .await?
             .into_inner();
         let request = Get {
@@ -95,10 +96,14 @@ pub mod rest_rpc_actix {
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
     ) -> Result<::actix_web::web::Json<Get>, ::actix_web::Error> {
-        let path = ::actix_web::web::Path::<GetQueryRPCPath>::extract(&http_request)
+        let path = <::actix_web::web::Path::<
+            GetQueryRPCPath,
+        > as ::actix_web::FromRequest>::extract(&http_request)
             .await?
             .into_inner();
-        let query = ::actix_web::web::Query::<GetQueryRPCQuery>::extract(&http_request)
+        let query = <::actix_web::web::Query::<
+            GetQueryRPCQuery,
+        > as ::actix_web::FromRequest>::extract(&http_request)
             .await?
             .into_inner();
         let request = Get {
@@ -119,12 +124,14 @@ pub mod rest_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Post>, ::actix_web::Error> {
         let mut payload = payload.into_inner();
-        let path = ::actix_web::web::Path::<PostRPCPath>::extract(&http_request)
+        let path = <::actix_web::web::Path::<
+            PostRPCPath,
+        > as ::actix_web::FromRequest>::extract(&http_request)
             .await?
             .into_inner();
-        let json = ::actix_web::web::Json::<
+        let json = <::actix_web::web::Json::<
             PostRPCJson,
-        >::from_request(&http_request, &mut payload)
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await?
             .into_inner();
         let request = Post {
@@ -146,15 +153,19 @@ pub mod rest_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Post>, ::actix_web::Error> {
         let mut payload = payload.into_inner();
-        let path = ::actix_web::web::Path::<PostQueryRPCPath>::extract(&http_request)
+        let path = <::actix_web::web::Path::<
+            PostQueryRPCPath,
+        > as ::actix_web::FromRequest>::extract(&http_request)
             .await?
             .into_inner();
-        let query = ::actix_web::web::Query::<PostQueryRPCQuery>::extract(&http_request)
+        let query = <::actix_web::web::Query::<
+            PostQueryRPCQuery,
+        > as ::actix_web::FromRequest>::extract(&http_request)
             .await?
             .into_inner();
-        let json = ::actix_web::web::Json::<
+        let json = <::actix_web::web::Json::<
             PostQueryRPCJson,
-        >::from_request(&http_request, &mut payload)
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await?
             .into_inner();
         let request = Post {
@@ -176,9 +187,9 @@ pub mod rest_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Post>, ::actix_web::Error> {
         let mut payload = payload.into_inner();
-        let json = ::actix_web::web::Json::<
+        let json = <::actix_web::web::Json::<
             PostNoPathRPCJson,
-        >::from_request(&http_request, &mut payload)
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await?
             .into_inner();
         let request = Post {
@@ -200,9 +211,9 @@ pub mod rest_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Get>, ::actix_web::Error> {
         let mut payload = payload.into_inner();
-        let json = ::actix_web::web::Json::<
+        let json = <::actix_web::web::Json::<
             PostGetRPCJson,
-        >::from_request(&http_request, &mut payload)
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await?
             .into_inner();
         let request = Post {
@@ -225,7 +236,9 @@ pub mod rest_rpc_actix {
         ::actix_web::web::Json<::prost::alloc::string::String>,
         ::actix_web::Error,
     > {
-        let path = ::actix_web::web::Path::<GetResponseRPCPath>::extract(&http_request)
+        let path = <::actix_web::web::Path::<
+            GetResponseRPCPath,
+        > as ::actix_web::FromRequest>::extract(&http_request)
             .await?
             .into_inner();
         let request = Get {
@@ -247,9 +260,9 @@ pub mod rest_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<i64>, ::actix_web::Error> {
         let mut payload = payload.into_inner();
-        let json = ::actix_web::web::Json::<
+        let json = <::actix_web::web::Json::<
             PostResponseRPCJson,
-        >::from_request(&http_request, &mut payload)
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await?
             .into_inner();
         let request = Post {
@@ -275,9 +288,9 @@ pub mod rest_rpc_actix {
         ::actix_web::Error,
     > {
         let mut payload = payload.into_inner();
-        let json = ::actix_web::web::Json::<
+        let json = <::actix_web::web::Json::<
             PostResponseGetRPCJson,
-        >::from_request(&http_request, &mut payload)
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await?
             .into_inner();
         let request = Post {
@@ -326,7 +339,6 @@ pub mod rest_rpc_actix {
 }
 pub mod simple_rpc_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
-    use actix_web::FromRequest;
     use super::*;
     use super::simple_rpc_server::SimpleRpc;
     use std::sync::Arc;
@@ -354,15 +366,19 @@ pub mod simple_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Post>, ::actix_web::Error> {
         let mut payload = payload.into_inner();
-        let path = ::actix_web::web::Path::<PostRPCPath>::extract(&http_request)
+        let path = <::actix_web::web::Path::<
+            PostRPCPath,
+        > as ::actix_web::FromRequest>::extract(&http_request)
             .await?
             .into_inner();
-        let query = ::actix_web::web::Query::<PostRPCQuery>::extract(&http_request)
+        let query = <::actix_web::web::Query::<
+            PostRPCQuery,
+        > as ::actix_web::FromRequest>::extract(&http_request)
             .await?
             .into_inner();
-        let json = ::actix_web::web::Json::<
+        let json = <::actix_web::web::Json::<
             PostRPCJson,
-        >::from_request(&http_request, &mut payload)
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await?
             .into_inner();
         let request = Post {

@@ -193,7 +193,7 @@ impl Request {
         let extractor = quote::format_ident!("{}", req.name);
         self.sub_name(req)
             .map(|name| quote::quote!(
-                let #field_name = ::actix_web::web::#extractor::<#name>::extract(&http_request).await?.into_inner();
+                let #field_name = <::actix_web::web::#extractor::<#name> as ::actix_web::FromRequest>::extract(&http_request).await?.into_inner();
             ))
     }
 
@@ -202,7 +202,7 @@ impl Request {
         let extractor = quote::format_ident!("{}", req.name);
         self.sub_name(req)
             .map(|name| quote::quote!(
-                let #field_name = ::actix_web::web::#extractor::<#name>::from_request(&http_request, &mut payload).await?.into_inner();
+                let #field_name = <::actix_web::web::#extractor::<#name> as ::actix_web::FromRequest>::from_request(&http_request, &mut payload).await?.into_inner();
             ))
     }
 

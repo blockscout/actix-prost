@@ -104,7 +104,6 @@ impl Values {
 }
 pub mod types_rpc_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
-    use actix_web::FromRequest;
     use super::*;
     use super::types_rpc_server::TypesRpc;
     use std::sync::Arc;
@@ -121,9 +120,9 @@ pub mod types_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Scalars>, ::actix_web::Error> {
         let mut payload = payload.into_inner();
-        let json = ::actix_web::web::Json::<
+        let json = <::actix_web::web::Json::<
             ScalarsRPCJson,
-        >::from_request(&http_request, &mut payload)
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await?
             .into_inner();
         let request = Scalars {
@@ -147,9 +146,9 @@ pub mod types_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<OptionalScalars>, ::actix_web::Error> {
         let mut payload = payload.into_inner();
-        let json = ::actix_web::web::Json::<
+        let json = <::actix_web::web::Json::<
             OptionalScalarsRPCJson,
-        >::from_request(&http_request, &mut payload)
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await?
             .into_inner();
         let request = OptionalScalars {
@@ -173,9 +172,9 @@ pub mod types_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Enums>, ::actix_web::Error> {
         let mut payload = payload.into_inner();
-        let json = ::actix_web::web::Json::<
+        let json = <::actix_web::web::Json::<
             EnumsRPCJson,
-        >::from_request(&http_request, &mut payload)
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await?
             .into_inner();
         let request = Enums { values: json.values };
@@ -193,9 +192,9 @@ pub mod types_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Repeated>, ::actix_web::Error> {
         let mut payload = payload.into_inner();
-        let json = ::actix_web::web::Json::<
+        let json = <::actix_web::web::Json::<
             RepeatedRPCJson,
-        >::from_request(&http_request, &mut payload)
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await?
             .into_inner();
         let request = Repeated { foo: json.foo };
@@ -213,9 +212,9 @@ pub mod types_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Maps>, ::actix_web::Error> {
         let mut payload = payload.into_inner();
-        let json = ::actix_web::web::Json::<
+        let json = <::actix_web::web::Json::<
             MapsRPCJson,
-        >::from_request(&http_request, &mut payload)
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await?
             .into_inner();
         let request = Maps { foo: json.foo };
@@ -233,9 +232,9 @@ pub mod types_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<OneOfs>, ::actix_web::Error> {
         let mut payload = payload.into_inner();
-        let json = ::actix_web::web::Json::<
+        let json = <::actix_web::web::Json::<
             OneOfsRPCJson,
-        >::from_request(&http_request, &mut payload)
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await?
             .into_inner();
         let request = OneOfs { values: json.values };
@@ -253,9 +252,9 @@ pub mod types_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Complex>, ::actix_web::Error> {
         let mut payload = payload.into_inner();
-        let json = ::actix_web::web::Json::<
+        let json = <::actix_web::web::Json::<
             ComplexRPCJson,
-        >::from_request(&http_request, &mut payload)
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await?
             .into_inner();
         let request = Complex {
