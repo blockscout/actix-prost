@@ -84,7 +84,7 @@ impl ActixGenerator {
         let configs = methods.iter().map(|m| m.generate_config());
         quote::quote!(
             pub mod #mod_name {
-                #![allow(unused_variables, unused_imports, dead_code, missing_docs)]
+                #![allow(unused_variables, dead_code, missing_docs)]
 
                 use super::*;
                 use #full_trait;
