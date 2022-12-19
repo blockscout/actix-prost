@@ -1,86 +1,89 @@
 #[actix_prost_macros::serde]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Scalars {
-    #[prost(double, tag="1")]
+    #[prost(double, tag = "1")]
     pub a: f64,
-    #[prost(int64, tag="2")]
+    #[prost(int64, tag = "2")]
     pub b: i64,
-    #[prost(string, tag="3")]
+    #[prost(string, tag = "3")]
     pub c: ::prost::alloc::string::String,
-    #[prost(bytes="bytes", tag="4")]
+    #[prost(bytes = "bytes", tag = "4")]
     pub d: ::prost::bytes::Bytes,
-    #[prost(bool, tag="5")]
+    #[prost(bool, tag = "5")]
     pub e: bool,
 }
 #[actix_prost_macros::serde]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct OptionalScalars {
-    #[prost(double, optional, tag="1")]
+    #[prost(double, optional, tag = "1")]
     pub a: ::core::option::Option<f64>,
-    #[prost(int64, optional, tag="2")]
+    #[prost(int64, optional, tag = "2")]
     pub b: ::core::option::Option<i64>,
-    #[prost(string, optional, tag="3")]
+    #[prost(string, optional, tag = "3")]
     pub c: ::core::option::Option<::prost::alloc::string::String>,
-    #[prost(bytes="bytes", optional, tag="4")]
+    #[prost(bytes = "bytes", optional, tag = "4")]
     pub d: ::core::option::Option<::prost::bytes::Bytes>,
-    #[prost(bool, optional, tag="5")]
+    #[prost(bool, optional, tag = "5")]
     pub e: ::core::option::Option<bool>,
 }
 #[actix_prost_macros::serde]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Enums {
-    #[prost(enumeration="Values", tag="1")]
+    #[prost(enumeration = "Values", tag = "1")]
     pub values: i32,
 }
 #[actix_prost_macros::serde]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Repeated {
-    #[prost(string, repeated, tag="1")]
+    #[prost(string, repeated, tag = "1")]
     pub foo: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 #[actix_prost_macros::serde]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Maps {
-    #[prost(map="string, int32", tag="1")]
+    #[prost(map = "string, int32", tag = "1")]
     pub foo: ::std::collections::HashMap<::prost::alloc::string::String, i32>,
 }
 #[actix_prost_macros::serde]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct OneOfs {
-    #[prost(oneof="one_ofs::Values", tags="1, 2, 3")]
+    #[prost(oneof = "one_ofs::Values", tags = "1, 2, 3")]
     pub values: ::core::option::Option<one_ofs::Values>,
 }
 /// Nested message and enum types in `OneOfs`.
 pub mod one_ofs {
     #[actix_prost_macros::serde]
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Values {
-        #[prost(string, tag="1")]
+        #[prost(string, tag = "1")]
         Foo(::prost::alloc::string::String),
-        #[prost(bytes, tag="2")]
+        #[prost(bytes, tag = "2")]
         Bar(::prost::bytes::Bytes),
-        #[prost(int64, tag="3")]
+        #[prost(int64, tag = "3")]
         Baz(i64),
     }
 }
-// message Google {
-//    google.protobuf.Timestamp foo = 1;
-//    google.protobuf.Any bar = 2;
-// }
-
 #[actix_prost_macros::serde]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Complex {
-    #[prost(message, optional, tag="1")]
+    #[prost(message, optional, tag = "1")]
     pub scalars: ::core::option::Option<Scalars>,
-    #[prost(message, optional, tag="2")]
+    #[prost(message, optional, tag = "2")]
     pub enums: ::core::option::Option<Enums>,
-    #[prost(message, optional, tag="3")]
+    #[prost(message, optional, tag = "3")]
     pub repeated: ::core::option::Option<Repeated>,
-    #[prost(message, optional, tag="4")]
+    #[prost(message, optional, tag = "4")]
     pub maps: ::core::option::Option<Maps>,
     /// Google google = 6;
-    #[prost(message, optional, tag="5")]
+    #[prost(message, optional, tag = "5")]
     pub oneofs: ::core::option::Option<OneOfs>,
 }
 #[actix_prost_macros::serde]
@@ -101,10 +104,17 @@ impl Values {
             Values::Bar => "BAR",
         }
     }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "FOO" => Some(Self::Foo),
+            "BAR" => Some(Self::Bar),
+            _ => None,
+        }
+    }
 }
 pub mod types_rpc_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
-    use actix_web::FromRequest;
     use super::*;
     use super::types_rpc_server::TypesRpc;
     use std::sync::Arc;
@@ -121,9 +131,9 @@ pub mod types_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Scalars>, ::actix_web::Error> {
         let mut payload = payload.into_inner();
-        let json = ::actix_web::web::Json::<
+        let json = <::actix_web::web::Json::<
             ScalarsRPCJson,
-        >::from_request(&http_request, &mut payload)
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await?
             .into_inner();
         let request = Scalars {
@@ -147,9 +157,9 @@ pub mod types_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<OptionalScalars>, ::actix_web::Error> {
         let mut payload = payload.into_inner();
-        let json = ::actix_web::web::Json::<
+        let json = <::actix_web::web::Json::<
             OptionalScalarsRPCJson,
-        >::from_request(&http_request, &mut payload)
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await?
             .into_inner();
         let request = OptionalScalars {
@@ -173,9 +183,9 @@ pub mod types_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Enums>, ::actix_web::Error> {
         let mut payload = payload.into_inner();
-        let json = ::actix_web::web::Json::<
+        let json = <::actix_web::web::Json::<
             EnumsRPCJson,
-        >::from_request(&http_request, &mut payload)
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await?
             .into_inner();
         let request = Enums { values: json.values };
@@ -193,9 +203,9 @@ pub mod types_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Repeated>, ::actix_web::Error> {
         let mut payload = payload.into_inner();
-        let json = ::actix_web::web::Json::<
+        let json = <::actix_web::web::Json::<
             RepeatedRPCJson,
-        >::from_request(&http_request, &mut payload)
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await?
             .into_inner();
         let request = Repeated { foo: json.foo };
@@ -213,9 +223,9 @@ pub mod types_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Maps>, ::actix_web::Error> {
         let mut payload = payload.into_inner();
-        let json = ::actix_web::web::Json::<
+        let json = <::actix_web::web::Json::<
             MapsRPCJson,
-        >::from_request(&http_request, &mut payload)
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await?
             .into_inner();
         let request = Maps { foo: json.foo };
@@ -233,9 +243,9 @@ pub mod types_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<OneOfs>, ::actix_web::Error> {
         let mut payload = payload.into_inner();
-        let json = ::actix_web::web::Json::<
+        let json = <::actix_web::web::Json::<
             OneOfsRPCJson,
-        >::from_request(&http_request, &mut payload)
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await?
             .into_inner();
         let request = OneOfs { values: json.values };
@@ -253,9 +263,9 @@ pub mod types_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Complex>, ::actix_web::Error> {
         let mut payload = payload.into_inner();
-        let json = ::actix_web::web::Json::<
+        let json = <::actix_web::web::Json::<
             ComplexRPCJson,
-        >::from_request(&http_request, &mut payload)
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await?
             .into_inner();
         let request = Complex {
@@ -494,7 +504,7 @@ pub mod types_rpc_client {
 pub mod types_rpc_server {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
-    ///Generated trait containing gRPC methods that should be implemented for use with TypesRpcServer.
+    /// Generated trait containing gRPC methods that should be implemented for use with TypesRpcServer.
     #[async_trait]
     pub trait TypesRpc: Send + Sync + 'static {
         async fn scalars_rpc(
