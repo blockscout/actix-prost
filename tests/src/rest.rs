@@ -74,7 +74,7 @@ async fn send_post<T: DeserializeOwned>(addr: &SocketAddr, path: &str, body: Str
         .text()
         .await
         .unwrap();
-    serde_json::from_str(&data).expect(&format!("could not parse json, got: {}", data))
+    serde_json::from_str(&data).unwrap_or_else(|_| panic!("could not parse json, got: {}", data))
 }
 
 #[tokio::test]
@@ -129,7 +129,7 @@ async fn request() {
     assert_eq!(
         send_post::<Post>(
             &addr,
-            &format!("/rest/post"),
+            "/rest/post",
             format!(
                 r#"{{"foo":"{}","bar":"{}","longName":{}}}"#,
                 post.foo, post.bar, post.long_name
@@ -142,7 +142,7 @@ async fn request() {
     assert_eq!(
         send_post::<Get>(
             &addr,
-            &format!("/rest/post_get"),
+            "/rest/post_get",
             format!(
                 r#"{{"foo":"{}","bar":"{}","longName":{}}}"#,
                 post.foo, post.bar, post.long_name
@@ -190,7 +190,7 @@ async fn response() {
     assert_eq!(
         send_post::<i64>(
             &addr,
-            &format!("/rest/response/post"),
+            "/rest/response/post",
             format!(
                 r#"{{"foo":"{}","bar":"{}","longName":{}}}"#,
                 post.foo, post.bar, post.long_name
@@ -203,7 +203,7 @@ async fn response() {
     assert_eq!(
         send_post::<String>(
             &addr,
-            &format!("/rest/response/post_get"),
+            "/rest/response/post_get",
             format!(
                 r#"{{"foo":"{}","bar":"{}","longName":{}}}"#,
                 post.foo, post.bar, post.long_name
