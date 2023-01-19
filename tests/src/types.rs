@@ -54,8 +54,8 @@ async fn assert_ping(addr: &SocketAddr, path: &str, body: String) {
         .await
         .unwrap();
     let body: serde_json::Value = serde_json::from_str(&body).unwrap();
-    let resp: serde_json::Value =
-        serde_json::from_str(&resp).expect(&format!("could not parse json, got: {}", resp));
+    let resp: serde_json::Value = serde_json::from_str(&resp)
+        .unwrap_or_else(|_| panic!("could not parse json, got: {}", resp));
     assert_eq!(body, resp);
 }
 
