@@ -1,19 +1,21 @@
 #[actix_prost_macros::serde]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Get {
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub foo: ::prost::alloc::string::String,
-    #[prost(int64, tag="2")]
+    #[prost(int64, tag = "2")]
     pub bar: i64,
 }
 #[actix_prost_macros::serde]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Post {
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub foo: ::prost::alloc::string::String,
-    #[prost(int64, tag="2")]
+    #[prost(int64, tag = "2")]
     pub bar: i64,
-    #[prost(double, tag="3")]
+    #[prost(double, tag = "3")]
     pub long_name: f64,
 }
 pub mod rest_rpc_actix {
@@ -23,18 +25,21 @@ pub mod rest_rpc_actix {
     use std::sync::Arc;
     type GetRPCPath = Get;
     #[actix_prost_macros::serde]
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct GetQueryRPCPath {
         #[prost(string, tag = "1")]
         pub foo: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde]
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct GetQueryRPCQuery {
         #[prost(int64, tag = "2")]
         pub bar: i64,
     }
     #[actix_prost_macros::serde]
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PostRPCPath {
         #[prost(string, tag = "1")]
@@ -43,24 +48,28 @@ pub mod rest_rpc_actix {
         pub bar: i64,
     }
     #[actix_prost_macros::serde]
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PostRPCJson {
         #[prost(double, tag = "3")]
         pub long_name: f64,
     }
     #[actix_prost_macros::serde]
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PostQueryRPCPath {
         #[prost(string, tag = "1")]
         pub foo: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde]
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PostQueryRPCQuery {
         #[prost(int64, tag = "2")]
         pub bar: i64,
     }
     #[actix_prost_macros::serde]
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PostQueryRPCJson {
         #[prost(double, tag = "3")]
@@ -343,18 +352,21 @@ pub mod simple_rpc_actix {
     use super::simple_rpc_server::SimpleRpc;
     use std::sync::Arc;
     #[actix_prost_macros::serde]
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PostRPCPath {
         #[prost(string, tag = "1")]
         pub foo: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde]
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PostRPCQuery {
         #[prost(int64, tag = "2")]
         pub bar: i64,
     }
     #[actix_prost_macros::serde]
+    #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PostRPCJson {
         #[prost(double, tag = "3")]
@@ -728,7 +740,7 @@ pub mod simple_rpc_client {
 pub mod rest_rpc_server {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
-    ///Generated trait containing gRPC methods that should be implemented for use with RestRpcServer.
+    /// Generated trait containing gRPC methods that should be implemented for use with RestRpcServer.
     #[async_trait]
     pub trait RestRpc: Send + Sync + 'static {
         async fn get_rpc(
@@ -1208,7 +1220,7 @@ pub mod rest_rpc_server {
 pub mod simple_rpc_server {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
-    ///Generated trait containing gRPC methods that should be implemented for use with SimpleRpcServer.
+    /// Generated trait containing gRPC methods that should be implemented for use with SimpleRpcServer.
     #[async_trait]
     pub trait SimpleRpc: Send + Sync + 'static {
         async fn post_rpc(

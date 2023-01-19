@@ -92,18 +92,19 @@
 ///
 ///
 #[actix_prost_macros::serde]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Timestamp {
     /// Represents seconds of UTC time since Unix epoch
     /// 1970-01-01T00:00:00Z. Must be from 0001-01-01T00:00:00Z to
     /// 9999-12-31T23:59:59Z inclusive.
-    #[prost(int64, tag="1")]
+    #[prost(int64, tag = "1")]
     pub seconds: i64,
     /// Non-negative fractions of a second at nanosecond resolution. Negative
     /// second values with fractions must still have non-negative nanos values
     /// that count forward in time. Must be from 0 to 999,999,999
     /// inclusive.
-    #[prost(int32, tag="2")]
+    #[prost(int32, tag = "2")]
     pub nanos: i32,
 }
 /// `Any` contains an arbitrary serialized protocol buffer message along with a
@@ -190,6 +191,7 @@ pub struct Timestamp {
 ///      }
 ///
 #[actix_prost_macros::serde]
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Any {
     /// A URL/resource name that uniquely identifies the type of the serialized
@@ -220,9 +222,9 @@ pub struct Any {
     /// Schemes other than `http`, `https` (or the empty scheme) might be
     /// used with implementation specific semantics.
     ///
-    #[prost(string, tag="1")]
+    #[prost(string, tag = "1")]
     pub type_url: ::prost::alloc::string::String,
     /// Must be a valid serialized protocol buffer of the above specified type.
-    #[prost(bytes="bytes", tag="2")]
+    #[prost(bytes = "bytes", tag = "2")]
     pub value: ::prost::bytes::Bytes,
 }
