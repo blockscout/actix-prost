@@ -120,8 +120,8 @@ async fn request() {
     assert_eq!(
         send_post::<Post>(
             &addr,
-            &format!("/rest/post/{}?bar={}", post.foo, post.bar),
-            format!(r#"{{"longName":{}}}"#, post.long_name),
+            &format!("/rest/post/{}?bar={}", post.long_name, post.bar),
+            format!(r#"{{"foo":"{}"}}"#, post.foo),
         )
         .await,
         post

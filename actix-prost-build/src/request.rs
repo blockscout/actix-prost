@@ -136,29 +136,33 @@ impl Request {
         }
     }
 
-    fn generate_struct(&self, req: &RequestFields) -> Option<TokenStream> {
-        // an optimization: do not generate new struct if all the fields are the same as in message
-        if req.fields.len() == self.message.fields.len() {
-            self.sub_name(req).map(|name| {
-                let message_name = &self.message.ident;
-                quote::quote!(
-                    type #name = #message_name;
-                )
-            })
-        } else {
-            self.sub_name(req).map(|name| {
-                let mut generated = self.message.clone();
-                generated.ident = name;
-                generated.fields = self.filter_fields(req);
-                quote::quote!(#generated)
-            })
-        }
+    fn generate_struct(
+        &self,
+        req: &RequestFields,
+        attrs: Option<TokenStream>,
+    ) -> Option<TokenStream> {
+        self.sub_name(req).map(|name| {
+            let mut generated = self.message.clone();
+            generated.ident = name;
+            generated.attrs = generated
+                .attrs
+                .into_iter()
+                .filter(|attr| attr.path != syn::parse_quote!(actix_prost_macros::serde))
+                .collect();
+            let actix_serde = match attrs {
+                Some(attrs) => syn::parse_quote!(#[actix_prost_macros::serde(#attrs)]),
+                None => syn::parse_quote!(#[actix_prost_macros::serde]),
+            };
+            generated.attrs.push(actix_serde);
+            generated.fields = self.filter_fields(req);
+            quote::quote!(#generated)
+        })
     }
 
     pub fn generate_structs(&self) -> TokenStream {
-        let path = self.generate_struct(&self.path);
-        let query = self.generate_struct(&self.query);
-        let body = self.generate_struct(&self.body);
+        let path = self.generate_struct(&self.path, Some(quote::quote!(rename_all = "snake_case")));
+        let query = self.generate_struct(&self.query, None);
+        let body = self.generate_struct(&self.body, None);
         quote::quote!(#path #query #body)
     }
 
