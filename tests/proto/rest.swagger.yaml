@@ -78,39 +78,9 @@ paths:
             $ref: '#/definitions/restPost'
       tags:
         - RestRPC
-  /rest/post/{foo_1}:
-    post:
-      operationId: SimpleRPC_PostRPC
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/restPost'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: foo_1
-          in: path
-          required: true
-          type: string
-        - name: longName
-          in: body
-          required: true
-          schema:
-            type: number
-            format: double
-        - name: bar
-          in: query
-          required: false
-          type: string
-          format: int64
-      tags:
-        - SimpleRPC
   /rest/post/{foo}:
     post:
-      operationId: RestRPC_PostQueryRPC
+      operationId: SimpleRPC_PostRPC
       responses:
         "200":
           description: A successful response.
@@ -137,7 +107,7 @@ paths:
           type: string
           format: int64
       tags:
-        - RestRPC
+        - SimpleRPC
   /rest/post/{foo}/{bar}:
     post:
       operationId: RestRPC_PostRPC
@@ -166,6 +136,36 @@ paths:
           schema:
             type: number
             format: double
+      tags:
+        - RestRPC
+  /rest/post/{longName}:
+    post:
+      operationId: RestRPC_PostQueryRPC
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/restPost'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: longName
+          in: path
+          required: true
+          type: number
+          format: double
+        - name: foo
+          in: body
+          required: true
+          schema:
+            type: string
+        - name: bar
+          in: query
+          required: false
+          type: string
+          format: int64
       tags:
         - RestRPC
   /rest/post_get:

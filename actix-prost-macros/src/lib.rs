@@ -2,14 +2,32 @@ use enums::process_enum;
 use field::process_field;
 use proc_macro::TokenStream;
 use quote::quote;
+use syn::{AttributeArgs, Item};
 
 mod enums;
 mod field;
 mod prost;
 
+fn find_rename_all(attrs: &[syn::NestedMeta]) -> Option<String> {
+    for attr in attrs {
+        match attr {
+            syn::NestedMeta::Meta(syn::Meta::NameValue(meta))
+                if meta.path == syn::parse_quote!(rename_all) =>
+            {
+                if let syn::Lit::Str(s) = &meta.lit {
+                    return Some(s.value());
+                }
+            }
+            _ => {}
+        }
+    }
+    None
+}
+
 #[proc_macro_attribute]
-pub fn serde(_: TokenStream, item: TokenStream) -> TokenStream {
-    let mut item: syn::Item = syn::parse(item).unwrap();
+pub fn serde(attrs: TokenStream, item: TokenStream) -> TokenStream {
+    let mut item = syn::parse_macro_input!(item as Item);
+    let attrs = syn::parse_macro_input!(attrs as AttributeArgs);
     let mut result = quote::quote!();
     match &mut item {
         syn::Item::Enum(item) => {
@@ -45,8 +63,12 @@ pub fn serde(_: TokenStream, item: TokenStream) -> TokenStream {
             }
             item.attrs
                 .push(syn::parse_quote!(#[derive(serde::Serialize, serde::Deserialize)]));
+            let rename = match find_rename_all(&attrs) {
+                Some(rename) => rename,
+                None => "camelCase".to_owned(),
+            };
             item.attrs
-                .push(syn::parse_quote!(#[serde(rename_all = "camelCase")]));
+                .push(syn::parse_quote!(#[serde(rename_all = #rename)]));
         }
         _ => {}
     }

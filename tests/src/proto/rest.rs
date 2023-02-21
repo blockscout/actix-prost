@@ -23,63 +23,119 @@ pub mod rest_rpc_actix {
     use super::*;
     use super::rest_rpc_server::RestRpc;
     use std::sync::Arc;
-    type GetRPCPath = Get;
-    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
+    #[actix_prost_macros::serde(rename_all = "snake_case")]
+    pub struct GetRPCPath {
+        #[prost(string, tag = "1")]
+        pub foo: ::prost::alloc::string::String,
+        #[prost(int64, tag = "2")]
+        pub bar: i64,
+    }
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    #[actix_prost_macros::serde(rename_all = "snake_case")]
     pub struct GetQueryRPCPath {
         #[prost(string, tag = "1")]
         pub foo: ::prost::alloc::string::String,
     }
-    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
+    #[actix_prost_macros::serde]
     pub struct GetQueryRPCQuery {
         #[prost(int64, tag = "2")]
         pub bar: i64,
     }
-    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
+    #[actix_prost_macros::serde(rename_all = "snake_case")]
     pub struct PostRPCPath {
         #[prost(string, tag = "1")]
         pub foo: ::prost::alloc::string::String,
         #[prost(int64, tag = "2")]
         pub bar: i64,
     }
-    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
+    #[actix_prost_macros::serde]
     pub struct PostRPCJson {
         #[prost(double, tag = "3")]
         pub long_name: f64,
     }
-    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
+    #[actix_prost_macros::serde(rename_all = "snake_case")]
     pub struct PostQueryRPCPath {
-        #[prost(string, tag = "1")]
-        pub foo: ::prost::alloc::string::String,
+        #[prost(double, tag = "3")]
+        pub long_name: f64,
     }
-    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
+    #[actix_prost_macros::serde]
     pub struct PostQueryRPCQuery {
         #[prost(int64, tag = "2")]
         pub bar: i64,
     }
-    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
+    #[actix_prost_macros::serde]
     pub struct PostQueryRPCJson {
+        #[prost(string, tag = "1")]
+        pub foo: ::prost::alloc::string::String,
+    }
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    #[actix_prost_macros::serde]
+    pub struct PostNoPathRPCJson {
+        #[prost(string, tag = "1")]
+        pub foo: ::prost::alloc::string::String,
+        #[prost(int64, tag = "2")]
+        pub bar: i64,
         #[prost(double, tag = "3")]
         pub long_name: f64,
     }
-    type PostNoPathRPCJson = Post;
-    type PostGetRPCJson = Post;
-    type GetResponseRPCPath = Get;
-    type PostResponseRPCJson = Post;
-    type PostResponseGetRPCJson = Post;
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    #[actix_prost_macros::serde]
+    pub struct PostGetRPCJson {
+        #[prost(string, tag = "1")]
+        pub foo: ::prost::alloc::string::String,
+        #[prost(int64, tag = "2")]
+        pub bar: i64,
+        #[prost(double, tag = "3")]
+        pub long_name: f64,
+    }
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    #[actix_prost_macros::serde(rename_all = "snake_case")]
+    pub struct GetResponseRPCPath {
+        #[prost(string, tag = "1")]
+        pub foo: ::prost::alloc::string::String,
+        #[prost(int64, tag = "2")]
+        pub bar: i64,
+    }
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    #[actix_prost_macros::serde]
+    pub struct PostResponseRPCJson {
+        #[prost(string, tag = "1")]
+        pub foo: ::prost::alloc::string::String,
+        #[prost(int64, tag = "2")]
+        pub bar: i64,
+        #[prost(double, tag = "3")]
+        pub long_name: f64,
+    }
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    #[actix_prost_macros::serde]
+    pub struct PostResponseGetRPCJson {
+        #[prost(string, tag = "1")]
+        pub foo: ::prost::alloc::string::String,
+        #[prost(int64, tag = "2")]
+        pub bar: i64,
+        #[prost(double, tag = "3")]
+        pub long_name: f64,
+    }
     async fn call_get_rpc(
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
@@ -178,9 +234,9 @@ pub mod rest_rpc_actix {
             .await?
             .into_inner();
         let request = Post {
-            foo: path.foo,
+            long_name: path.long_name,
             bar: query.bar,
-            long_name: json.long_name,
+            foo: json.foo,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service
@@ -326,7 +382,10 @@ pub mod rest_rpc_actix {
         config
             .route("/rest/post/{foo}/{bar}", ::actix_web::web::post().to(call_post_rpc));
         config
-            .route("/rest/post/{foo}", ::actix_web::web::post().to(call_post_query_rpc));
+            .route(
+                "/rest/post/{long_name}",
+                ::actix_web::web::post().to(call_post_query_rpc),
+            );
         config.route("/rest/post", ::actix_web::web::post().to(call_post_no_path_rpc));
         config.route("/rest/post_get", ::actix_web::web::post().to(call_post_get_rpc));
         config
@@ -351,23 +410,23 @@ pub mod simple_rpc_actix {
     use super::*;
     use super::simple_rpc_server::SimpleRpc;
     use std::sync::Arc;
-    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
+    #[actix_prost_macros::serde(rename_all = "snake_case")]
     pub struct PostRPCPath {
         #[prost(string, tag = "1")]
         pub foo: ::prost::alloc::string::String,
     }
-    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
+    #[actix_prost_macros::serde]
     pub struct PostRPCQuery {
         #[prost(int64, tag = "2")]
         pub bar: i64,
     }
-    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
+    #[actix_prost_macros::serde]
     pub struct PostRPCJson {
         #[prost(double, tag = "3")]
         pub long_name: f64,

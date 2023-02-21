@@ -11,8 +11,8 @@ http:
     post: /rest/post/{foo}/{bar}
     body: long_name
   - selector: "rest.RestRPC.PostQueryRPC"
-    post: /rest/post/{foo}
-    body: long_name
+    post: /rest/post/{long_name}
+    body: foo
   - selector: "rest.RestRPC.PostNoPathRPC"
     post: /rest/post
     body: "*"
