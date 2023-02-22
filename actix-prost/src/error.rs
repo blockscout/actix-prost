@@ -68,7 +68,7 @@ impl ResponseError for Error {
                     r#"{{"code":{}, "message":"while serializing error another error happened: {}, original error: {}"}}"#,
                     i32::from(self.code),
                     err,
-                    self.message
+                    self
                 );
                 HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR)
                     .content_type("application/json")
