@@ -7,6 +7,7 @@ use crate::{
 };
 use actix_prost::Error;
 use actix_web::{App, HttpServer};
+use http::StatusCode;
 use pretty_assertions::assert_eq;
 use serde::de::DeserializeOwned;
 use std::{net::SocketAddr, sync::Arc};
@@ -27,19 +28,26 @@ impl ErrorsRpc for ErrorsServer {
     }
 }
 
-async fn send_post<T: DeserializeOwned>(addr: &SocketAddr, path: &str, body: String) -> T {
+async fn send_post<T: DeserializeOwned>(
+    addr: &SocketAddr,
+    path: &str,
+    body: String,
+) -> (T, StatusCode) {
     let client = reqwest::Client::new();
-    let data = client
+    let response = client
         .post(format!("http://localhost:{}{}", addr.port(), path))
         .body(body)
         .header("Content-Type", "application/json")
         .send()
         .await
-        .unwrap()
-        .text()
-        .await
         .unwrap();
-    serde_json::from_str(&data).unwrap_or_else(|_| panic!("could not parse json, got: {}", data))
+    let status = response.status();
+    let data = response.text().await.unwrap();
+    (
+        serde_json::from_str(&data)
+            .unwrap_or_else(|_| panic!("could not parse json, got: {}", data)),
+        status,
+    )
 }
 
 async fn send_code(addr: &SocketAddr, code: Code) {
@@ -50,10 +58,13 @@ async fn send_code(addr: &SocketAddr, code: Code) {
             format!(r#"{{"message":"status {}"}}"#, code),
         )
         .await,
-        Error {
-            code,
-            message: format!("status {}", code).into()
-        }
+        (
+            Error {
+                code,
+                message: format!("status {}", code).into()
+            },
+            Error::map_tonic_code(code)
+        )
     );
 }
 
@@ -80,23 +91,33 @@ async fn errors() {
             r#"{"message":"path error"}"#.into(),
         )
         .await,
-        Error {
-            code: Code::InvalidArgument,
-            message: "can not parse \"hi\" to a i32".into()
-        }
+        (
+            Error {
+                code: Code::InvalidArgument,
+                message: "can not parse \"hi\" to a i32".into()
+            },
+            StatusCode::BAD_REQUEST
+        )
     );
     assert_eq!(
         send_post::<Error>(&addr, "/errors/0", r#"{"message":"query error"}"#.into()).await,
-        Error {
-            code: Code::InvalidArgument,
-            message: "Query deserialize error: missing field `query`".into()
-        }
+        (
+            Error {
+                code: Code::InvalidArgument,
+                message: "Query deserialize error: missing field `query`".into()
+            },
+            StatusCode::BAD_REQUEST
+        )
     );
     assert_eq!(
         send_post::<Error>(&addr, "/errors/0?query=something", r#"{}"#.into()).await,
-        Error {
-            code: Code::InvalidArgument,
-            message: "Json deserialize error: missing field `message` at line 1 column 2".into()
-        }
+        (
+            Error {
+                code: Code::InvalidArgument,
+                message: "Json deserialize error: missing field `message` at line 1 column 2"
+                    .into()
+            },
+            StatusCode::BAD_REQUEST
+        )
     );
 }

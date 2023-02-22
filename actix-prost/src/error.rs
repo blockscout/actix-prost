@@ -65,7 +65,7 @@ impl ResponseError for Error {
                 .body(body),
             Err(err) => {
                 let body = format!(
-                    r#"{{"code":{}, "message":"while serilizing error another error happened: {}, original error: {}"}}"#,
+                    r#"{{"code":{}, "message":"while serializing error another error happened: {}, original error: {}"}}"#,
                     i32::from(self.code),
                     err,
                     self.message
