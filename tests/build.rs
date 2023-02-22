@@ -40,7 +40,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Box::new(ActixGenerator::new("proto/http_api.yaml").unwrap()),
     ]));
     compile(
-        &["proto/rest.proto", "proto/types.proto"],
+        &[
+            "proto/rest.proto",
+            "proto/types.proto",
+            "proto/errors.proto",
+        ],
         &["proto/", "proto/googleapis", "proto/grpc-gateway"],
         gens,
     )?;

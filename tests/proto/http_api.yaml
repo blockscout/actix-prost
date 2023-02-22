@@ -60,3 +60,7 @@ http:
   - selector: "types.TypesRPC.ComplexRPC"
     post: /types/complex
     body: "*"
+
+  - selector: "errors.ErrorsRPC.Error"
+    post: /errors/{code}
+    body: "message"

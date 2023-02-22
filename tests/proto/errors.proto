@@ -1,0 +1,14 @@
+syntax = "proto3";
+package errors;
+
+option go_package = "github.com/blockscout/actix-prost/tests";
+
+service ErrorsRPC { rpc Error(ErrorRequest) returns (ErrorResponse); }
+
+message ErrorRequest {
+  int32 code = 1;
+  string query = 2;
+  string message = 3;
+}
+
+message ErrorResponse {}
