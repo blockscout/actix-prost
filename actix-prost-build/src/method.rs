@@ -66,15 +66,14 @@ impl Method {
                 service: ::actix_web::web::Data<dyn #trait_name + Sync + Send + 'static>,
                 http_request: ::actix_web::HttpRequest,
                 #payload
-            ) -> Result<::actix_web::web::Json<#response_type>, ::actix_web::Error> {
+            ) -> Result<::actix_web::web::Json<#response_type>, ::actix_prost::Error> {
                 #payload_convert
                 #extractors
                 let request = #request_init;
                 let request = ::actix_prost::new_request(request, &http_request);
                 let response = service
                     .#name(request)
-                    .await
-                    .map_err(::actix_prost::map_tonic_error)?;
+                    .await?;
                 let response = response.into_inner();
                 #response_convert
                 Ok(::actix_web::web::Json(response))

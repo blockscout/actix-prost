@@ -3,6 +3,6 @@ pub mod header;
 pub mod request;
 pub mod serde;
 
-pub use error::map_tonic_error;
+pub use error::Error;
 pub use header::map_headers;
 pub use request::new_request;

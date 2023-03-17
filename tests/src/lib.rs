@@ -12,3 +12,6 @@ mod rest;
 
 #[cfg(test)]
 mod types;
+
+#[cfg(test)]
+mod errors;

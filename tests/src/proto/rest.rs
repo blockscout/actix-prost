@@ -139,47 +139,53 @@ pub mod rest_rpc_actix {
     async fn call_get_rpc(
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
-    ) -> Result<::actix_web::web::Json<Get>, ::actix_web::Error> {
+    ) -> Result<::actix_web::web::Json<Get>, ::actix_prost::Error> {
         let path = <::actix_web::web::Path::<
             GetRPCPath,
         > as ::actix_web::FromRequest>::extract(&http_request)
-            .await?
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let request = Get {
             foo: path.foo,
             bar: path.bar,
         };
         let request = ::actix_prost::new_request(request, &http_request);
-        let response = service
-            .get_rpc(request)
-            .await
-            .map_err(::actix_prost::map_tonic_error)?;
+        let response = service.get_rpc(request).await?;
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
     async fn call_get_query_rpc(
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
-    ) -> Result<::actix_web::web::Json<Get>, ::actix_web::Error> {
+    ) -> Result<::actix_web::web::Json<Get>, ::actix_prost::Error> {
         let path = <::actix_web::web::Path::<
             GetQueryRPCPath,
         > as ::actix_web::FromRequest>::extract(&http_request)
-            .await?
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let query = <::actix_web::web::Query::<
             GetQueryRPCQuery,
         > as ::actix_web::FromRequest>::extract(&http_request)
-            .await?
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let request = Get {
             foo: path.foo,
             bar: query.bar,
         };
         let request = ::actix_prost::new_request(request, &http_request);
-        let response = service
-            .get_query_rpc(request)
-            .await
-            .map_err(::actix_prost::map_tonic_error)?;
+        let response = service.get_query_rpc(request).await?;
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
@@ -187,17 +193,25 @@ pub mod rest_rpc_actix {
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<Post>, ::actix_web::Error> {
+    ) -> Result<::actix_web::web::Json<Post>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let path = <::actix_web::web::Path::<
             PostRPCPath,
         > as ::actix_web::FromRequest>::extract(&http_request)
-            .await?
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let json = <::actix_web::web::Json::<
             PostRPCJson,
         > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
-            .await?
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let request = Post {
             foo: path.foo,
@@ -205,10 +219,7 @@ pub mod rest_rpc_actix {
             long_name: json.long_name,
         };
         let request = ::actix_prost::new_request(request, &http_request);
-        let response = service
-            .post_rpc(request)
-            .await
-            .map_err(::actix_prost::map_tonic_error)?;
+        let response = service.post_rpc(request).await?;
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
@@ -216,22 +227,34 @@ pub mod rest_rpc_actix {
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<Post>, ::actix_web::Error> {
+    ) -> Result<::actix_web::web::Json<Post>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let path = <::actix_web::web::Path::<
             PostQueryRPCPath,
         > as ::actix_web::FromRequest>::extract(&http_request)
-            .await?
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let query = <::actix_web::web::Query::<
             PostQueryRPCQuery,
         > as ::actix_web::FromRequest>::extract(&http_request)
-            .await?
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let json = <::actix_web::web::Json::<
             PostQueryRPCJson,
         > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
-            .await?
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let request = Post {
             long_name: path.long_name,
@@ -239,10 +262,7 @@ pub mod rest_rpc_actix {
             foo: json.foo,
         };
         let request = ::actix_prost::new_request(request, &http_request);
-        let response = service
-            .post_query_rpc(request)
-            .await
-            .map_err(::actix_prost::map_tonic_error)?;
+        let response = service.post_query_rpc(request).await?;
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
@@ -250,12 +270,16 @@ pub mod rest_rpc_actix {
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<Post>, ::actix_web::Error> {
+    ) -> Result<::actix_web::web::Json<Post>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json::<
             PostNoPathRPCJson,
         > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
-            .await?
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let request = Post {
             foo: json.foo,
@@ -263,10 +287,7 @@ pub mod rest_rpc_actix {
             long_name: json.long_name,
         };
         let request = ::actix_prost::new_request(request, &http_request);
-        let response = service
-            .post_no_path_rpc(request)
-            .await
-            .map_err(::actix_prost::map_tonic_error)?;
+        let response = service.post_no_path_rpc(request).await?;
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
@@ -274,12 +295,16 @@ pub mod rest_rpc_actix {
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<Get>, ::actix_web::Error> {
+    ) -> Result<::actix_web::web::Json<Get>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json::<
             PostGetRPCJson,
         > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
-            .await?
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let request = Post {
             foo: json.foo,
@@ -287,10 +312,7 @@ pub mod rest_rpc_actix {
             long_name: json.long_name,
         };
         let request = ::actix_prost::new_request(request, &http_request);
-        let response = service
-            .post_get_rpc(request)
-            .await
-            .map_err(::actix_prost::map_tonic_error)?;
+        let response = service.post_get_rpc(request).await?;
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
@@ -299,22 +321,23 @@ pub mod rest_rpc_actix {
         http_request: ::actix_web::HttpRequest,
     ) -> Result<
         ::actix_web::web::Json<::prost::alloc::string::String>,
-        ::actix_web::Error,
+        ::actix_prost::Error,
     > {
         let path = <::actix_web::web::Path::<
             GetResponseRPCPath,
         > as ::actix_web::FromRequest>::extract(&http_request)
-            .await?
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let request = Get {
             foo: path.foo,
             bar: path.bar,
         };
         let request = ::actix_prost::new_request(request, &http_request);
-        let response = service
-            .get_response_rpc(request)
-            .await
-            .map_err(::actix_prost::map_tonic_error)?;
+        let response = service.get_response_rpc(request).await?;
         let response = response.into_inner();
         let response = response.foo;
         Ok(::actix_web::web::Json(response))
@@ -323,12 +346,16 @@ pub mod rest_rpc_actix {
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<i64>, ::actix_web::Error> {
+    ) -> Result<::actix_web::web::Json<i64>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json::<
             PostResponseRPCJson,
         > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
-            .await?
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let request = Post {
             foo: json.foo,
@@ -336,10 +363,7 @@ pub mod rest_rpc_actix {
             long_name: json.long_name,
         };
         let request = ::actix_prost::new_request(request, &http_request);
-        let response = service
-            .post_response_rpc(request)
-            .await
-            .map_err(::actix_prost::map_tonic_error)?;
+        let response = service.post_response_rpc(request).await?;
         let response = response.into_inner();
         let response = response.bar;
         Ok(::actix_web::web::Json(response))
@@ -350,13 +374,17 @@ pub mod rest_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<
         ::actix_web::web::Json<::prost::alloc::string::String>,
-        ::actix_web::Error,
+        ::actix_prost::Error,
     > {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json::<
             PostResponseGetRPCJson,
         > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
-            .await?
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let request = Post {
             foo: json.foo,
@@ -364,10 +392,7 @@ pub mod rest_rpc_actix {
             long_name: json.long_name,
         };
         let request = ::actix_prost::new_request(request, &http_request);
-        let response = service
-            .post_response_get_rpc(request)
-            .await
-            .map_err(::actix_prost::map_tonic_error)?;
+        let response = service.post_response_get_rpc(request).await?;
         let response = response.into_inner();
         let response = response.foo;
         Ok(::actix_web::web::Json(response))
@@ -435,22 +460,34 @@ pub mod simple_rpc_actix {
         service: ::actix_web::web::Data<dyn SimpleRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<Post>, ::actix_web::Error> {
+    ) -> Result<::actix_web::web::Json<Post>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let path = <::actix_web::web::Path::<
             PostRPCPath,
         > as ::actix_web::FromRequest>::extract(&http_request)
-            .await?
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let query = <::actix_web::web::Query::<
             PostRPCQuery,
         > as ::actix_web::FromRequest>::extract(&http_request)
-            .await?
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let json = <::actix_web::web::Json::<
             PostRPCJson,
         > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
-            .await?
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let request = Post {
             foo: path.foo,
@@ -458,10 +495,7 @@ pub mod simple_rpc_actix {
             long_name: json.long_name,
         };
         let request = ::actix_prost::new_request(request, &http_request);
-        let response = service
-            .post_rpc(request)
-            .await
-            .map_err(::actix_prost::map_tonic_error)?;
+        let response = service.post_rpc(request).await?;
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
