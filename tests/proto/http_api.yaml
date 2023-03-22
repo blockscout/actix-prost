@@ -45,6 +45,9 @@ http:
   - selector: "types.TypesRPC.EnumsRPC"
     post: /types/enums
     body: "*"
+  - selector: "types.TypesRPC.OptionalEnumsRPC"
+    post: /types/optional_enums
+    body: "*"
   - selector: "types.TypesRPC.RepeatedRPC"
     post: /types/repeated
     body: "*"

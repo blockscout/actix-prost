@@ -85,3 +85,50 @@ pub mod option_bytes {
         Ok(helper.map(|Helper(external)| external))
     }
 }
+
+pub mod option_enum {
+    use super::*;
+    use serde::de::DeserializeOwned;
+    use serde_with::TryFromInto;
+
+    #[serde_as]
+    #[derive(Serialize, Deserialize)]
+    struct Helper<T: Serialize + DeserializeOwned + TryFrom<i32, Error = String> + Into<i32>>(
+        #[serde_as(as = "TryFromInto<T>")] i32,
+        std::marker::PhantomData<T>,
+    );
+
+    pub fn serialize<
+        'a,
+        T: Serialize + DeserializeOwned + TryFrom<i32, Error = String> + Into<i32> + Copy,
+        S,
+    >(
+        value: &'a Option<T>,
+        serializer: S,
+    ) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        value
+            .as_ref()
+            .map(|x| Helper((*x).into(), std::marker::PhantomData::<T>))
+            .serialize(serializer)
+    }
+
+    pub fn deserialize<
+        'de,
+        T: Serialize + DeserializeOwned + TryFrom<i32, Error = String> + Into<i32> + Copy,
+        D,
+    >(
+        deserializer: D,
+    ) -> Result<Option<T>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        struct Helper<T>(T);
+
+        let helper = Option::deserialize(deserializer)?;
+        Ok(helper.map(|Helper(external)| external))
+    }
+}

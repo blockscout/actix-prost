@@ -29,6 +29,8 @@ enum Values {
 
 message Enums { Values values = 1; }
 
+message OptionalEnums { optional Values values = 1; }
+
 message Repeated { repeated string foo = 1; }
 
 message Maps { map<string, int32> foo = 1; }
@@ -59,6 +61,7 @@ service TypesRPC {
   rpc ScalarsRPC(Scalars) returns (Scalars);
   rpc OptionalScalarsRPC(OptionalScalars) returns (OptionalScalars);
   rpc EnumsRPC(Enums) returns (Enums);
+  rpc OptionalEnumsRPC(OptionalEnums) returns (OptionalEnums);
   rpc RepeatedRPC(Repeated) returns (Repeated);
   rpc MapsRPC(Maps) returns (Maps);
   rpc OneOfsRPC(OneOfs) returns (OneOfs);
