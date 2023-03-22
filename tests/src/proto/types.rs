@@ -38,6 +38,13 @@ pub struct Enums {
 #[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct OptionalEnums {
+    #[prost(enumeration = "Values", optional, tag = "1")]
+    pub values: ::core::option::Option<i32>,
+}
+#[actix_prost_macros::serde]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Repeated {
     #[prost(string, repeated, tag = "1")]
     pub foo: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
@@ -158,6 +165,13 @@ pub mod types_rpc_actix {
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     #[actix_prost_macros::serde]
+    pub struct OptionalEnumsRPCJson {
+        #[prost(enumeration = "Values", optional, tag = "1")]
+        pub values: ::core::option::Option<i32>,
+    }
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    #[actix_prost_macros::serde]
     pub struct RepeatedRPCJson {
         #[prost(string, repeated, tag = "1")]
         pub foo: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
@@ -267,6 +281,28 @@ pub mod types_rpc_actix {
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
+    async fn call_optional_enums_rpc(
+        service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
+        http_request: ::actix_web::HttpRequest,
+        payload: ::actix_web::web::Payload,
+    ) -> Result<::actix_web::web::Json<OptionalEnums>, ::actix_web::Error> {
+        let mut payload = payload.into_inner();
+        let json = <::actix_web::web::Json::<
+            OptionalEnumsRPCJson,
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
+            .await?
+            .into_inner();
+        let request = OptionalEnums {
+            values: json.values,
+        };
+        let request = ::actix_prost::new_request(request, &http_request);
+        let response = service
+            .optional_enums_rpc(request)
+            .await
+            .map_err(::actix_prost::map_tonic_error)?;
+        let response = response.into_inner();
+        Ok(::actix_web::web::Json(response))
+    }
     async fn call_repeated_rpc(
         service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
@@ -369,6 +405,11 @@ pub mod types_rpc_actix {
                 ::actix_web::web::post().to(call_optional_scalars_rpc),
             );
         config.route("/types/enums", ::actix_web::web::post().to(call_enums_rpc));
+        config
+            .route(
+                "/types/optional_enums",
+                ::actix_web::web::post().to(call_optional_enums_rpc),
+            );
         config.route("/types/repeated", ::actix_web::web::post().to(call_repeated_rpc));
         config.route("/types/maps", ::actix_web::web::post().to(call_maps_rpc));
         config.route("/types/oneofs", ::actix_web::web::post().to(call_one_ofs_rpc));
@@ -499,6 +540,25 @@ pub mod types_rpc_client {
             let path = http::uri::PathAndQuery::from_static("/types.TypesRPC/EnumsRPC");
             self.inner.unary(request.into_request(), path, codec).await
         }
+        pub async fn optional_enums_rpc(
+            &mut self,
+            request: impl tonic::IntoRequest<super::OptionalEnums>,
+        ) -> Result<tonic::Response<super::OptionalEnums>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/types.TypesRPC/OptionalEnumsRPC",
+            );
+            self.inner.unary(request.into_request(), path, codec).await
+        }
         pub async fn repeated_rpc(
             &mut self,
             request: impl tonic::IntoRequest<super::Repeated>,
@@ -593,6 +653,10 @@ pub mod types_rpc_server {
             &self,
             request: tonic::Request<super::Enums>,
         ) -> Result<tonic::Response<super::Enums>, tonic::Status>;
+        async fn optional_enums_rpc(
+            &self,
+            request: tonic::Request<super::OptionalEnums>,
+        ) -> Result<tonic::Response<super::OptionalEnums>, tonic::Status>;
         async fn repeated_rpc(
             &self,
             request: tonic::Request<super::Repeated>,
@@ -769,6 +833,44 @@ pub mod types_rpc_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = EnumsRPCSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/types.TypesRPC/OptionalEnumsRPC" => {
+                    #[allow(non_camel_case_types)]
+                    struct OptionalEnumsRPCSvc<T: TypesRpc>(pub Arc<T>);
+                    impl<T: TypesRpc> tonic::server::UnaryService<super::OptionalEnums>
+                    for OptionalEnumsRPCSvc<T> {
+                        type Response = super::OptionalEnums;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::OptionalEnums>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).optional_enums_rpc(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = OptionalEnumsRPCSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

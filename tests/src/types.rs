@@ -1,7 +1,7 @@
 use crate::{
     proto::types::{
         types_rpc_actix::route_types_rpc, types_rpc_server::TypesRpc, Complex, Enums, Maps, OneOfs,
-        OptionalScalars, Repeated, Scalars,
+        OptionalEnums, OptionalScalars, Repeated, Scalars,
     },
     test,
 };
@@ -25,6 +25,12 @@ impl TypesRpc for TypesServer {
         Ok(Response::new(request.into_inner()))
     }
     async fn enums_rpc(&self, request: Request<Enums>) -> Result<Response<Enums>, Status> {
+        Ok(Response::new(request.into_inner()))
+    }
+    async fn optional_enums_rpc(
+        &self,
+        request: Request<OptionalEnums>,
+    ) -> Result<Response<OptionalEnums>, Status> {
         Ok(Response::new(request.into_inner()))
     }
     async fn repeated_rpc(&self, request: Request<Repeated>) -> Result<Response<Repeated>, Status> {
@@ -90,6 +96,9 @@ async fn ping() {
     )
     .await;
     assert_ping(&addr, "/types/enums", r#"{"values":"BAR"}"#.into()).await;
+    assert_ping(&addr, "/types/optional_enums", r#"{"values":"BAR"}"#.into()).await;
+    assert_ping(&addr, "/types/optional_enums", r#"{"values":null}"#.into()).await;
+    assert_ping(&addr, "/types/optional_enums", r#"{}"#.into()).await;
     assert_ping(
         &addr,
         "/types/repeated",

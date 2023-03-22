@@ -2,13 +2,14 @@ use crate::prost::parse_attrs;
 
 pub fn process_field(f: &syn::Field) -> (Option<syn::Attribute>, bool) {
     let metas = parse_attrs(f.attrs.clone());
-    for m in metas {
-        if let (Some(attr), need_serde_as) = parse_meta(&m) {
-            return (Some(attr), need_serde_as);
-        }
-    }
 
     if let syn::Type::Path(ty) = &f.ty {
+        for m in metas {
+            if let (Some(attr), need_serde_as) = parse_meta(&ty.path, &m) {
+                return (Some(attr), need_serde_as);
+            }
+        }
+
         if let (Some(attr), need_serde_as) = parse_path(&ty.path) {
             return (Some(attr), need_serde_as);
         }
@@ -48,7 +49,7 @@ fn parse_path(name: &syn::Path) -> (Option<syn::Attribute>, bool) {
     }
 }
 
-fn parse_meta(meta: &syn::Meta) -> (Option<syn::Attribute>, bool) {
+fn parse_meta(name: &syn::Path, meta: &syn::Meta) -> (Option<syn::Attribute>, bool) {
     let meta = match meta {
         syn::Meta::NameValue(value) => value,
         _ => return (None, false),
@@ -58,8 +59,22 @@ fn parse_meta(meta: &syn::Meta) -> (Option<syn::Attribute>, bool) {
             syn::Lit::Str(name) => name,
             _ => return (None, false),
         };
-        let as_value = format!("serde_with::TryFromInto<{}>", enum_name.value());
-        (Some(syn::parse_quote!(#[serde_as(as = #as_value)])), true)
+        let option: syn::Path = syn::parse_quote!(::core::option::Option);
+        if name.segments.len() == option.segments.len()
+            && name
+                .segments
+                .iter()
+                .zip(option.segments.iter())
+                .all(|(a, b)| a.ident == b.ident)
+        {
+            (
+                Some(syn::parse_quote!(#[serde(default,with="actix_prost::serde::option_enum")])),
+                false,
+            )
+        } else {
+            let as_value = format!("serde_with::TryFromInto<{}>", enum_name.value());
+            (Some(syn::parse_quote!(#[serde_as(as = #as_value)])), true)
+        }
     } else if meta.path == syn::parse_quote!(oneof) {
         (Some(syn::parse_quote!(#[serde(flatten)])), false)
     } else {
