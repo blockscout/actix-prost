@@ -15,8 +15,7 @@ pub struct ErrorRequest {
 pub struct ErrorResponse {}
 pub mod errors_rpc_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
-    use super::*;
-    use super::errors_rpc_server::ErrorsRpc;
+    use super::{errors_rpc_server::ErrorsRpc, *};
     use std::sync::Arc;
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
@@ -45,33 +44,26 @@ pub mod errors_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<ErrorResponse>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
-        let path = <::actix_web::web::Path::<
-            ErrorPath,
-        > as ::actix_web::FromRequest>::extract(&http_request)
-            .await
-            .map_err(|err| ::actix_prost::Error::from_actix(
-                err,
-                ::tonic::Code::InvalidArgument,
-            ))?
-            .into_inner();
-        let query = <::actix_web::web::Query::<
-            ErrorQuery,
-        > as ::actix_web::FromRequest>::extract(&http_request)
-            .await
-            .map_err(|err| ::actix_prost::Error::from_actix(
-                err,
-                ::tonic::Code::InvalidArgument,
-            ))?
-            .into_inner();
-        let json = <::actix_web::web::Json::<
-            ErrorJson,
-        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
-            .await
-            .map_err(|err| ::actix_prost::Error::from_actix(
-                err,
-                ::tonic::Code::InvalidArgument,
-            ))?
-            .into_inner();
+        let path =
+            <::actix_web::web::Path<ErrorPath> as ::actix_web::FromRequest>::extract(&http_request)
+                .await
+                .map_err(|err| {
+                    ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument)
+                })?
+                .into_inner();
+        let query = <::actix_web::web::Query<ErrorQuery> as ::actix_web::FromRequest>::extract(
+            &http_request,
+        )
+        .await
+        .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
+        .into_inner();
+        let json = <::actix_web::web::Json<ErrorJson> as ::actix_web::FromRequest>::from_request(
+            &http_request,
+            &mut payload,
+        )
+        .await
+        .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
+        .into_inner();
         let request = ErrorRequest {
             code: path.code,
             query: query.query,
@@ -93,8 +85,7 @@ pub mod errors_rpc_actix {
 /// Generated client implementations.
 pub mod errors_rpc_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-    use tonic::codegen::*;
-    use tonic::codegen::http::Uri;
+    use tonic::codegen::{http::Uri, *};
     #[derive(Debug, Clone)]
     pub struct ErrorsRpcClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -138,9 +129,8 @@ pub mod errors_rpc_client {
                     <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
             >,
-            <T as tonic::codegen::Service<
-                http::Request<tonic::body::BoxBody>,
-            >>::Error: Into<StdError> + Send + Sync,
+            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
+                Into<StdError> + Send + Sync,
         {
             ErrorsRpcClient::new(InterceptedService::new(inner, interceptor))
         }
@@ -163,15 +153,12 @@ pub mod errors_rpc_client {
             &mut self,
             request: impl tonic::IntoRequest<super::ErrorRequest>,
         ) -> Result<tonic::Response<super::ErrorResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/errors.ErrorsRPC/Error");
             self.inner.unary(request.into_request(), path, codec).await
@@ -209,10 +196,7 @@ pub mod errors_rpc_server {
                 send_compression_encodings: Default::default(),
             }
         }
-        pub fn with_interceptor<F>(
-            inner: T,
-            interceptor: F,
-        ) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -240,10 +224,7 @@ pub mod errors_rpc_server {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
-        fn poll_ready(
-            &mut self,
-            _cx: &mut Context<'_>,
-        ) -> Poll<Result<(), Self::Error>> {
+        fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
@@ -252,13 +233,9 @@ pub mod errors_rpc_server {
                 "/errors.ErrorsRPC/Error" => {
                     #[allow(non_camel_case_types)]
                     struct ErrorSvc<T: ErrorsRpc>(pub Arc<T>);
-                    impl<T: ErrorsRpc> tonic::server::UnaryService<super::ErrorRequest>
-                    for ErrorSvc<T> {
+                    impl<T: ErrorsRpc> tonic::server::UnaryService<super::ErrorRequest> for ErrorSvc<T> {
                         type Response = super::ErrorResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ErrorRequest>,
@@ -275,28 +252,23 @@ pub mod errors_rpc_server {
                         let inner = inner.0;
                         let method = ErrorSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)
                 }
-                _ => {
-                    Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", "12")
-                                .header("content-type", "application/grpc")
-                                .body(empty_body())
-                                .unwrap(),
-                        )
-                    })
-                }
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", "12")
+                        .header("content-type", "application/grpc")
+                        .body(empty_body())
+                        .unwrap())
+                }),
             }
         }
     }

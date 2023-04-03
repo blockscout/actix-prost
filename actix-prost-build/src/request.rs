@@ -1,6 +1,7 @@
 use crate::config::HttpRule;
 use proc_macro2::{Ident, TokenStream};
 use std::{collections::HashSet, iter::FromIterator};
+use syn::PathArguments;
 
 pub struct RequestFields {
     name: String,
@@ -93,13 +94,57 @@ impl Request {
     }
 
     pub fn filter_fields(&self, req: &RequestFields) -> syn::Fields {
+        // Is called from `generate_struct` method. The method generates structs for the actix module
+        // and those structs will be located inside `mod *_actix`. The problem with `super::` paths
+        // occurs because proto structures are located in the main module. Thus, we need to add a one more
+        // `super::` path segment for those paths to make them out of `mod *_actix`.
+        fn update_type_super_path(ty: &mut syn::Type) {
+            if let syn::Type::Path(type_path) = ty {
+                let mut super_segment_data = None;
+                for (i, segment) in type_path.path.segments.iter_mut().enumerate() {
+                    if segment.ident.to_string().as_str() == "super" {
+                        // We need to add only one additional `super` segment,
+                        // thus we are looking only the first inclusion.
+                        super_segment_data = Some((i, segment.clone()));
+                        break;
+                    }
+                    // Update segment paths in the arguments, if there are any
+                    match &mut segment.arguments {
+                        PathArguments::AngleBracketed(syn::AngleBracketedGenericArguments {
+                            args,
+                            ..
+                        }) => args.iter_mut().for_each(|arg| {
+                            if let syn::GenericArgument::Type(ty) = arg {
+                                update_type_super_path(ty)
+                            }
+                        }),
+                        PathArguments::Parenthesized(syn::ParenthesizedGenericArguments {
+                            inputs,
+                            ..
+                        }) => inputs.iter_mut().for_each(update_type_super_path),
+                        PathArguments::None => {}
+                    }
+                }
+
+                // Make the actual update. We cannot do that inside `for` cycle,
+                // because `type_path.path.segments` are mutually borrowed to update arguments.
+                if let Some((index, segment)) = super_segment_data {
+                    type_path.path.segments.insert(index, segment)
+                }
+            }
+        }
+
         let filter: HashSet<&str> = HashSet::from_iter(req.fields.iter().map(|x| x.as_ref()));
         let fields = self
             .message
             .fields
             .iter()
-            .filter(|field| filter.contains(field.ident.as_ref().unwrap().to_string().as_str()))
+            .filter(|&field| filter.contains(field.ident.as_ref().unwrap().to_string().as_str()))
             .cloned()
+            .map(|mut field| {
+                update_type_super_path(&mut field.ty);
+                field
+            })
             .collect();
         let brace_token = if let syn::Fields::Named(named) = &self.message.fields {
             named.brace_token
@@ -144,11 +189,9 @@ impl Request {
         self.sub_name(req).map(|name| {
             let mut generated = self.message.clone();
             generated.ident = name;
-            generated.attrs = generated
+            generated
                 .attrs
-                .into_iter()
-                .filter(|attr| attr.path != syn::parse_quote!(actix_prost_macros::serde))
-                .collect();
+                .retain(|attr| attr.path != syn::parse_quote!(actix_prost_macros::serde));
             let actix_serde = match attrs {
                 Some(attrs) => syn::parse_quote!(#[actix_prost_macros::serde(#attrs)]),
                 None => syn::parse_quote!(#[actix_prost_macros::serde]),
