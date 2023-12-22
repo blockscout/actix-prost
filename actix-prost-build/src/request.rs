@@ -189,14 +189,12 @@ impl Request {
         self.sub_name(req).map(|name| {
             let mut generated = self.message.clone();
             generated.ident = name;
-            generated
-                .attrs
-                .retain(|attr| attr.path != syn::parse_quote!(actix_prost_macros::serde));
-            let actix_serde = match attrs {
-                Some(attrs) => syn::parse_quote!(#[actix_prost_macros::serde(#attrs)]),
-                None => syn::parse_quote!(#[actix_prost_macros::serde]),
-            };
-            generated.attrs.push(actix_serde);
+            if let Some(attrs) = attrs {
+                generated
+                    .attrs
+                    .retain(|attr| attr.path != syn::parse_quote!(actix_prost_macros::serde));
+                generated.attrs.push(syn::parse_quote!(#[actix_prost_macros::serde(#attrs)]));
+            }
             generated.fields = self.filter_fields(req);
             quote::quote!(#generated)
         })
