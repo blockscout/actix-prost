@@ -1,7 +1,7 @@
 use crate::{config::HttpRule, method::Method, Config};
 use proc_macro2::TokenStream;
 use prost_build::{Service, ServiceGenerator};
-use prost_reflect::{Cardinality, DescriptorPool};
+use prost_reflect::{Cardinality, DescriptorPool, DynamicMessage, MessageDescriptor};
 use quote::quote;
 use std::{
     collections::HashMap,
@@ -109,7 +109,7 @@ impl ActixGenerator {
 
         let expanded = quote::quote!(
             #[derive(Debug)]
-            struct #new_struct_name {
+            pub struct #new_struct_name {
                 #(#field_types,)*
             }
 
@@ -124,13 +124,48 @@ impl ActixGenerator {
         TokenStream::from(expanded)
     }
 
+    fn extract_extra_fields(
+        descriptors: &DescriptorPool,
+        m: &MessageDescriptor,
+    ) -> Vec<(String, String)> {
+        let message_extension = descriptors
+            .get_message_by_name("google.protobuf.MessageOptions")
+            .unwrap()
+            .extensions()
+            .find(|ext| ext.name() == "extra_fields")
+            .unwrap();
+
+        let options = m.options();
+        options
+            .get_extension(&message_extension)
+            .as_list()
+            .unwrap()
+            .iter()
+            .map(|v| {
+                let m = v.as_message().unwrap();
+                let name = Self::get_string_field(m, "name");
+                let ty = Self::get_string_field(m, "type");
+                (name, ty)
+            })
+            .collect::<Vec<_>>()
+    }
+
+    fn get_string_field(m: &DynamicMessage, name: &str) -> String {
+        m.get_field_by_name(name)
+            .unwrap()
+            .as_str()
+            .unwrap()
+            .to_string()
+    }
+
     fn create_conversions(&self, service: &Service) -> TokenStream {
         let path =
             PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR environment variable not set"))
                 .join("file_descriptor_set.bin");
         let buf = fs::read(path).unwrap();
         let descriptors = DescriptorPool::decode(&*buf).unwrap();
-        let extension = descriptors
+
+        let fields_extension = descriptors
             .get_message_by_name("google.protobuf.FieldOptions")
             .unwrap()
             .extensions()
@@ -144,6 +179,10 @@ impl ActixGenerator {
             let message_in = descriptors
                 .get_message_by_name(&method.input_proto_type)
                 .unwrap();
+
+            // TODO
+            let _extra_fields = Self::extract_extra_fields(&descriptors, &message_in);
+
             // TODO
             let _message_out = descriptors
                 .get_message_by_name(&method.output_proto_type)
@@ -156,7 +195,7 @@ impl ActixGenerator {
                 .fields()
                 .filter_map(|f| {
                     let options = f.options();
-                    let ext_val = options.get_extension(&extension);
+                    let ext_val = options.get_extension(&fields_extension);
                     let ext_val = ext_val.as_message().unwrap();
 
                     let ty = ext_val.get_field_by_name("type")?;
