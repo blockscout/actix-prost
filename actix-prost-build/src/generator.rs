@@ -161,13 +161,9 @@ impl ActixGenerator {
 
                     let ty = ext_val.get_field_by_name("type")?;
                     let ty = ty.as_str()?;
+
                     if !ty.is_empty() {
-                        let ty = if f.cardinality() == Cardinality::Optional {
-                            format!("Option<{}>", ty)
-                        } else {
-                            String::from(ty)
-                        };
-                        Some((String::from(f.name()), ty))
+                        Some((String::from(f.name()), String::from(ty)))
                     } else {
                         None
                     }
