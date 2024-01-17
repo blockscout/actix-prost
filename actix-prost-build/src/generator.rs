@@ -1,8 +1,15 @@
 use crate::{config::HttpRule, method::Method, Config};
 use proc_macro2::TokenStream;
 use prost_build::{Service, ServiceGenerator};
-use std::{collections::HashMap, fs::File, path::Path};
-use syn::Item;
+use prost_reflect::{Cardinality, DescriptorPool};
+use quote::quote;
+use std::{
+    collections::HashMap,
+    env,
+    fs::{self, File},
+    path::{Path, PathBuf},
+};
+use syn::{Fields, Item, ItemStruct, Type};
 
 pub struct ActixGenerator {
     messages: HashMap<String, syn::ItemStruct>,
@@ -15,6 +22,12 @@ pub enum Error {
     File(#[from] std::io::Error),
     #[error("could not parse the config {0}")]
     Parse(#[from] serde_yaml::Error),
+}
+
+#[derive(Default)]
+struct ConvertFields {
+    fields: Vec<(String, String)>,
+    extra: Vec<(String, String)>,
 }
 
 impl ActixGenerator {
@@ -51,6 +64,123 @@ impl ActixGenerator {
             .collect()
     }
 
+    fn create_convert_struct(input: ItemStruct, convert_fields: ConvertFields) -> TokenStream {
+        let struct_name = input.ident.clone();
+        let new_struct_name = quote::format_ident!("{}Internal", struct_name);
+
+        let fields = match input.fields {
+            Fields::Named(named) => named.named,
+            _ => unimplemented!(),
+        };
+        let convert = quote!(actix_prost::convert::Convert);
+        let fields: Vec<_> = fields
+            .iter()
+            .map(|f| {
+                let name = f.ident.clone().unwrap();
+                let vis = &f.vis;
+
+                let field_override = convert_fields
+                    .fields
+                    .iter()
+                    .find(|(n, _)| n.eq(&name.to_string()));
+                let (ty, conv) = match field_override {
+                    Some((_, ty)) => {
+                        let ty = syn::parse_str::<Type>(ty).unwrap();
+                        (quote!(#ty), quote! { #convert::convert(from.#name)? })
+                    }
+                    None => {
+                        let ty = &f.ty;
+                        (quote!(#ty), quote! { from.#name })
+                    }
+                };
+                (
+                    quote! {
+                        #vis #name: #ty
+                    },
+                    quote! {
+                        #name: #conv
+                    },
+                )
+            })
+            .collect();
+
+        let field_types = fields.iter().map(|(t, _)| t);
+        let field_conversions = fields.iter().map(|(_, c)| c);
+
+        let expanded = quote::quote!(
+            #[derive(Debug)]
+            struct #new_struct_name {
+                #(#field_types,)*
+            }
+
+            impl #convert<#struct_name> for #new_struct_name {
+                fn convert(from: #struct_name) -> anyhow::Result<Self> {
+                    Ok(Self {
+                        #(#field_conversions,)*
+                    })
+                }
+            }
+        );
+        TokenStream::from(expanded)
+    }
+
+    fn create_conversions(&self, service: &Service) -> TokenStream {
+        let path =
+            PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR environment variable not set"))
+                .join("file_descriptor_set.bin");
+        let buf = fs::read(path).unwrap();
+        let descriptors = DescriptorPool::decode(&*buf).unwrap();
+        let extension = descriptors
+            .get_message_by_name("google.protobuf.FieldOptions")
+            .unwrap()
+            .extensions()
+            .find(|ext| ext.name() == "convert")
+            .unwrap();
+
+        let methods = &service.methods;
+
+        let mut res = Vec::new();
+        for method in methods.iter() {
+            let message_in = descriptors
+                .get_message_by_name(&method.input_proto_type)
+                .unwrap();
+            // TODO
+            let _message_out = descriptors
+                .get_message_by_name(&method.output_proto_type)
+                .unwrap();
+
+            let rust_struct = self.messages.get(&method.input_type).unwrap().clone();
+
+            let mut convert_fields: ConvertFields = Default::default();
+            convert_fields.fields = message_in
+                .fields()
+                .filter_map(|f| {
+                    let options = f.options();
+                    let ext_val = options.get_extension(&extension);
+                    let ext_val = ext_val.as_message().unwrap();
+
+                    let ty = ext_val.get_field_by_name("type")?;
+                    let ty = ty.as_str()?;
+                    if !ty.is_empty() {
+                        let ty = if f.cardinality() == Cardinality::Optional {
+                            format!("Option<{}>", ty)
+                        } else {
+                            String::from(ty)
+                        };
+                        Some((String::from(f.name()), ty))
+                    } else {
+                        None
+                    }
+                })
+                .collect();
+
+            res.push(Self::create_convert_struct(rust_struct, convert_fields));
+        }
+        quote!(
+            #(#res)*
+        )
+    }
+
     fn router(&self, service: &Service) -> TokenStream {
         let service_name = crate::string::naive_snake_case(&service.name);
 
@@ -77,12 +207,12 @@ impl ActixGenerator {
             .collect();
 
         if methods.is_empty() {
-            return quote::quote!();
+            return quote!();
         }
         let request_structs = methods.iter().map(|m| m.request().generate_structs());
         let fns = methods.iter().map(|m| m.generate_route());
         let configs = methods.iter().map(|m| m.generate_config());
-        quote::quote!(
+        quote!(
             pub mod #mod_name {
                 #![allow(unused_variables, dead_code, missing_docs)]
 
@@ -117,15 +247,21 @@ impl ActixGenerator {
                 .map(|message| (message.ident.to_string(), message)),
         );
     }
+
+    fn token_stream_to_code(&self, tokens: TokenStream) -> String {
+        let ast: syn::File = syn::parse2(tokens).expect("not a valid tokenstream");
+        let code = prettyplease::unparse(&ast);
+        code
+    }
 }
 
 impl ServiceGenerator for ActixGenerator {
     fn generate(&mut self, service: Service, buf: &mut String) {
         self.parse_messages(buf);
         let router = self.router(&service);
+        let res = self.create_conversions(&service);
 
-        let ast: syn::File = syn::parse2(router).expect("not a valid tokenstream");
-        let code = prettyplease::unparse(&ast);
-        buf.push_str(&code);
+        buf.push_str(&self.token_stream_to_code(router));
+        buf.push_str(&self.token_stream_to_code(res));
     }
 }
