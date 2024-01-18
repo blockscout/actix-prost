@@ -66,7 +66,7 @@ impl Request {
             .partition(|field| path_filter.contains(field.as_str()));
 
         if path_fields.len() != path.len() {
-            let found: HashSet<String> = HashSet::from_iter(path.into_iter());
+            let found: HashSet<String> = HashSet::from_iter(path);
             panic!(
                 "some path fields were not found: {:?}",
                 path_fields

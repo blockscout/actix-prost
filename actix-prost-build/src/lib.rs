@@ -5,6 +5,7 @@ pub mod method;
 pub mod request;
 pub mod response;
 pub mod string;
+pub mod conversions;
 
 pub use config::Config;
 pub use generator::ActixGenerator;
