@@ -2,11 +2,11 @@ use crate::{config::HttpRule, conversions::ConversionsGenerator, method::Method,
 use proc_macro2::TokenStream;
 use prost_build::{Service, ServiceGenerator};
 use quote::quote;
-use std::{collections::HashMap, fs::File, path::Path};
+use std::{collections::HashMap, fs::File, path::Path, rc::Rc};
 use syn::Item;
 
 pub struct ActixGenerator {
-    messages: HashMap<String, syn::ItemStruct>,
+    messages: Rc<HashMap<String, syn::ItemStruct>>,
     config: Config,
     conversions_gen: ConversionsGenerator,
 }
@@ -26,7 +26,7 @@ impl ActixGenerator {
         Ok(ActixGenerator {
             messages: Default::default(),
             config,
-            conversions_gen: Default::default(),
+            conversions_gen: ConversionsGenerator::new(),
         })
     }
 
@@ -110,15 +110,18 @@ impl ActixGenerator {
 
     fn parse_messages(&mut self, buf: &mut str) {
         let file: syn::File = syn::parse_str(buf).unwrap();
-        self.messages.extend(
+        // let messages = self.messages.borrow_mut();
+        self.messages = Rc::new(
             file.items
                 .into_iter()
                 .filter_map(|item| match item {
                     Item::Struct(message) => Some(message),
                     _ => None,
                 })
-                .map(|message| (message.ident.to_string(), message)),
+                .map(|message| (message.ident.to_string(), message))
+                .collect(),
         );
+        self.conversions_gen.messages = Rc::clone(&self.messages);
     }
 
     fn token_stream_to_code(&self, tokens: TokenStream) -> String {
@@ -128,7 +131,7 @@ impl ActixGenerator {
 
     pub fn create_conversions(&self, service: &Service) -> TokenStream {
         self.conversions_gen
-            .create_conversions(service, &self.messages)
+            .create_conversions(service)
     }
 }
 

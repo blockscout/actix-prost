@@ -7,5 +7,5 @@ mod address;
 mod bytes;
 
 pub trait Convert<T>: Sized {
-    fn convert(value: T) -> anyhow::Result<Self>;
+    fn convert(value: T) -> Result<Self, String>;
 }

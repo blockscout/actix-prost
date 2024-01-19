@@ -6,6 +6,7 @@ pub mod request;
 pub mod response;
 pub mod string;
 pub mod conversions;
+mod helpers;
 
 pub use config::Config;
 pub use generator::ActixGenerator;

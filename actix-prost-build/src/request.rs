@@ -190,10 +190,13 @@ impl Request {
             let mut generated = self.message.clone();
             generated.ident = name;
             if let Some(attrs) = attrs {
+                generated.attrs.retain(|attr| {
+                    let serde: syn::Path = syn::parse_quote!(actix_prost_macros::serde);
+                    attr.path() != &serde
+                });
                 generated
                     .attrs
-                    .retain(|attr| attr.path != syn::parse_quote!(actix_prost_macros::serde));
-                generated.attrs.push(syn::parse_quote!(#[actix_prost_macros::serde(#attrs)]));
+                    .push(syn::parse_quote!(#[actix_prost_macros::serde(#attrs)]));
             }
             generated.fields = self.filter_fields(req);
             quote::quote!(#generated)
