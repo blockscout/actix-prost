@@ -103,9 +103,12 @@ impl From<&DynamicMessage> for ExtraFieldOptions {
 
 #[derive(Default)]
 pub struct ConversionsGenerator {
+    // Shared messages with ActixGenerator
     pub messages: Rc<HashMap<String, syn::ItemStruct>>,
     descriptors: DescriptorPool,
+    // Prefix for the Convert trait (could be static?)
     convert_prefix: TokenStream,
+    // Track already processed messages to prevent duplicated code generation
     processed_messages: HashSet<String>,
 }
 
@@ -329,8 +332,7 @@ impl ConversionsGenerator {
 
                 if let Expr::Lit(expr) = &enum_part.value {
                     if let Lit::Str(lit) = &expr.lit {
-                        let enum_ident = lit.parse::<Ident>().ok();
-
+                        let enum_ident = lit.parse::<syn::Path>().ok();
                         return Some((
                             quote!(#enum_ident),
                             quote!(#enum_ident::try_from(from.#name)?),
