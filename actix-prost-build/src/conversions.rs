@@ -16,6 +16,7 @@ pub struct ExtraFieldOptions {
 pub struct ConvertFieldOptions {
     pub ty: Option<String>,
     pub val_override: Option<String>,
+    pub required: bool,
 }
 
 #[derive(Default, Debug)]
@@ -77,6 +78,10 @@ impl From<&DynamicMessage> for ConvertFieldOptions {
         Self {
             ty: get_string_field(value, "type"),
             val_override: get_string_field(value, "override"),
+            required: match value.get_field_by_name("required") {
+                Some(v) => v.as_bool().unwrap(),
+                None => false,
+            },
         }
     }
 }
@@ -94,7 +99,10 @@ impl From<&DynamicMessage> for ExtraFieldOptions {
 pub struct ConversionsGenerator {
     pub messages: Rc<HashMap<String, syn::ItemStruct>>,
     descriptors: DescriptorPool,
+    convert_prefix: TokenStream,
 }
+
+type ProcessedType = (TokenStream, TokenStream);
 
 impl ConversionsGenerator {
     pub fn new() -> Self {
@@ -107,6 +115,7 @@ impl ConversionsGenerator {
         Self {
             messages: Default::default(),
             descriptors,
+            convert_prefix: quote!(convert_trait::Convert),
         }
     }
 
@@ -149,16 +158,15 @@ impl ConversionsGenerator {
 
         let convert_options = ConvertOptions::try_from((&self.descriptors, message)).unwrap();
 
-        let convert = quote!(convert_trait::Convert);
-
         let (field_types, field_conversions) =
-            self.prepare_fields(fields.iter(), &convert_options, &convert, res);
+            self.prepare_fields(fields.iter(), &convert_options, res);
 
         let (extra_field_types, extra_field_conversions) =
             self.prepare_extra_fields(&convert_options);
 
         let struct_ident = &rust_struct.ident;
         let new_struct_ident = quote::format_ident!("{}Internal", struct_ident);
+        let convert = &self.convert_prefix;
         let expanded = quote::quote!(
             #[derive(Debug)]
             pub struct #new_struct_ident {
@@ -183,7 +191,6 @@ impl ConversionsGenerator {
         &self,
         fields: I,
         convert_options: &ConvertOptions,
-        convert_prefix: &TokenStream,
         res: &mut Vec<TokenStream>,
     ) -> (Vec<TokenStream>, Vec<TokenStream>)
     where
@@ -193,69 +200,20 @@ impl ConversionsGenerator {
             .map(|f| {
                 let name = f.ident.clone().unwrap();
                 let vis = &f.vis;
-
-                // Check if the field contains a nested message
-                let internal_struct = match extract_type_from_option(&f.ty) {
-                    Some(Type::Path(ty)) => ty
-                        .path
-                        .segments
-                        .first()
-                        .and_then(|ty| self.messages.get(&ty.ident.to_string())),
-                    _ => None,
-                };
-
-                // Process the nested message
-                if let Some(s) = internal_struct {
-                    let ident = &s.ident;
-                    let message = self
-                        .descriptors
-                        .all_messages()
-                        .find(|m| *ident == m.name())
-                        .unwrap();
-                    // let message = self.descriptors.get_message_by_name(ident).unwrap();
-                    let new_struct_name =
-                        self.create_convert_struct(&message, &ident.to_string(), res);
-
-                    return (
-                        quote! {
-                            #vis #name: ::core::option::Option<#new_struct_name>
-                        },
-                        quote! {
-                            #name: #convert_prefix::convert(from.#name)?
-                        },
-                    );
-                }
-
-                // Handle enums
-                if let Some(enum_ident) = Self::is_enum(f) {
-                    return (
-                        quote! {
-                            #vis #name: #enum_ident
-                        },
-                        quote! {
-                            #name: #enum_ident::try_from(from.#name)?
-                        },
-                    );
-                };
-
                 let convert_field = convert_options
                     .fields
                     .iter()
-                    .find(|(n, _)| n.eq(&name.to_string()));
+                    .find(|(n, _)| n.eq(&name.to_string()))
+                    .map(|(_, v)| v);
 
-                let (ty, conv) = match convert_field {
-                    Some((_, ConvertFieldOptions { ty: Some(ty), .. })) => {
-                        let ty = syn::parse_str::<Type>(ty).unwrap();
-                        (
-                            quote!(#ty),
-                            quote! { #convert_prefix::convert(from.#name)? },
-                        )
-                    }
-                    _ => {
-                        let ty = &f.ty;
-                        (quote!(#ty), quote! { from.#name })
-                    }
-                };
+                // 1. Check if the field contains a nested message
+                // 2. Check if the field is an enum
+                // 3. Use the default conversion
+                let (ty, conv) = self
+                    .process_internal_struct(f, convert_field, res)
+                    .or_else(|| Self::process_enum(f))
+                    .unwrap_or_else(|| self.process_default(f, convert_field));
+
                 (
                     quote! {
                         #vis #name: #ty
@@ -266,6 +224,118 @@ impl ConversionsGenerator {
                 )
             })
             .unzip()
+    }
+
+    fn process_internal_struct(
+        &self,
+        f: &Field,
+        convert_field: Option<&ConvertFieldOptions>,
+        res: &mut Vec<TokenStream>,
+    ) -> Option<ProcessedType> {
+        let name = f.ident.as_ref().unwrap();
+        let convert = &self.convert_prefix;
+
+        // Check if the field contains a nested message
+        let internal_struct = match extract_type_from_option(&f.ty) {
+            Some(Type::Path(ty)) => ty
+                .path
+                .segments
+                .first()
+                .and_then(|ty| self.messages.get(&ty.ident.to_string())),
+            _ => None,
+        };
+
+        // Process the nested message
+        internal_struct.map(|s| {
+            let ident = &s.ident;
+            // TODO: could incorrectly detect messages with same name in different packages
+            let message = self
+                .descriptors
+                .all_messages()
+                .find(|m| *ident == m.name())
+                .unwrap();
+            let new_struct_name = self.create_convert_struct(&message, &ident.to_string(), res);
+
+            match convert_field {
+                Some(ConvertFieldOptions { required: true, .. }) => {
+                    let require_message = format!("field {} is required", name);
+                    (
+                        quote!(#new_struct_name),
+                        quote!(#convert::convert(from.#name.ok_or(#require_message)?)?),
+                    )
+                }
+                _ => (
+                    quote!(::core::option::Option<#new_struct_name>),
+                    quote!(#convert::convert(from.#name)?),
+                ),
+            }
+        })
+    }
+
+    fn process_enum(f: &Field) -> Option<ProcessedType> {
+        let name = f.ident.as_ref().unwrap();
+
+        f.attrs.iter().find_map(|a| {
+            if !a.path().is_ident("prost") {
+                return None;
+            }
+
+            if let Meta::List(list) = &a.meta {
+                let meta_list = list
+                    .parse_args_with(Punctuated::<MetaNameValue, Token![,]>::parse_terminated)
+                    .ok()?;
+                let enum_part = meta_list.iter().find(|m| m.path.is_ident("enumeration"))?;
+
+                if let Expr::Lit(expr) = &enum_part.value {
+                    if let Lit::Str(lit) = &expr.lit {
+                        let enum_ident = lit.parse::<Ident>().ok();
+
+                        return Some((
+                            quote!(#enum_ident),
+                            quote!(#enum_ident::try_from(from.#name)?),
+                        ));
+                    }
+                }
+            };
+
+            None
+        })
+    }
+
+    fn process_default(
+        &self,
+        f: &Field,
+        convert_field: Option<&ConvertFieldOptions>,
+    ) -> ProcessedType {
+        let name = f.ident.as_ref().unwrap();
+        let convert = &self.convert_prefix;
+
+        let get_default_type = || {
+            let ty = &f.ty;
+            quote!(#ty)
+        };
+
+        match convert_field {
+            Some(ConvertFieldOptions {
+                ty, val_override, ..
+            }) => match (ty, val_override) {
+                (Some(ty), Some(val_override)) => {
+                    let ty = syn::parse_str::<Type>(&ty).unwrap();
+                    let val_override = syn::parse_str::<Expr>(&val_override).unwrap();
+                    (quote!(#ty), quote!(#val_override))
+                }
+                (Some(ty), None) => {
+                    let ty = syn::parse_str::<Type>(&ty).unwrap();
+                    (quote!(#ty), quote!(#convert::convert(from.#name)?))
+                }
+                (None, Some(val_override)) => {
+                    let val_override = syn::parse_str::<Expr>(&val_override).unwrap();
+                    (get_default_type(), quote!(#val_override))
+                }
+                (None, None) => (get_default_type(), quote!(from.#name)),
+            },
+            None => (get_default_type(), quote!(from.#name)),
+        }
     }
 
     fn prepare_extra_fields(
@@ -288,29 +358,6 @@ impl ConversionsGenerator {
                 )
             })
             .unzip()
-    }
-
-    fn is_enum(f: &Field) -> Option<Ident> {
-        f.attrs.iter().find_map(|a| {
-            if !a.path().is_ident("prost") {
-                return None;
-            }
-
-            if let Meta::List(list) = &a.meta {
-                let meta_list = list
-                    .parse_args_with(Punctuated::<MetaNameValue, Token![,]>::parse_terminated)
-                    .ok()?;
-                let enum_part = meta_list.iter().find(|m| m.path.is_ident("enumeration"))?;
-
-                if let Expr::Lit(expr) = &enum_part.value {
-                    if let Lit::Str(lit) = &expr.lit {
-                        return lit.parse::<Ident>().ok();
-                    }
-                }
-            };
-
-            None
-        })
     }
 }
 

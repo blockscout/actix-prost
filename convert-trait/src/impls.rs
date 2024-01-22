@@ -8,3 +8,15 @@ impl<T, R: Convert<T>> Convert<Option<T>> for Option<R> {
         }
     }
 }
+
+impl<T, R: Convert<T>> Convert<Vec<T>> for Vec<R> {
+    fn convert(input: Vec<T>) -> Result<Self, String> {
+        input.into_iter().map(Convert::convert).collect()
+    }
+}
+
+impl<T, R: Convert<T> + std::hash::Hash + Eq> Convert<Vec<T>> for std::collections::HashSet<R> {
+    fn convert(input: Vec<T>) -> Result<Self, String> {
+        input.into_iter().map(Convert::convert).collect()
+    }
+}
