@@ -1,4 +1,10 @@
-use std::{collections::HashMap, env, fs, path::PathBuf, rc::Rc, io::Error};
+use std::{
+    collections::{HashMap, HashSet},
+    env, fs,
+    io::Error,
+    path::PathBuf,
+    rc::Rc,
+};
 
 use crate::helpers::extract_type_from_option;
 use proc_macro2::{Ident, TokenStream};
@@ -100,9 +106,15 @@ pub struct ConversionsGenerator {
     pub messages: Rc<HashMap<String, syn::ItemStruct>>,
     descriptors: DescriptorPool,
     convert_prefix: TokenStream,
+    processed_messages: HashSet<String>,
 }
 
 type ProcessedType = (TokenStream, TokenStream);
+
+enum MessageType {
+    Input,
+    Output,
+}
 
 impl ConversionsGenerator {
     pub fn new() -> Result<Self, Error> {
@@ -114,13 +126,13 @@ impl ConversionsGenerator {
         let descriptors = DescriptorPool::decode(&*buf).unwrap();
 
         Ok(Self {
-            messages: Default::default(),
             descriptors,
             convert_prefix: quote!(convert_trait::Convert),
+            ..Default::default()
         })
     }
 
-    pub fn create_conversions(&self, service: &Service) -> TokenStream {
+    pub fn create_conversions(&mut self, service: &Service) -> TokenStream {
         let methods = &service.methods;
 
         let mut res = vec![];
@@ -130,13 +142,23 @@ impl ConversionsGenerator {
                 .get_message_by_name(&method.input_proto_type)
                 .unwrap();
 
-            // TODO
-            let _message_out = self
+            let message_out = self
                 .descriptors
                 .get_message_by_name(&method.output_proto_type)
                 .unwrap();
 
-            self.create_convert_struct(&message_in, &method.input_type, &mut res);
+            self.create_convert_struct(
+                &MessageType::Input,
+                &message_in,
+                &method.input_type,
+                &mut res,
+            );
+            self.create_convert_struct(
+                &MessageType::Output,
+                &message_out,
+                &method.output_type,
+                &mut res,
+            );
         }
 
         quote!(
@@ -145,7 +167,8 @@ impl ConversionsGenerator {
     }
 
     fn create_convert_struct(
-        &self,
+        &mut self,
+        m_type: &MessageType,
         message: &MessageDescriptor,
         struct_name: &String,
         res: &mut Vec<TokenStream>,
@@ -160,23 +183,38 @@ impl ConversionsGenerator {
         let convert_options = ConvertOptions::try_from((&self.descriptors, message)).unwrap();
 
         let (field_types, field_conversions) =
-            self.prepare_fields(fields.iter(), &convert_options, res);
+            self.prepare_fields(m_type, fields.iter(), &convert_options, res);
 
         let (extra_field_types, extra_field_conversions) =
             self.prepare_extra_fields(&convert_options);
 
         let struct_ident = &rust_struct.ident;
-        let new_struct_ident = quote::format_ident!("{}Internal", struct_ident);
-        let convert = &self.convert_prefix;
-        let expanded = quote::quote!(
-            #[derive(Debug)]
-            pub struct #new_struct_ident {
-                #(#field_types,)*
-                #(#extra_field_types,)*
-            }
+        let internal_struct_ident = quote::format_ident!("{}Internal", struct_ident);
 
-            impl #convert<#struct_ident> for #new_struct_ident {
-                fn convert(from: #struct_ident) -> Result<Self, String> {
+        let (from_struct_ident, to_struct_ident) = match m_type {
+            MessageType::Input => (struct_ident, &internal_struct_ident),
+            MessageType::Output => (&internal_struct_ident, struct_ident),
+        };
+
+        let struct_def = match self.processed_messages.get(message.name()) {
+            None => {
+                quote!(
+                    #[derive(Debug)]
+                    pub struct #internal_struct_ident {
+                        #(#field_types,)*
+                        #(#extra_field_types,)*
+                    }
+                )
+            }
+            _ => quote!(),
+        };
+
+        let convert = &self.convert_prefix;
+        let expanded = quote!(
+            #struct_def
+
+            impl #convert<#from_struct_ident> for #to_struct_ident {
+                fn convert(from: #from_struct_ident) -> Result<Self, String> {
                     Ok(Self {
                         #(#field_conversions,)*
                         #(#extra_field_conversions,)*
@@ -184,12 +222,15 @@ impl ConversionsGenerator {
                 }
             }
         );
+        self.processed_messages.insert(message.name().to_string());
         res.push(expanded);
-        new_struct_ident
+
+        internal_struct_ident
     }
 
     fn prepare_fields<'a, I>(
-        &self,
+        &mut self,
+        m_type: &MessageType,
         fields: I,
         convert_options: &ConvertOptions,
         res: &mut Vec<TokenStream>,
@@ -211,7 +252,7 @@ impl ConversionsGenerator {
                 // 2. Check if the field is an enum
                 // 3. Use the default conversion
                 let (ty, conv) = self
-                    .process_internal_struct(f, convert_field, res)
+                    .process_internal_struct(m_type, f, convert_field, res)
                     .or_else(|| Self::process_enum(f))
                     .unwrap_or_else(|| self.process_default(f, convert_field));
 
@@ -228,13 +269,13 @@ impl ConversionsGenerator {
     }
 
     fn process_internal_struct(
-        &self,
+        &mut self,
+        m_type: &MessageType,
         f: &Field,
         convert_field: Option<&ConvertFieldOptions>,
         res: &mut Vec<TokenStream>,
     ) -> Option<ProcessedType> {
         let name = f.ident.as_ref().unwrap();
-        let convert = &self.convert_prefix;
 
         // Check if the field contains a nested message
         let internal_struct = match extract_type_from_option(&f.ty) {
@@ -244,32 +285,31 @@ impl ConversionsGenerator {
                 .first()
                 .and_then(|ty| self.messages.get(&ty.ident.to_string())),
             _ => None,
-        };
+        }?;
 
         // Process the nested message
-        internal_struct.map(|s| {
-            let ident = &s.ident;
-            // TODO: could incorrectly detect messages with same name in different packages
-            let message = self
-                .descriptors
-                .all_messages()
-                .find(|m| *ident == m.name())
-                .unwrap();
-            let new_struct_name = self.create_convert_struct(&message, &ident.to_string(), res);
+        let ident = &internal_struct.ident;
+        // TODO: could incorrectly detect messages with same name in different packages
+        let message = self
+            .descriptors
+            .all_messages()
+            .find(|m| *ident == m.name())
+            .unwrap();
+        let new_struct_name = self.create_convert_struct(m_type, &message, &ident.to_string(), res);
 
-            match convert_field {
-                Some(ConvertFieldOptions { required: true, .. }) => {
-                    let require_message = format!("field {} is required", name);
-                    (
-                        quote!(#new_struct_name),
-                        quote!(#convert::convert(from.#name.ok_or(#require_message)?)?),
-                    )
-                }
-                _ => (
-                    quote!(::core::option::Option<#new_struct_name>),
-                    quote!(#convert::convert(from.#name)?),
-                ),
+        let convert = &self.convert_prefix;
+        Some(match convert_field {
+            Some(ConvertFieldOptions { required: true, .. }) => {
+                let require_message = format!("field {} is required", name);
+                (
+                    quote!(#new_struct_name),
+                    quote!(#convert::convert(from.#name.ok_or(#require_message)?)?),
+                )
             }
+            _ => (
+                quote!(::core::option::Option<#new_struct_name>),
+                quote!(#convert::convert(from.#name)?),
+            ),
         })
     }
 

@@ -132,9 +132,9 @@ impl ActixGenerator {
         prettyplease::unparse(&ast)
     }
 
-    pub fn create_conversions(&self, service: &Service) -> Option<TokenStream> {
+    pub fn create_conversions(&mut self, service: &Service) -> Option<TokenStream> {
         self.conversions_gen
-            .as_ref()
+            .as_mut()
             .map(|g| g.create_conversions(service))
     }
 }
