@@ -1,4 +1,4 @@
-use std::{collections::HashMap, env, fs, path::PathBuf, rc::Rc};
+use std::{collections::HashMap, env, fs, path::PathBuf, rc::Rc, io::Error};
 
 use crate::helpers::extract_type_from_option;
 use proc_macro2::{Ident, TokenStream};
@@ -105,18 +105,19 @@ pub struct ConversionsGenerator {
 type ProcessedType = (TokenStream, TokenStream);
 
 impl ConversionsGenerator {
-    pub fn new() -> Self {
+    pub fn new() -> Result<Self, Error> {
         let path =
             PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR environment variable not set"))
                 .join("file_descriptor_set.bin");
-        let buf = fs::read(path).unwrap();
+        let buf = fs::read(path)?;
+
         let descriptors = DescriptorPool::decode(&*buf).unwrap();
 
-        Self {
+        Ok(Self {
             messages: Default::default(),
             descriptors,
             convert_prefix: quote!(convert_trait::Convert),
-        }
+        })
     }
 
     pub fn create_conversions(&self, service: &Service) -> TokenStream {
@@ -320,16 +321,16 @@ impl ConversionsGenerator {
                 ty, val_override, ..
             }) => match (ty, val_override) {
                 (Some(ty), Some(val_override)) => {
-                    let ty = syn::parse_str::<Type>(&ty).unwrap();
-                    let val_override = syn::parse_str::<Expr>(&val_override).unwrap();
+                    let ty = syn::parse_str::<Type>(ty).unwrap();
+                    let val_override = syn::parse_str::<Expr>(val_override).unwrap();
                     (quote!(#ty), quote!(#val_override))
                 }
                 (Some(ty), None) => {
-                    let ty = syn::parse_str::<Type>(&ty).unwrap();
+                    let ty = syn::parse_str::<Type>(ty).unwrap();
                     (quote!(#ty), quote!(#convert::convert(from.#name)?))
                 }
                 (None, Some(val_override)) => {
-                    let val_override = syn::parse_str::<Expr>(&val_override).unwrap();
+                    let val_override = syn::parse_str::<Expr>(val_override).unwrap();
                     (get_default_type(), quote!(#val_override))
                 }
                 (None, None) => (get_default_type(), quote!(from.#name)),
