@@ -184,8 +184,10 @@ impl ConversionsGenerator {
         let (field_types, field_conversions) =
             self.prepare_fields(m_type, fields.iter(), &convert_options, res);
 
-        let (extra_field_types, extra_field_conversions) =
+        let (extra_field_types, mut extra_field_conversions) =
             self.prepare_extra_fields(m_type, &convert_options);
+        // Filter out extra_fields for Internal -> Proto conversions
+        extra_field_conversions.retain(|v| v.is_some());
 
         let struct_ident = &rust_struct.ident;
         let internal_struct_ident = quote::format_ident!("{}Internal", struct_ident);
@@ -405,7 +407,7 @@ impl ConversionsGenerator {
         &self,
         m_type: MessageType,
         convert_options: &ConvertOptions,
-    ) -> (Vec<TokenStream>, Vec<TokenStream>) {
+    ) -> (Vec<TokenStream>, Vec<Option<TokenStream>>) {
         convert_options
             .extra
             .iter()
@@ -413,20 +415,11 @@ impl ConversionsGenerator {
                 let name = quote::format_ident!("{}", name);
                 let ty = syn::parse_str::<Type>(ty).unwrap();
                 let conv = match m_type {
-                    MessageType::Input => {
-                        quote!(#name: None)
-                    }
-                    MessageType::Output => {
-                        quote!()
-                    }
+                    MessageType::Input => Some(quote!(#name: None)),
+                    MessageType::Output => None,
                 };
 
-                (
-                    quote! {
-                        pub #name: Option<#ty>
-                    },
-                    conv,
-                )
+                (quote!(pub #name: Option<#ty>), conv)
             })
             .unzip()
     }
