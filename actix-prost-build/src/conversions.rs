@@ -117,11 +117,11 @@ enum MessageType {
 
 impl ConversionsGenerator {
     pub fn new() -> Result<Self, Error> {
-        let path =
+        // At this point the file_descriptor_set.bin should be already generated
+        let fds_path =
             PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR environment variable not set"))
                 .join("file_descriptor_set.bin");
-        let buf = fs::read(path)?;
-        assert_ne!(buf.len(), 0);
+        let buf = fs::read(fds_path)?;
 
         let descriptors = DescriptorPool::decode(&*buf).unwrap();
 
