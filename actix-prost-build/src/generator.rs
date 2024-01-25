@@ -23,11 +23,11 @@ impl ActixGenerator {
     pub fn new(path: impl AsRef<Path>) -> Result<ActixGenerator, Error> {
         let file = File::open(path)?;
         let config: Config = serde_yaml::from_reader(file)?;
-        let conversions_gen = ConversionsGenerator::new().ok();
+        let conversions_gen = ConversionsGenerator::new().unwrap();
         Ok(ActixGenerator {
             messages: Default::default(),
             config,
-            conversions_gen,
+            conversions_gen: Some(conversions_gen),
         })
     }
 

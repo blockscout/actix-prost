@@ -121,6 +121,7 @@ impl ConversionsGenerator {
             PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR environment variable not set"))
                 .join("file_descriptor_set.bin");
         let buf = fs::read(path)?;
+        assert_ne!(buf.len(), 0);
 
         let descriptors = DescriptorPool::decode(&*buf).unwrap();
 
