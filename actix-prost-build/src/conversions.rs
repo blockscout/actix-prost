@@ -1,4 +1,10 @@
-use std::{collections::HashMap, env, fs, io::Error, path::PathBuf, rc::Rc};
+use std::{
+    collections::{BTreeMap, HashMap},
+    env, fs,
+    io::Error,
+    path::PathBuf,
+    rc::Rc,
+};
 
 use crate::helpers::extract_type_from_option;
 use proc_macro2::{Ident, TokenStream};
@@ -21,7 +27,7 @@ pub struct ConvertFieldOptions {
 
 #[derive(Default, Debug)]
 struct ConvertOptions {
-    fields: Vec<(String, ConvertFieldOptions)>,
+    fields: BTreeMap<String, ConvertFieldOptions>,
     extra: Vec<ExtraFieldOptions>,
 }
 
@@ -263,11 +269,7 @@ impl ConversionsGenerator {
             .map(|f| {
                 let name = f.ident.clone().unwrap();
                 let vis = &f.vis;
-                let convert_field = convert_options
-                    .fields
-                    .iter()
-                    .find(|(n, _)| n.eq(&name.to_string()))
-                    .map(|(_, v)| v);
+                let convert_field = convert_options.fields.get(&name.to_string());
 
                 // 1. Check if the field contains a nested message
                 // 2. Check if the field is an enum
