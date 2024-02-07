@@ -8,6 +8,7 @@ use syn::Item;
 pub struct ActixGenerator {
     messages: Rc<HashMap<String, syn::ItemStruct>>,
     config: Config,
+    conversions_gen: Option<ConversionsGenerator>,
 }
 
 #[derive(thiserror::Error, Debug)]
@@ -25,6 +26,7 @@ impl ActixGenerator {
         Ok(ActixGenerator {
             messages: Default::default(),
             config,
+            conversions_gen: ConversionsGenerator::new().ok(),
         })
     }
 
@@ -108,7 +110,6 @@ impl ActixGenerator {
 
     fn parse_messages(&mut self, buf: &mut str) {
         let file: syn::File = syn::parse_str(buf).unwrap();
-        // let messages = self.messages.borrow_mut();
         self.messages = Rc::new(
             file.items
                 .into_iter()
@@ -119,6 +120,9 @@ impl ActixGenerator {
                 .map(|message| (message.ident.to_string(), message))
                 .collect(),
         );
+        if let Some(g) = &mut self.conversions_gen {
+            g.messages = Rc::clone(&self.messages);
+        }
     }
 
     fn token_stream_to_code(&self, tokens: TokenStream) -> String {
@@ -132,10 +136,10 @@ impl ServiceGenerator for ActixGenerator {
         self.parse_messages(buf);
         let router = self.router(&service);
 
-        let conversions = ConversionsGenerator::new().ok().map(|mut g| {
-            g.messages = Rc::clone(&self.messages);
-            g.create_conversions(&service)
-        });
+        let conversions = self
+            .conversions_gen
+            .as_mut()
+            .map(|g| g.create_conversions(&service));
 
         buf.push_str(&self.token_stream_to_code(router));
         if let Some(conversions) = conversions {

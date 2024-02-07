@@ -248,7 +248,7 @@ impl ConversionsGenerator {
             .processed_messages
             .entry(message.name().to_string())
             .or_insert(0);
-        *entry += 1 << m_type as i32;
+        *entry |= 1 << m_type as i32;
 
         res.push(expanded);
 
