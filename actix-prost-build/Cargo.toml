@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-convert-trait = { path = "../convert-trait" }
+convert-trait = { path = "../convert-trait", optional = true}
 thiserror = "1.0"
 proc-macro2 = "1.0"
 prost-build = "0.11"
@@ -14,3 +14,6 @@ quote = "1.0"
 syn = { version = "2.0", features = ["full"] }
 serde = { version = "1", features = ["derive"] }
 serde_yaml = "0.9"
+
+[features]
+conversions = ["convert-trait"]
