@@ -127,7 +127,7 @@ impl ConversionsGenerator {
 
         Ok(Self {
             descriptors,
-            convert_prefix: quote!(convert_trait::Convert),
+            convert_prefix: quote!(convert_trait::TryConvert),
             ..Default::default()
         })
     }
@@ -222,7 +222,7 @@ impl ConversionsGenerator {
 
                 quote!(
                     impl #convert<#from_struct_ident> for #to_struct_ident {
-                        fn convert(from: #from_struct_ident) -> Result<Self, String> {
+                        fn try_convert(from: #from_struct_ident) -> Result<Self, String> {
                             Ok(Self {
                                 #(#field_conversions,)*
                                 #(#extra_field_conversions,)*
@@ -324,12 +324,12 @@ impl ConversionsGenerator {
                 let require_message = format!("field {} is required", name);
                 (
                     quote!(#new_struct_name),
-                    quote!(#convert::convert(from.#name.ok_or(#require_message)?)?),
+                    quote!(#convert::try_convert(from.#name.ok_or(#require_message)?)?),
                 )
             }
             _ => (
                 quote!(::core::option::Option<#new_struct_name>),
-                quote!(#convert::convert(from.#name)?),
+                quote!(#convert::try_convert(from.#name)?),
             ),
         })
     }
@@ -392,7 +392,7 @@ impl ConversionsGenerator {
                 }
                 (Some(ty), None) => {
                     let ty = syn::parse_str::<Type>(ty).unwrap();
-                    (quote!(#ty), quote!(#convert::convert(from.#name)?))
+                    (quote!(#ty), quote!(#convert::try_convert(from.#name)?))
                 }
                 (None, Some(val_override)) => {
                     let val_override = syn::parse_str::<Expr>(val_override).unwrap();

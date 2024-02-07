@@ -1,8 +1,8 @@
-use crate::Convert;
+use crate::TryConvert;
 use bytes::Bytes;
 
-impl Convert<String> for Bytes {
-    fn convert(input: String) -> Result<Self, String> {
+impl TryConvert<String> for Bytes {
+    fn try_convert(input: String) -> Result<Self, String> {
         if let Some(input) = input.strip_prefix("0x") {
             hex::decode(input)
         } else {
