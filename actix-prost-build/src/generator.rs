@@ -8,7 +8,6 @@ use syn::Item;
 pub struct ActixGenerator {
     messages: Rc<HashMap<String, syn::ItemStruct>>,
     config: Config,
-    conversions_gen: Option<ConversionsGenerator>,
 }
 
 #[derive(thiserror::Error, Debug)]
@@ -24,15 +23,9 @@ impl ActixGenerator {
         let file = File::open(path)?;
         let config: Config = serde_yaml::from_reader(file)?;
 
-        #[cfg(not(feature = "conversions"))]
-        let conversions_gen = None;
-        #[cfg(feature = "conversions")]
-        let conversions_gen = ConversionsGenerator::new().ok();
-
         Ok(ActixGenerator {
             messages: Default::default(),
             config,
-            conversions_gen,
         })
     }
 
@@ -126,9 +119,6 @@ impl ActixGenerator {
                 .map(|message| (message.ident.to_string(), message))
                 .collect(),
         );
-        if let Some(g) = &mut self.conversions_gen {
-            g.messages = Rc::clone(&self.messages);
-        }
     }
 
     fn token_stream_to_code(&self, tokens: TokenStream) -> String {
@@ -141,15 +131,18 @@ impl ServiceGenerator for ActixGenerator {
     fn generate(&mut self, service: Service, buf: &mut String) {
         self.parse_messages(buf);
         let router = self.router(&service);
-
-        let conversions = self
-            .conversions_gen
-            .as_mut()
-            .map(|g| g.create_conversions(&service));
-
         buf.push_str(&self.token_stream_to_code(router));
-        if let Some(conversions) = conversions {
-            buf.push_str(&self.token_stream_to_code(conversions));
+
+        #[cfg(feature = "conversions")]
+        {
+            let conversions = ConversionsGenerator::new().ok().map(|mut g| {
+                g.messages = Rc::clone(&self.messages);
+                g.create_conversions(&service)
+            });
+
+            if let Some(conversions) = conversions {
+                buf.push_str(&self.token_stream_to_code(conversions));
+            }
         }
     }
 }
