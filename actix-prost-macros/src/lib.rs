@@ -72,6 +72,5 @@ pub fn serde(attrs: TokenStream, item: TokenStream) -> TokenStream {
         }
         _ => {}
     }
-    //dbg!(item.to_token_stream().to_string());
     quote!(#item #result).into()
 }

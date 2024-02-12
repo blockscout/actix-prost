@@ -1,5 +1,5 @@
 [workspace]
-members = ["actix-prost", "actix-prost-build", "actix-prost-macros", "tests"]
+members = ["actix-prost", "actix-prost-build", "actix-prost-macros", "convert-trait", "tests"]
 
 # We need the master branch, because https://github.com/tokio-rs/prost/pull/714 isn't published yet
 [patch.crates-io]

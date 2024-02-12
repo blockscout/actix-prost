@@ -66,7 +66,7 @@ impl Request {
             .partition(|field| path_filter.contains(field.as_str()));
 
         if path_fields.len() != path.len() {
-            let found: HashSet<String> = HashSet::from_iter(path.into_iter());
+            let found: HashSet<String> = HashSet::from_iter(path);
             panic!(
                 "some path fields were not found: {:?}",
                 path_fields
@@ -190,10 +190,13 @@ impl Request {
             let mut generated = self.message.clone();
             generated.ident = name;
             if let Some(attrs) = attrs {
+                generated.attrs.retain(|attr| {
+                    let serde: syn::Path = syn::parse_quote!(actix_prost_macros::serde);
+                    attr.path() != &serde
+                });
                 generated
                     .attrs
-                    .retain(|attr| attr.path != syn::parse_quote!(actix_prost_macros::serde));
-                generated.attrs.push(syn::parse_quote!(#[actix_prost_macros::serde(#attrs)]));
+                    .push(syn::parse_quote!(#[actix_prost_macros::serde(#attrs)]));
             }
             generated.fields = self.filter_fields(req);
             quote::quote!(#generated)

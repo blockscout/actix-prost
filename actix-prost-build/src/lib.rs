@@ -1,5 +1,7 @@
 pub mod config;
+pub mod conversions;
 pub mod generator;
+mod helpers;
 pub mod list;
 pub mod method;
 pub mod request;

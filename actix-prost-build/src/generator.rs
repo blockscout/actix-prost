@@ -1,11 +1,12 @@
-use crate::{config::HttpRule, method::Method, Config};
+use crate::{config::HttpRule, conversions::ConversionsGenerator, method::Method, Config};
 use proc_macro2::TokenStream;
 use prost_build::{Service, ServiceGenerator};
-use std::{collections::HashMap, fs::File, path::Path};
+use quote::quote;
+use std::{collections::HashMap, fs::File, path::Path, rc::Rc};
 use syn::Item;
 
 pub struct ActixGenerator {
-    messages: HashMap<String, syn::ItemStruct>,
+    messages: Rc<HashMap<String, syn::ItemStruct>>,
     config: Config,
 }
 
@@ -21,6 +22,7 @@ impl ActixGenerator {
     pub fn new(path: impl AsRef<Path>) -> Result<ActixGenerator, Error> {
         let file = File::open(path)?;
         let config: Config = serde_yaml::from_reader(file)?;
+
         Ok(ActixGenerator {
             messages: Default::default(),
             config,
@@ -77,12 +79,12 @@ impl ActixGenerator {
             .collect();
 
         if methods.is_empty() {
-            return quote::quote!();
+            return quote!();
         }
         let request_structs = methods.iter().map(|m| m.request().generate_structs());
         let fns = methods.iter().map(|m| m.generate_route());
         let configs = methods.iter().map(|m| m.generate_config());
-        quote::quote!(
+        quote!(
             pub mod #mod_name {
                 #![allow(unused_variables, dead_code, missing_docs)]
 
@@ -107,15 +109,21 @@ impl ActixGenerator {
 
     fn parse_messages(&mut self, buf: &mut str) {
         let file: syn::File = syn::parse_str(buf).unwrap();
-        self.messages.extend(
+        self.messages = Rc::new(
             file.items
                 .into_iter()
                 .filter_map(|item| match item {
                     Item::Struct(message) => Some(message),
                     _ => None,
                 })
-                .map(|message| (message.ident.to_string(), message)),
+                .map(|message| (message.ident.to_string(), message))
+                .collect(),
         );
+    }
+
+    fn token_stream_to_code(&self, tokens: TokenStream) -> String {
+        let ast: syn::File = syn::parse2(tokens).expect("not a valid tokenstream");
+        prettyplease::unparse(&ast)
     }
 }
 
@@ -123,9 +131,18 @@ impl ServiceGenerator for ActixGenerator {
     fn generate(&mut self, service: Service, buf: &mut String) {
         self.parse_messages(buf);
         let router = self.router(&service);
+        buf.push_str(&self.token_stream_to_code(router));
 
-        let ast: syn::File = syn::parse2(router).expect("not a valid tokenstream");
-        let code = prettyplease::unparse(&ast);
-        buf.push_str(&code);
+        #[cfg(feature = "conversions")]
+        {
+            let conversions = ConversionsGenerator::new().ok().map(|mut g| {
+                g.messages = Rc::clone(&self.messages);
+                g.create_conversions(&service)
+            });
+
+            if let Some(conversions) = conversions {
+                buf.push_str(&self.token_stream_to_code(conversions));
+            }
+        }
     }
 }
