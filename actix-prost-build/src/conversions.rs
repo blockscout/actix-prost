@@ -9,7 +9,10 @@ use std::{
 use crate::helpers::extract_type_from_option;
 use proc_macro2::{Ident, TokenStream};
 use prost_build::Service;
-use prost_reflect::{DescriptorPool, DynamicMessage, MessageDescriptor};
+use prost_reflect::{
+    Cardinality, DescriptorPool, DynamicMessage, ExtensionDescriptor, FieldDescriptor, Kind,
+    MessageDescriptor,
+};
 use quote::quote;
 use syn::{punctuated::Punctuated, Expr, Field, Fields, Lit, Meta, MetaNameValue, Token, Type};
 
@@ -20,6 +23,7 @@ pub struct ExtraFieldOptions {
 }
 #[derive(Debug)]
 pub struct ConvertFieldOptions {
+    pub field: FieldDescriptor,
     pub ty: Option<String>,
     pub val_override: Option<String>,
     pub required: bool,
@@ -66,11 +70,7 @@ impl TryFrom<(&DescriptorPool, &MessageDescriptor)> for ConvertOptions {
         let fields = message
             .fields()
             .map(|f| {
-                let options = f.options();
-                let ext_val = options.get_extension(&fields_extension);
-                let ext_val = ext_val.as_message().unwrap();
-
-                let convert_options = ConvertFieldOptions::from(ext_val);
+                let convert_options = ConvertFieldOptions::from((&f, &fields_extension));
 
                 (String::from(f.name()), convert_options)
             })
@@ -79,12 +79,17 @@ impl TryFrom<(&DescriptorPool, &MessageDescriptor)> for ConvertOptions {
     }
 }
 
-impl From<&DynamicMessage> for ConvertFieldOptions {
-    fn from(value: &DynamicMessage) -> Self {
+impl From<(&FieldDescriptor, &ExtensionDescriptor)> for ConvertFieldOptions {
+    fn from((f, ext): (&FieldDescriptor, &ExtensionDescriptor)) -> Self {
+        let options = f.options();
+        let ext_val = options.get_extension(ext);
+        let ext_val = ext_val.as_message().unwrap();
+
         Self {
-            ty: get_string_field(value, "type"),
-            val_override: get_string_field(value, "override"),
-            required: match value.get_field_by_name("required") {
+            field: f.clone(),
+            ty: get_string_field(ext_val, "type"),
+            val_override: get_string_field(ext_val, "override"),
+            required: match ext_val.get_field_by_name("required") {
                 Some(v) => v.as_bool().unwrap(),
                 None => false,
             },
@@ -298,42 +303,97 @@ impl ConversionsGenerator {
         convert_field: Option<&ConvertFieldOptions>,
         res: &mut Vec<TokenStream>,
     ) -> Option<ProcessedType> {
+        self.try_process_option(m_type, f, convert_field, res)
+            .or(self.try_process_map(m_type, f, convert_field, res))
+    }
+
+    fn try_process_option(
+        &mut self,
+        m_type: MessageType,
+        f: &Field,
+        convert_field: Option<&ConvertFieldOptions>,
+        res: &mut Vec<TokenStream>,
+    ) -> Option<ProcessedType> {
         let name = f.ident.as_ref().unwrap();
 
-        // Check if the field contains a nested message
-        let internal_struct = match extract_type_from_option(&f.ty) {
-            Some(Type::Path(ty)) => ty
-                .path
-                .segments
-                .first()
-                .and_then(|ty| self.messages.get(&ty.ident.to_string())),
+        match extract_type_from_option(&f.ty) {
+            Some(Type::Path(ty)) => {
+                let ty = ty.path.segments.first()?;
+                let rust_struct_name = self.messages.get(&ty.ident.to_string())?.ident.clone();
+                let new_struct_name =
+                    self.build_internal_nested_struct(m_type, &rust_struct_name, res);
+                let convert = &self.convert_prefix;
+                let (ty, conversion) = match convert_field {
+                    Some(ConvertFieldOptions { required: true, .. }) => {
+                        let require_message = format!("field {} is required", name);
+                        (
+                            quote!(#new_struct_name),
+                            quote!(#convert::try_convert(from.#name.ok_or(#require_message)?)?),
+                        )
+                    }
+                    _ => (
+                        quote!(::core::option::Option<#new_struct_name>),
+                        quote!(#convert::try_convert(from.#name)?),
+                    ),
+                };
+                Some((ty, conversion))
+            }
+            _ => None,
+        }
+    }
+
+    fn try_process_map(
+        &mut self,
+        m_type: MessageType,
+        f: &Field,
+        convert_field: Option<&ConvertFieldOptions>,
+        res: &mut Vec<TokenStream>,
+    ) -> Option<ProcessedType> {
+        let name = f.ident.as_ref().unwrap();
+
+        let field_desc = convert_field.map(|cf| &cf.field)?;
+        let map_type = match (field_desc.cardinality(), field_desc.kind()) {
+            (Cardinality::Repeated, Kind::Message(m)) => Some(m),
             _ => None,
         }?;
+        // Map keys can only be of scalar types, so we search for nested messages only in values
+        let map_value_type = match map_type.map_entry_value_field().kind() {
+            Kind::Message(m) => Some(m),
+            _ => None,
+        }?;
+        // TODO: Proto name might not be the same as Rust struct name
+        let rust_struct_name = self.messages.get(map_value_type.name())?.ident.clone();
 
-        // Process the nested message
-        let ident = &internal_struct.ident;
+        let new_struct_name = self.build_internal_nested_struct(m_type, &rust_struct_name, res);
+
+        let convert = &self.convert_prefix;
+        let map_collection = if let Type::Path(p) = &f.ty {
+            match p.path.segments.iter().find(|s| s.ident == "HashMap") {
+                Some(_) => quote!(::std::collections::HashMap),
+                None => quote!(::std::collections::BTreeMap),
+            }
+        } else {
+            panic!("Type of map field is not a path")
+        };
+        let ty = quote!(#map_collection<String, #new_struct_name>);
+        let conversion = quote!(#convert::try_convert(from.#name)?);
+        Some((ty, conversion))
+    }
+
+    fn build_internal_nested_struct(
+        &mut self,
+        m_type: MessageType,
+        nested_struct_name: &Ident,
+        res: &mut Vec<TokenStream>,
+    ) -> Ident {
         // TODO: could incorrectly detect messages with same name in different packages
         let message = self
             .descriptors
             .all_messages()
-            .find(|m| *ident == m.name())
+            .find(|m| *nested_struct_name == m.name())
             .unwrap();
-        let new_struct_name = self.create_convert_struct(m_type, &message, &ident.to_string(), res);
 
-        let convert = &self.convert_prefix;
-        Some(match convert_field {
-            Some(ConvertFieldOptions { required: true, .. }) => {
-                let require_message = format!("field {} is required", name);
-                (
-                    quote!(#new_struct_name),
-                    quote!(#convert::try_convert(from.#name.ok_or(#require_message)?)?),
-                )
-            }
-            _ => (
-                quote!(::core::option::Option<#new_struct_name>),
-                quote!(#convert::try_convert(from.#name)?),
-            ),
-        })
+        self.create_convert_struct(m_type, &message, &nested_struct_name.to_string(), res)
     }
 
     fn process_enum(m_type: MessageType, f: &Field) -> Option<ProcessedType> {
