@@ -1,7 +1,9 @@
 use crate::{
-    proto::rest::{
-        rest_rpc_actix::route_rest_rpc, rest_rpc_server::RestRpc,
-        simple_rpc_actix::route_simple_rpc, simple_rpc_server::SimpleRpc, Get, Post,
+    proto::{
+        rest::{rest_rpc_actix::route_rest_rpc, rest_rpc_server::RestRpc, Get, Post},
+        simple::{
+            simple_rpc_actix::route_simple_rpc, simple_rpc_server::SimpleRpc, Post as SimplePost,
+        },
     },
     test,
 };
@@ -218,7 +220,7 @@ struct HeaderServer {}
 
 #[async_trait::async_trait]
 impl SimpleRpc for HeaderServer {
-    async fn post_rpc(&self, request: Request<Post>) -> Result<Response<Post>, Status> {
+    async fn post_rpc(&self, request: Request<SimplePost>) -> Result<Response<SimplePost>, Status> {
         let mut meta = request
             .metadata()
             .iter()
@@ -226,7 +228,7 @@ impl SimpleRpc for HeaderServer {
             .collect::<Vec<_>>();
         meta.sort();
         let meta = meta.join(",");
-        Ok(Response::new(Post {
+        Ok(Response::new(SimplePost {
             foo: meta,
             bar: request.get_ref().bar,
             long_name: request.get_ref().long_name,

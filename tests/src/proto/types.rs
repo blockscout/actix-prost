@@ -115,11 +115,12 @@ impl Values {
 }
 pub mod types_rpc_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
-    use super::{types_rpc_server::TypesRpc, *};
+    use super::*;
+    use super::types_rpc_server::TypesRpc;
     use std::sync::Arc;
+    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
-    #[actix_prost_macros::serde]
     pub struct ScalarsRPCJson {
         #[prost(double, tag = "1")]
         pub a: f64,
@@ -132,9 +133,9 @@ pub mod types_rpc_actix {
         #[prost(bool, tag = "5")]
         pub e: bool,
     }
+    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
-    #[actix_prost_macros::serde]
     pub struct OptionalScalarsRPCJson {
         #[prost(double, optional, tag = "1")]
         pub a: ::core::option::Option<f64>,
@@ -147,37 +148,37 @@ pub mod types_rpc_actix {
         #[prost(bool, optional, tag = "5")]
         pub e: ::core::option::Option<bool>,
     }
+    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
-    #[actix_prost_macros::serde]
     pub struct EnumsRPCJson {
         #[prost(enumeration = "Values", tag = "1")]
         pub values: i32,
     }
+    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
-    #[actix_prost_macros::serde]
     pub struct RepeatedRPCJson {
         #[prost(string, repeated, tag = "1")]
         pub foo: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     }
+    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
-    #[actix_prost_macros::serde]
     pub struct MapsRPCJson {
         #[prost(map = "string, int32", tag = "1")]
         pub foo: ::std::collections::HashMap<::prost::alloc::string::String, i32>,
     }
+    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
-    #[actix_prost_macros::serde]
     pub struct OneOfsRPCJson {
         #[prost(oneof = "one_ofs::Values", tags = "1, 2, 3")]
         pub values: ::core::option::Option<one_ofs::Values>,
     }
+    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
-    #[actix_prost_macros::serde]
     pub struct ComplexRPCJson {
         #[prost(message, optional, tag = "1")]
         pub scalars: ::core::option::Option<Scalars>,
@@ -197,13 +198,14 @@ pub mod types_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Scalars>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
-        let json =
-            <::actix_web::web::Json<ScalarsRPCJson> as ::actix_web::FromRequest>::from_request(
-                &http_request,
-                &mut payload,
-            )
+        let json = <::actix_web::web::Json<
+            ScalarsRPCJson,
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await
-            .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let request = Scalars {
             a: json.a,
@@ -223,7 +225,7 @@ pub mod types_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<OptionalScalars>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
-        let json = <::actix_web::web::Json::<
+        let json = <::actix_web::web::Json<
             OptionalScalarsRPCJson,
         > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await
@@ -250,17 +252,16 @@ pub mod types_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Enums>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
-        let json =
-            <::actix_web::web::Json<EnumsRPCJson> as ::actix_web::FromRequest>::from_request(
-                &http_request,
-                &mut payload,
-            )
+        let json = <::actix_web::web::Json<
+            EnumsRPCJson,
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await
-            .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
-        let request = Enums {
-            values: json.values,
-        };
+        let request = Enums { values: json.values };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.enums_rpc(request).await?;
         let response = response.into_inner();
@@ -272,13 +273,14 @@ pub mod types_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Repeated>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
-        let json =
-            <::actix_web::web::Json<RepeatedRPCJson> as ::actix_web::FromRequest>::from_request(
-                &http_request,
-                &mut payload,
-            )
+        let json = <::actix_web::web::Json<
+            RepeatedRPCJson,
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await
-            .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let request = Repeated { foo: json.foo };
         let request = ::actix_prost::new_request(request, &http_request);
@@ -292,13 +294,15 @@ pub mod types_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Maps>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
-        let json = <::actix_web::web::Json<MapsRPCJson> as ::actix_web::FromRequest>::from_request(
-            &http_request,
-            &mut payload,
-        )
-        .await
-        .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
-        .into_inner();
+        let json = <::actix_web::web::Json<
+            MapsRPCJson,
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
+            .into_inner();
         let request = Maps { foo: json.foo };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.maps_rpc(request).await?;
@@ -311,17 +315,16 @@ pub mod types_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<OneOfs>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
-        let json =
-            <::actix_web::web::Json<OneOfsRPCJson> as ::actix_web::FromRequest>::from_request(
-                &http_request,
-                &mut payload,
-            )
+        let json = <::actix_web::web::Json<
+            OneOfsRPCJson,
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await
-            .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
-        let request = OneOfs {
-            values: json.values,
-        };
+        let request = OneOfs { values: json.values };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.one_ofs_rpc(request).await?;
         let response = response.into_inner();
@@ -333,13 +336,14 @@ pub mod types_rpc_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<Complex>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
-        let json =
-            <::actix_web::web::Json<ComplexRPCJson> as ::actix_web::FromRequest>::from_request(
-                &http_request,
-                &mut payload,
-            )
+        let json = <::actix_web::web::Json<
+            ComplexRPCJson,
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await
-            .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let request = Complex {
             scalars: json.scalars,
@@ -358,34 +362,172 @@ pub mod types_rpc_actix {
         service: Arc<dyn TypesRpc + Send + Sync + 'static>,
     ) {
         config.app_data(::actix_web::web::Data::from(service));
-        config.route(
-            "/types/scalars",
-            ::actix_web::web::post().to(call_scalars_rpc),
-        );
-        config.route(
-            "/types/optional_scalars",
-            ::actix_web::web::post().to(call_optional_scalars_rpc),
-        );
+        config.route("/types/scalars", ::actix_web::web::post().to(call_scalars_rpc));
+        config
+            .route(
+                "/types/optional_scalars",
+                ::actix_web::web::post().to(call_optional_scalars_rpc),
+            );
         config.route("/types/enums", ::actix_web::web::post().to(call_enums_rpc));
-        config.route(
-            "/types/repeated",
-            ::actix_web::web::post().to(call_repeated_rpc),
-        );
+        config.route("/types/repeated", ::actix_web::web::post().to(call_repeated_rpc));
         config.route("/types/maps", ::actix_web::web::post().to(call_maps_rpc));
-        config.route(
-            "/types/oneofs",
-            ::actix_web::web::post().to(call_one_ofs_rpc),
-        );
-        config.route(
-            "/types/complex",
-            ::actix_web::web::post().to(call_complex_rpc),
-        );
+        config.route("/types/oneofs", ::actix_web::web::post().to(call_one_ofs_rpc));
+        config.route("/types/complex", ::actix_web::web::post().to(call_complex_rpc));
+    }
+}
+#[derive(Debug)]
+pub struct ScalarsInternal {
+    pub a: f64,
+    pub b: i64,
+    pub c: ::prost::alloc::string::String,
+    pub d: ::prost::bytes::Bytes,
+    pub e: bool,
+}
+impl convert_trait::TryConvert<Scalars> for ScalarsInternal {
+    fn try_convert(from: Scalars) -> Result<Self, String> {
+        Ok(Self {
+            a: from.a,
+            b: from.b,
+            c: from.c,
+            d: from.d,
+            e: from.e,
+        })
+    }
+}
+impl convert_trait::TryConvert<ScalarsInternal> for Scalars {
+    fn try_convert(from: ScalarsInternal) -> Result<Self, String> {
+        Ok(Self {
+            a: from.a,
+            b: from.b,
+            c: from.c,
+            d: from.d,
+            e: from.e,
+        })
+    }
+}
+#[derive(Debug)]
+pub struct OptionalScalarsInternal {
+    pub a: ::core::option::Option<f64>,
+    pub b: ::core::option::Option<i64>,
+    pub c: ::core::option::Option<::prost::alloc::string::String>,
+    pub d: ::core::option::Option<::prost::bytes::Bytes>,
+    pub e: ::core::option::Option<bool>,
+}
+impl convert_trait::TryConvert<OptionalScalars> for OptionalScalarsInternal {
+    fn try_convert(from: OptionalScalars) -> Result<Self, String> {
+        Ok(Self {
+            a: from.a,
+            b: from.b,
+            c: from.c,
+            d: from.d,
+            e: from.e,
+        })
+    }
+}
+impl convert_trait::TryConvert<OptionalScalarsInternal> for OptionalScalars {
+    fn try_convert(from: OptionalScalarsInternal) -> Result<Self, String> {
+        Ok(Self {
+            a: from.a,
+            b: from.b,
+            c: from.c,
+            d: from.d,
+            e: from.e,
+        })
+    }
+}
+#[derive(Debug)]
+pub struct EnumsInternal {
+    pub values: Values,
+}
+impl convert_trait::TryConvert<Enums> for EnumsInternal {
+    fn try_convert(from: Enums) -> Result<Self, String> {
+        Ok(Self {
+            values: Values::try_from(from.values)?,
+        })
+    }
+}
+impl convert_trait::TryConvert<EnumsInternal> for Enums {
+    fn try_convert(from: EnumsInternal) -> Result<Self, String> {
+        Ok(Self { values: from.values.into() })
+    }
+}
+#[derive(Debug)]
+pub struct RepeatedInternal {
+    pub foo: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+}
+impl convert_trait::TryConvert<Repeated> for RepeatedInternal {
+    fn try_convert(from: Repeated) -> Result<Self, String> {
+        Ok(Self { foo: from.foo })
+    }
+}
+impl convert_trait::TryConvert<RepeatedInternal> for Repeated {
+    fn try_convert(from: RepeatedInternal) -> Result<Self, String> {
+        Ok(Self { foo: from.foo })
+    }
+}
+#[derive(Debug)]
+pub struct MapsInternal {
+    pub foo: ::std::collections::HashMap<::prost::alloc::string::String, i32>,
+}
+impl convert_trait::TryConvert<Maps> for MapsInternal {
+    fn try_convert(from: Maps) -> Result<Self, String> {
+        Ok(Self { foo: from.foo })
+    }
+}
+impl convert_trait::TryConvert<MapsInternal> for Maps {
+    fn try_convert(from: MapsInternal) -> Result<Self, String> {
+        Ok(Self { foo: from.foo })
+    }
+}
+#[derive(Debug)]
+pub struct OneOfsInternal {
+    pub values: ::core::option::Option<one_ofs::Values>,
+}
+impl convert_trait::TryConvert<OneOfs> for OneOfsInternal {
+    fn try_convert(from: OneOfs) -> Result<Self, String> {
+        Ok(Self { values: from.values })
+    }
+}
+impl convert_trait::TryConvert<OneOfsInternal> for OneOfs {
+    fn try_convert(from: OneOfsInternal) -> Result<Self, String> {
+        Ok(Self { values: from.values })
+    }
+}
+#[derive(Debug)]
+pub struct ComplexInternal {
+    pub scalars: ::core::option::Option<ScalarsInternal>,
+    pub enums: ::core::option::Option<EnumsInternal>,
+    pub repeated: ::core::option::Option<RepeatedInternal>,
+    pub maps: ::core::option::Option<MapsInternal>,
+    pub oneofs: ::core::option::Option<OneOfsInternal>,
+}
+impl convert_trait::TryConvert<Complex> for ComplexInternal {
+    fn try_convert(from: Complex) -> Result<Self, String> {
+        Ok(Self {
+            scalars: convert_trait::TryConvert::try_convert(from.scalars)?,
+            enums: convert_trait::TryConvert::try_convert(from.enums)?,
+            repeated: convert_trait::TryConvert::try_convert(from.repeated)?,
+            maps: convert_trait::TryConvert::try_convert(from.maps)?,
+            oneofs: convert_trait::TryConvert::try_convert(from.oneofs)?,
+        })
+    }
+}
+impl convert_trait::TryConvert<ComplexInternal> for Complex {
+    fn try_convert(from: ComplexInternal) -> Result<Self, String> {
+        Ok(Self {
+            scalars: convert_trait::TryConvert::try_convert(from.scalars)?,
+            enums: convert_trait::TryConvert::try_convert(from.enums)?,
+            repeated: convert_trait::TryConvert::try_convert(from.repeated)?,
+            maps: convert_trait::TryConvert::try_convert(from.maps)?,
+            oneofs: convert_trait::TryConvert::try_convert(from.oneofs)?,
+        })
     }
 }
 /// Generated client implementations.
 pub mod types_rpc_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-    use tonic::codegen::{http::Uri, *};
+    use tonic::codegen::*;
+    use tonic::codegen::http::Uri;
     #[derive(Debug, Clone)]
     pub struct TypesRpcClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -429,8 +571,9 @@ pub mod types_rpc_client {
                     <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
             >,
-            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
-                Into<StdError> + Send + Sync,
+            <T as tonic::codegen::Service<
+                http::Request<tonic::body::BoxBody>,
+            >>::Error: Into<StdError> + Send + Sync,
         {
             TypesRpcClient::new(InterceptedService::new(inner, interceptor))
         }
@@ -453,40 +596,53 @@ pub mod types_rpc_client {
             &mut self,
             request: impl tonic::IntoRequest<super::Scalars>,
         ) -> Result<tonic::Response<super::Scalars>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/types.TypesRPC/ScalarsRPC");
+            let path = http::uri::PathAndQuery::from_static(
+                "/types.TypesRPC/ScalarsRPC",
+            );
             self.inner.unary(request.into_request(), path, codec).await
         }
         pub async fn optional_scalars_rpc(
             &mut self,
             request: impl tonic::IntoRequest<super::OptionalScalars>,
         ) -> Result<tonic::Response<super::OptionalScalars>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/types.TypesRPC/OptionalScalarsRPC");
+            let path = http::uri::PathAndQuery::from_static(
+                "/types.TypesRPC/OptionalScalarsRPC",
+            );
             self.inner.unary(request.into_request(), path, codec).await
         }
         pub async fn enums_rpc(
             &mut self,
             request: impl tonic::IntoRequest<super::Enums>,
         ) -> Result<tonic::Response<super::Enums>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/types.TypesRPC/EnumsRPC");
             self.inner.unary(request.into_request(), path, codec).await
@@ -495,26 +651,34 @@ pub mod types_rpc_client {
             &mut self,
             request: impl tonic::IntoRequest<super::Repeated>,
         ) -> Result<tonic::Response<super::Repeated>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/types.TypesRPC/RepeatedRPC");
+            let path = http::uri::PathAndQuery::from_static(
+                "/types.TypesRPC/RepeatedRPC",
+            );
             self.inner.unary(request.into_request(), path, codec).await
         }
         pub async fn maps_rpc(
             &mut self,
             request: impl tonic::IntoRequest<super::Maps>,
         ) -> Result<tonic::Response<super::Maps>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/types.TypesRPC/MapsRPC");
             self.inner.unary(request.into_request(), path, codec).await
@@ -523,12 +687,15 @@ pub mod types_rpc_client {
             &mut self,
             request: impl tonic::IntoRequest<super::OneOfs>,
         ) -> Result<tonic::Response<super::OneOfs>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/types.TypesRPC/OneOfsRPC");
             self.inner.unary(request.into_request(), path, codec).await
@@ -538,14 +705,19 @@ pub mod types_rpc_client {
             &mut self,
             request: impl tonic::IntoRequest<super::Complex>,
         ) -> Result<tonic::Response<super::Complex>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/types.TypesRPC/ComplexRPC");
+            let path = http::uri::PathAndQuery::from_static(
+                "/types.TypesRPC/ComplexRPC",
+            );
             self.inner.unary(request.into_request(), path, codec).await
         }
     }
@@ -606,7 +778,10 @@ pub mod types_rpc_server {
                 send_compression_encodings: Default::default(),
             }
         }
-        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(
+            inner: T,
+            interceptor: F,
+        ) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -634,7 +809,10 @@ pub mod types_rpc_server {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
-        fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
+        fn poll_ready(
+            &mut self,
+            _cx: &mut Context<'_>,
+        ) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
@@ -643,9 +821,13 @@ pub mod types_rpc_server {
                 "/types.TypesRPC/ScalarsRPC" => {
                     #[allow(non_camel_case_types)]
                     struct ScalarsRPCSvc<T: TypesRpc>(pub Arc<T>);
-                    impl<T: TypesRpc> tonic::server::UnaryService<super::Scalars> for ScalarsRPCSvc<T> {
+                    impl<T: TypesRpc> tonic::server::UnaryService<super::Scalars>
+                    for ScalarsRPCSvc<T> {
                         type Response = super::Scalars;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::Scalars>,
@@ -662,10 +844,11 @@ pub mod types_rpc_server {
                         let inner = inner.0;
                         let method = ScalarsRPCSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -674,15 +857,21 @@ pub mod types_rpc_server {
                 "/types.TypesRPC/OptionalScalarsRPC" => {
                     #[allow(non_camel_case_types)]
                     struct OptionalScalarsRPCSvc<T: TypesRpc>(pub Arc<T>);
-                    impl<T: TypesRpc> tonic::server::UnaryService<super::OptionalScalars> for OptionalScalarsRPCSvc<T> {
+                    impl<T: TypesRpc> tonic::server::UnaryService<super::OptionalScalars>
+                    for OptionalScalarsRPCSvc<T> {
                         type Response = super::OptionalScalars;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::OptionalScalars>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { (*inner).optional_scalars_rpc(request).await };
+                            let fut = async move {
+                                (*inner).optional_scalars_rpc(request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -693,10 +882,11 @@ pub mod types_rpc_server {
                         let inner = inner.0;
                         let method = OptionalScalarsRPCSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -705,10 +895,17 @@ pub mod types_rpc_server {
                 "/types.TypesRPC/EnumsRPC" => {
                     #[allow(non_camel_case_types)]
                     struct EnumsRPCSvc<T: TypesRpc>(pub Arc<T>);
-                    impl<T: TypesRpc> tonic::server::UnaryService<super::Enums> for EnumsRPCSvc<T> {
+                    impl<T: TypesRpc> tonic::server::UnaryService<super::Enums>
+                    for EnumsRPCSvc<T> {
                         type Response = super::Enums;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
-                        fn call(&mut self, request: tonic::Request<super::Enums>) -> Self::Future {
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::Enums>,
+                        ) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move { (*inner).enums_rpc(request).await };
                             Box::pin(fut)
@@ -721,10 +918,11 @@ pub mod types_rpc_server {
                         let inner = inner.0;
                         let method = EnumsRPCSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -733,15 +931,21 @@ pub mod types_rpc_server {
                 "/types.TypesRPC/RepeatedRPC" => {
                     #[allow(non_camel_case_types)]
                     struct RepeatedRPCSvc<T: TypesRpc>(pub Arc<T>);
-                    impl<T: TypesRpc> tonic::server::UnaryService<super::Repeated> for RepeatedRPCSvc<T> {
+                    impl<T: TypesRpc> tonic::server::UnaryService<super::Repeated>
+                    for RepeatedRPCSvc<T> {
                         type Response = super::Repeated;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::Repeated>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { (*inner).repeated_rpc(request).await };
+                            let fut = async move {
+                                (*inner).repeated_rpc(request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -752,10 +956,11 @@ pub mod types_rpc_server {
                         let inner = inner.0;
                         let method = RepeatedRPCSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -764,10 +969,17 @@ pub mod types_rpc_server {
                 "/types.TypesRPC/MapsRPC" => {
                     #[allow(non_camel_case_types)]
                     struct MapsRPCSvc<T: TypesRpc>(pub Arc<T>);
-                    impl<T: TypesRpc> tonic::server::UnaryService<super::Maps> for MapsRPCSvc<T> {
+                    impl<T: TypesRpc> tonic::server::UnaryService<super::Maps>
+                    for MapsRPCSvc<T> {
                         type Response = super::Maps;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
-                        fn call(&mut self, request: tonic::Request<super::Maps>) -> Self::Future {
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::Maps>,
+                        ) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move { (*inner).maps_rpc(request).await };
                             Box::pin(fut)
@@ -780,10 +992,11 @@ pub mod types_rpc_server {
                         let inner = inner.0;
                         let method = MapsRPCSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -792,10 +1005,17 @@ pub mod types_rpc_server {
                 "/types.TypesRPC/OneOfsRPC" => {
                     #[allow(non_camel_case_types)]
                     struct OneOfsRPCSvc<T: TypesRpc>(pub Arc<T>);
-                    impl<T: TypesRpc> tonic::server::UnaryService<super::OneOfs> for OneOfsRPCSvc<T> {
+                    impl<T: TypesRpc> tonic::server::UnaryService<super::OneOfs>
+                    for OneOfsRPCSvc<T> {
                         type Response = super::OneOfs;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
-                        fn call(&mut self, request: tonic::Request<super::OneOfs>) -> Self::Future {
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::OneOfs>,
+                        ) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move { (*inner).one_ofs_rpc(request).await };
                             Box::pin(fut)
@@ -808,10 +1028,11 @@ pub mod types_rpc_server {
                         let inner = inner.0;
                         let method = OneOfsRPCSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -820,9 +1041,13 @@ pub mod types_rpc_server {
                 "/types.TypesRPC/ComplexRPC" => {
                     #[allow(non_camel_case_types)]
                     struct ComplexRPCSvc<T: TypesRpc>(pub Arc<T>);
-                    impl<T: TypesRpc> tonic::server::UnaryService<super::Complex> for ComplexRPCSvc<T> {
+                    impl<T: TypesRpc> tonic::server::UnaryService<super::Complex>
+                    for ComplexRPCSvc<T> {
                         type Response = super::Complex;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::Complex>,
@@ -839,23 +1064,28 @@ pub mod types_rpc_server {
                         let inner = inner.0;
                         let method = ComplexRPCSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)
                 }
-                _ => Box::pin(async move {
-                    Ok(http::Response::builder()
-                        .status(200)
-                        .header("grpc-status", "12")
-                        .header("content-type", "application/grpc")
-                        .body(empty_body())
-                        .unwrap())
-                }),
+                _ => {
+                    Box::pin(async move {
+                        Ok(
+                            http::Response::builder()
+                                .status(200)
+                                .header("grpc-status", "12")
+                                .header("content-type", "application/grpc")
+                                .body(empty_body())
+                                .unwrap(),
+                        )
+                    })
+                }
             }
         }
     }

@@ -53,7 +53,7 @@ async fn send_post<T: DeserializeOwned>(
 async fn send_code(addr: &SocketAddr, code: Code) {
     assert_eq!(
         send_post::<Error>(
-            &addr,
+            addr,
             &format!("/errors/{}?query=something", i32::from(code)),
             format!(r#"{{"message":"status {}"}}"#, code),
         )
@@ -61,7 +61,7 @@ async fn send_code(addr: &SocketAddr, code: Code) {
         (
             Error {
                 code,
-                message: format!("status {}", code).into()
+                message: format!("status {}", code)
             },
             Error::map_tonic_code(code)
         )

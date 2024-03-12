@@ -1,0 +1,12 @@
+syntax = "proto3";
+package simple;
+
+option go_package = "github.com/blockscout/actix-prost/tests";
+
+service SimpleRPC { rpc PostRPC(Post) returns (Post); }
+
+message Post {
+  string foo = 1;
+  int64 bar = 2;
+  double long_name = 3;
+}

@@ -1,52 +1,48 @@
 #[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ErrorRequest {
-    #[prost(int32, tag = "1")]
-    pub code: i32,
-    #[prost(string, tag = "2")]
-    pub query: ::prost::alloc::string::String,
-    #[prost(string, tag = "3")]
-    pub message: ::prost::alloc::string::String,
+pub struct Post {
+    #[prost(string, tag = "1")]
+    pub foo: ::prost::alloc::string::String,
+    #[prost(int64, tag = "2")]
+    pub bar: i64,
+    #[prost(double, tag = "3")]
+    pub long_name: f64,
 }
-#[actix_prost_macros::serde]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ErrorResponse {}
-pub mod errors_rpc_actix {
+pub mod simple_rpc_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
     use super::*;
-    use super::errors_rpc_server::ErrorsRpc;
+    use super::simple_rpc_server::SimpleRpc;
     use std::sync::Arc;
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     #[actix_prost_macros::serde(rename_all = "snake_case")]
-    pub struct ErrorPath {
-        #[prost(int32, tag = "1")]
-        pub code: i32,
+    pub struct PostRPCPath {
+        #[prost(string, tag = "1")]
+        pub foo: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct ErrorQuery {
-        #[prost(string, tag = "2")]
-        pub query: ::prost::alloc::string::String,
+    pub struct PostRPCQuery {
+        #[prost(int64, tag = "2")]
+        pub bar: i64,
     }
     #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct ErrorJson {
-        #[prost(string, tag = "3")]
-        pub message: ::prost::alloc::string::String,
+    pub struct PostRPCJson {
+        #[prost(double, tag = "3")]
+        pub long_name: f64,
     }
-    async fn call_error(
-        service: ::actix_web::web::Data<dyn ErrorsRpc + Sync + Send + 'static>,
+    async fn call_post_rpc(
+        service: ::actix_web::web::Data<dyn SimpleRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<ErrorResponse>, ::actix_prost::Error> {
+    ) -> Result<::actix_web::web::Json<Post>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let path = <::actix_web::web::Path<
-            ErrorPath,
+            PostRPCPath,
         > as ::actix_web::FromRequest>::extract(&http_request)
             .await
             .map_err(|err| ::actix_prost::Error::from_actix(
@@ -55,7 +51,7 @@ pub mod errors_rpc_actix {
             ))?
             .into_inner();
         let query = <::actix_web::web::Query<
-            ErrorQuery,
+            PostRPCQuery,
         > as ::actix_web::FromRequest>::extract(&http_request)
             .await
             .map_err(|err| ::actix_prost::Error::from_actix(
@@ -64,7 +60,7 @@ pub mod errors_rpc_actix {
             ))?
             .into_inner();
         let json = <::actix_web::web::Json<
-            ErrorJson,
+            PostRPCJson,
         > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await
             .map_err(|err| ::actix_prost::Error::from_actix(
@@ -72,56 +68,58 @@ pub mod errors_rpc_actix {
                 ::tonic::Code::InvalidArgument,
             ))?
             .into_inner();
-        let request = ErrorRequest {
-            code: path.code,
-            query: query.query,
-            message: json.message,
+        let request = Post {
+            foo: path.foo,
+            bar: query.bar,
+            long_name: json.long_name,
         };
         let request = ::actix_prost::new_request(request, &http_request);
-        let response = service.error(request).await?;
+        let response = service.post_rpc(request).await?;
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
-    pub fn route_errors_rpc(
+    pub fn route_simple_rpc(
         config: &mut ::actix_web::web::ServiceConfig,
-        service: Arc<dyn ErrorsRpc + Send + Sync + 'static>,
+        service: Arc<dyn SimpleRpc + Send + Sync + 'static>,
     ) {
         config.app_data(::actix_web::web::Data::from(service));
-        config.route("/errors/{code}", ::actix_web::web::post().to(call_error));
+        config.route("/rest/post/{foo}", ::actix_web::web::post().to(call_post_rpc));
     }
 }
 #[derive(Debug)]
-pub struct ErrorRequestInternal {
-    pub code: i32,
-    pub query: ::prost::alloc::string::String,
-    pub message: ::prost::alloc::string::String,
+pub struct PostInternal {
+    pub foo: ::prost::alloc::string::String,
+    pub bar: i64,
+    pub long_name: f64,
 }
-impl convert_trait::TryConvert<ErrorRequest> for ErrorRequestInternal {
-    fn try_convert(from: ErrorRequest) -> Result<Self, String> {
+impl convert_trait::TryConvert<Post> for PostInternal {
+    fn try_convert(from: Post) -> Result<Self, String> {
         Ok(Self {
-            code: from.code,
-            query: from.query,
-            message: from.message,
+            foo: from.foo,
+            bar: from.bar,
+            long_name: from.long_name,
         })
     }
 }
-#[derive(Debug)]
-pub struct ErrorResponseInternal {}
-impl convert_trait::TryConvert<ErrorResponseInternal> for ErrorResponse {
-    fn try_convert(_from: ErrorResponseInternal) -> Result<Self, String> {
-        Ok(Self {})
+impl convert_trait::TryConvert<PostInternal> for Post {
+    fn try_convert(from: PostInternal) -> Result<Self, String> {
+        Ok(Self {
+            foo: from.foo,
+            bar: from.bar,
+            long_name: from.long_name,
+        })
     }
 }
 /// Generated client implementations.
-pub mod errors_rpc_client {
+pub mod simple_rpc_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
     use tonic::codegen::http::Uri;
     #[derive(Debug, Clone)]
-    pub struct ErrorsRpcClient<T> {
+    pub struct SimpleRpcClient<T> {
         inner: tonic::client::Grpc<T>,
     }
-    impl ErrorsRpcClient<tonic::transport::Channel> {
+    impl SimpleRpcClient<tonic::transport::Channel> {
         /// Attempt to create a new client by connecting to a given endpoint.
         pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
         where
@@ -132,7 +130,7 @@ pub mod errors_rpc_client {
             Ok(Self::new(conn))
         }
     }
-    impl<T> ErrorsRpcClient<T>
+    impl<T> SimpleRpcClient<T>
     where
         T: tonic::client::GrpcService<tonic::body::BoxBody>,
         T::Error: Into<StdError>,
@@ -150,7 +148,7 @@ pub mod errors_rpc_client {
         pub fn with_interceptor<F>(
             inner: T,
             interceptor: F,
-        ) -> ErrorsRpcClient<InterceptedService<T, F>>
+        ) -> SimpleRpcClient<InterceptedService<T, F>>
         where
             F: tonic::service::Interceptor,
             T::ResponseBody: Default,
@@ -164,7 +162,7 @@ pub mod errors_rpc_client {
                 http::Request<tonic::body::BoxBody>,
             >>::Error: Into<StdError> + Send + Sync,
         {
-            ErrorsRpcClient::new(InterceptedService::new(inner, interceptor))
+            SimpleRpcClient::new(InterceptedService::new(inner, interceptor))
         }
         /// Compress requests with the given encoding.
         ///
@@ -181,10 +179,10 @@ pub mod errors_rpc_client {
             self.inner = self.inner.accept_compressed(encoding);
             self
         }
-        pub async fn error(
+        pub async fn post_rpc(
             &mut self,
-            request: impl tonic::IntoRequest<super::ErrorRequest>,
-        ) -> Result<tonic::Response<super::ErrorResponse>, tonic::Status> {
+            request: impl tonic::IntoRequest<super::Post>,
+        ) -> Result<tonic::Response<super::Post>, tonic::Status> {
             self.inner
                 .ready()
                 .await
@@ -195,31 +193,31 @@ pub mod errors_rpc_client {
                     )
                 })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/errors.ErrorsRPC/Error");
+            let path = http::uri::PathAndQuery::from_static("/simple.SimpleRPC/PostRPC");
             self.inner.unary(request.into_request(), path, codec).await
         }
     }
 }
 /// Generated server implementations.
-pub mod errors_rpc_server {
+pub mod simple_rpc_server {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
-    /// Generated trait containing gRPC methods that should be implemented for use with ErrorsRpcServer.
+    /// Generated trait containing gRPC methods that should be implemented for use with SimpleRpcServer.
     #[async_trait]
-    pub trait ErrorsRpc: Send + Sync + 'static {
-        async fn error(
+    pub trait SimpleRpc: Send + Sync + 'static {
+        async fn post_rpc(
             &self,
-            request: tonic::Request<super::ErrorRequest>,
-        ) -> Result<tonic::Response<super::ErrorResponse>, tonic::Status>;
+            request: tonic::Request<super::Post>,
+        ) -> Result<tonic::Response<super::Post>, tonic::Status>;
     }
     #[derive(Debug)]
-    pub struct ErrorsRpcServer<T: ErrorsRpc> {
+    pub struct SimpleRpcServer<T: SimpleRpc> {
         inner: _Inner<T>,
         accept_compression_encodings: EnabledCompressionEncodings,
         send_compression_encodings: EnabledCompressionEncodings,
     }
     struct _Inner<T>(Arc<T>);
-    impl<T: ErrorsRpc> ErrorsRpcServer<T> {
+    impl<T: SimpleRpc> SimpleRpcServer<T> {
         pub fn new(inner: T) -> Self {
             Self::from_arc(Arc::new(inner))
         }
@@ -253,9 +251,9 @@ pub mod errors_rpc_server {
             self
         }
     }
-    impl<T, B> tonic::codegen::Service<http::Request<B>> for ErrorsRpcServer<T>
+    impl<T, B> tonic::codegen::Service<http::Request<B>> for SimpleRpcServer<T>
     where
-        T: ErrorsRpc,
+        T: SimpleRpc,
         B: Body + Send + 'static,
         B::Error: Into<StdError> + Send + 'static,
     {
@@ -271,22 +269,22 @@ pub mod errors_rpc_server {
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
-                "/errors.ErrorsRPC/Error" => {
+                "/simple.SimpleRPC/PostRPC" => {
                     #[allow(non_camel_case_types)]
-                    struct ErrorSvc<T: ErrorsRpc>(pub Arc<T>);
-                    impl<T: ErrorsRpc> tonic::server::UnaryService<super::ErrorRequest>
-                    for ErrorSvc<T> {
-                        type Response = super::ErrorResponse;
+                    struct PostRPCSvc<T: SimpleRpc>(pub Arc<T>);
+                    impl<T: SimpleRpc> tonic::server::UnaryService<super::Post>
+                    for PostRPCSvc<T> {
+                        type Response = super::Post;
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
                             tonic::Status,
                         >;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::ErrorRequest>,
+                            request: tonic::Request<super::Post>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { (*inner).error(request).await };
+                            let fut = async move { (*inner).post_rpc(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -295,7 +293,7 @@ pub mod errors_rpc_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let inner = inner.0;
-                        let method = ErrorSvc(inner);
+                        let method = PostRPCSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -322,7 +320,7 @@ pub mod errors_rpc_server {
             }
         }
     }
-    impl<T: ErrorsRpc> Clone for ErrorsRpcServer<T> {
+    impl<T: SimpleRpc> Clone for SimpleRpcServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
             Self {
@@ -332,7 +330,7 @@ pub mod errors_rpc_server {
             }
         }
     }
-    impl<T: ErrorsRpc> Clone for _Inner<T> {
+    impl<T: SimpleRpc> Clone for _Inner<T> {
         fn clone(&self) -> Self {
             Self(self.0.clone())
         }
@@ -342,7 +340,7 @@ pub mod errors_rpc_server {
             write!(f, "{:?}", self.0)
         }
     }
-    impl<T: ErrorsRpc> tonic::server::NamedService for ErrorsRpcServer<T> {
-        const NAME: &'static str = "errors.ErrorsRPC";
+    impl<T: SimpleRpc> tonic::server::NamedService for SimpleRpcServer<T> {
+        const NAME: &'static str = "simple.SimpleRPC";
     }
 }

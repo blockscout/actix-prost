@@ -20,3 +20,5 @@ Cargo.lock
 
 .pre-commit-config.yaml
 config.toml
+
+**/*.swagger.yaml

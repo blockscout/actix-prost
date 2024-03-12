@@ -1,4 +1,4 @@
-use crate::{config::HttpRule, conversions::ConversionsGenerator, method::Method, Config};
+use crate::{config::HttpRule, method::Method, Config};
 use proc_macro2::TokenStream;
 use prost_build::{Service, ServiceGenerator};
 use quote::quote;
@@ -135,6 +135,7 @@ impl ServiceGenerator for ActixGenerator {
 
         #[cfg(feature = "conversions")]
         {
+            use crate::conversions::ConversionsGenerator;
             let conversions = ConversionsGenerator::new().ok().map(|mut g| {
                 g.messages = Rc::clone(&self.messages);
                 g.create_conversions(&service)

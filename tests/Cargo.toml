@@ -7,6 +7,7 @@ edition = "2021"
 actix-prost = { path = "../actix-prost" }
 actix-prost-macros = { path = "../actix-prost-macros" }
 async-trait = "0.1"
+convert-trait ={ path = "../convert-trait" }
 tonic = "0.8"
 prost = "0.11"
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
@@ -15,9 +16,10 @@ actix-web = "4"
 http = "0.2"
 serde_json = "1.0"
 serde_with = { version = "2.0", features = ["base64"] }
+ethers = "2.0.14"
 
 [build-dependencies]
-actix-prost-build = { path = "../actix-prost-build" }
+actix-prost-build = { path = "../actix-prost-build", features = ["conversions"]}
 tonic-build = "0.8"
 prost-build = "0.11"
 
