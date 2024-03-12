@@ -231,9 +231,13 @@ impl ConversionsGenerator {
             _ => {
                 let convert = &self.convert_prefix;
 
+                let from = match field_conversions.len() + extra_field_conversions.len() {
+                    0 => quote!(_from),
+                    _ => quote!(from),
+                };
                 quote!(
                     impl #convert<#from_struct_ident> for #to_struct_ident {
-                        fn try_convert(from: #from_struct_ident) -> Result<Self, String> {
+                        fn try_convert(#from: #from_struct_ident) -> Result<Self, String> {
                             Ok(Self {
                                 #(#field_conversions,)*
                                 #(#extra_field_conversions,)*

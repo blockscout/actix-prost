@@ -18,8 +18,6 @@ service RestRPC {
   rpc PostResponseGetRPC(Post) returns (Get);
 }
 
-service SimpleRPC { rpc PostRPC(Post) returns (Post); }
-
 message Get {
   string foo = 1;
   int64 bar = 2;

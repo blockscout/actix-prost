@@ -1,6 +1,9 @@
 use actix_prost_build::{ActixGenerator, GeneratorList};
 use prost_build::{Config, ServiceGenerator};
-use std::path::Path;
+use std::{
+    env,
+    path::{Path, PathBuf},
+};
 
 // custom function to include custom generator
 fn compile(
@@ -11,6 +14,10 @@ fn compile(
     let mut config = Config::new();
     config
         .service_generator(generator)
+        .file_descriptor_set_path(
+            PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR environment variable not set"))
+                .join("file_descriptor_set.bin"),
+        )
         .out_dir("src/proto")
         .bytes(["."])
         .compile_well_known_types()
@@ -18,17 +25,6 @@ fn compile(
         .protoc_arg("--openapiv2_opt")
         .protoc_arg("grpc_api_configuration=proto/http_api.yaml,output_format=yaml")
         .type_attribute(".", "#[actix_prost_macros::serde]");
-
-    // for path in protos.iter() {
-    //     println!("cargo:rerun-if-changed={}", path.as_ref().display())
-    // }
-
-    // for path in includes.iter() {
-    //     // Cargo will watch the **entire** directory recursively. If we
-    //     // could figure out which files are imported by our protos we
-    //     // could specify only those files instead.
-    //     println!("cargo:rerun-if-changed={}", path.as_ref().display())
-    // }
 
     config.compile_protos(protos, includes)?;
     Ok(())
@@ -42,8 +38,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     compile(
         &[
             "proto/rest.proto",
+            "proto/simple.proto",
             "proto/types.proto",
             "proto/errors.proto",
+            "proto/conversions.proto",
         ],
         &["proto/", "proto/googleapis", "proto/grpc-gateway"],
         gens,
