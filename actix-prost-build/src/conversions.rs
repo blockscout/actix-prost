@@ -357,7 +357,7 @@ impl ConversionsGenerator {
 
         let field_desc = convert_field.map(|cf| &cf.field)?;
         let map_type = match (field_desc.cardinality(), field_desc.kind()) {
-            (Cardinality::Repeated, Kind::Message(m)) => Some(m),
+            (Cardinality::Repeated, Kind::Message(m)) if m.is_map_entry() => Some(m),
             _ => None,
         }?;
         // Map keys can only be of scalar types, so we search for nested messages only in values
