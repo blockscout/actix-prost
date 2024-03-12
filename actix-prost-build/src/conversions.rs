@@ -365,6 +365,21 @@ impl ConversionsGenerator {
             Kind::Message(m) => Some(m),
             _ => None,
         }?;
+        let map_key_rust_type = match map_type.map_entry_key_field().kind() {
+            Kind::String => quote!(::prost::alloc::string::String),
+            Kind::Int32 => quote!(i32),
+            Kind::Int64 => quote!(i64),
+            Kind::Uint32 => quote!(u32),
+            Kind::Uint64 => quote!(u64),
+            Kind::Sint32 => quote!(i32),
+            Kind::Sint64 => quote!(i64),
+            Kind::Fixed32 => quote!(u32),
+            Kind::Fixed64 => quote!(u64),
+            Kind::Sfixed32 => quote!(i32),
+            Kind::Sfixed64 => quote!(i64),
+            Kind::Bool => quote!(bool),
+            _ => panic!("Map key type not supported"),
+        };
         // TODO: Proto name might not be the same as Rust struct name
         let rust_struct_name = self.messages.get(map_value_type.name())?.ident.clone();
 
@@ -379,7 +394,7 @@ impl ConversionsGenerator {
         } else {
             panic!("Type of map field is not a path")
         };
-        let ty = quote!(#map_collection<String, #new_struct_name>);
+        let ty = quote!(#map_collection<#map_key_rust_type, #new_struct_name>);
         let conversion = quote!(#convert::try_convert(from.#name)?);
         Some((ty, conversion))
     }

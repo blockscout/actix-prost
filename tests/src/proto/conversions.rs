@@ -160,7 +160,10 @@ impl convert_trait::TryConvert<Nested> for NestedInternal {
 }
 #[derive(Debug)]
 pub struct ConversionsRequestInternal {
-    pub map_field: ::std::collections::HashMap<String, MapValueInternal>,
+    pub map_field: ::std::collections::HashMap<
+        ::prost::alloc::string::String,
+        MapValueInternal,
+    >,
     pub query: ::prost::alloc::string::String,
     pub addresses: std::collections::HashSet<ethers::types::Address>,
     pub nested_enum: conversions_request::NestedEnum,
@@ -201,7 +204,10 @@ impl convert_trait::TryConvert<MapValueInternal> for MapValue {
 pub struct ConversionsResponseInternal {
     pub address: ethers::types::Address,
     pub nested: ::core::option::Option<NestedInternal>,
-    pub map_field: ::std::collections::HashMap<String, MapValueInternal>,
+    pub map_field: ::std::collections::HashMap<
+        ::prost::alloc::string::String,
+        MapValueInternal,
+    >,
 }
 impl convert_trait::TryConvert<ConversionsResponseInternal> for ConversionsResponse {
     fn try_convert(from: ConversionsResponseInternal) -> Result<Self, String> {
