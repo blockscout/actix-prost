@@ -4,7 +4,7 @@ use crate::{
     proto::conversions::{
         conversions_rpc_actix::route_conversions_rpc, conversions_rpc_server::ConversionsRpc,
         ConversionsRequest, ConversionsRequestInternal, ConversionsResponse,
-        ConversionsResponseInternal, MapValue, Nested,
+        ConversionsResponseInternal, MapValue, OuterMessage, RepeatedValue,
     },
     test,
 };
@@ -28,7 +28,7 @@ impl ConversionsRpc for ConversionsServer {
 
         let internal_response = ConversionsResponseInternal {
             address: Address::from_low_u64_be(0),
-            nested: Some(internal_request.nested),
+            outer: Some(internal_request.outer),
             map_field: internal_request.map_field,
         };
 
@@ -75,9 +75,12 @@ async fn conversions() {
         query: "some_string".to_string(),
         addresses: vec!["".to_string()],
         nested_enum: 1,
-        nested: Some(Nested {
+        outer: Some(OuterMessage {
             address: "".to_string(),
         }),
+        repeated: vec![RepeatedValue {
+            address: "".to_string(),
+        }],
     };
 
     let res = send_post(&addr, "/conversions", serde_json::to_value(req).unwrap()).await;
@@ -100,14 +103,17 @@ async fn conversions() {
         query: "some_string".to_string(),
         addresses: vec![test_address.clone()],
         nested_enum: 1,
-        nested: Some(Nested {
+        outer: Some(OuterMessage {
             address: test_address.clone(),
         }),
+        repeated: vec![RepeatedValue {
+            address: test_address.clone(),
+        }],
     };
 
     let res = send_post(&addr, "/conversions", serde_json::to_value(req).unwrap()).await;
 
     let res: ConversionsResponse = serde_json::from_str(&res).unwrap();
-    assert_eq!(res.nested.unwrap().address, test_address);
+    assert_eq!(res.outer.unwrap().address, test_address);
     assert_eq!(res.map_field.get("key").unwrap().address, test_address);
 }
