@@ -309,6 +309,32 @@ impl ConversionsGenerator {
     ) -> Option<ProcessedType> {
         self.try_process_option(m_type, f, convert_field, res)
             .or(self.try_process_map(m_type, f, convert_field, res))
+            .or(self.try_process_array(m_type, f, convert_field, res))
+    }
+
+    fn try_process_array(
+        &mut self,
+        m_type: MessageType,
+        f: &Field,
+        convert_field: Option<&ConvertFieldOptions>,
+        res: &mut Vec<TokenStream>,
+    ) -> Option<ProcessedType> {
+        let name = f.ident.as_ref().unwrap();
+
+        let field_desc = convert_field.map(|cf| &cf.field)?;
+        let el_type = match (field_desc.cardinality(), field_desc.kind()) {
+            (Cardinality::Repeated, Kind::Message(m)) if !m.is_map_entry() => Some(m),
+            _ => None,
+        }?;
+        // TODO: Proto name might not be the same as Rust struct name
+        let rust_struct_name = self.messages.get(el_type.name())?.ident.clone();
+
+        let new_struct_name = self.build_internal_nested_struct(m_type, &rust_struct_name, res);
+
+        let convert = &self.convert_prefix;
+        let ty = quote!(::prost::alloc::vec::Vec<#new_struct_name>);
+        let conversion = quote!(#convert::try_convert(from.#name)?);
+        Some((ty, conversion))
     }
 
     fn try_process_option(

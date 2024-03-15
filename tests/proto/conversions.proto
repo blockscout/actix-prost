@@ -5,34 +5,54 @@ import "convert_options.proto";
 
 option go_package = "github.com/blockscout/actix-prost/tests";
 
-service ConversionsRPC { rpc ConvertRPC(ConversionsRequest) returns (ConversionsResponse); }
-
-message Nested {
-  string address = 3 [ (convert_options.convert) = { type : "ethers::types::Address" } ];
+service ConversionsRPC {
+  rpc ConvertRPC(ConversionsRequest) returns (ConversionsResponse);
 }
 
 message MapValue {
-  string address = 1 [ (convert_options.convert) = { type : "ethers::types::Address" } ];
+  string address = 1
+      [ (convert_options.convert) = {type : "ethers::types::Address"} ];
+}
+
+message OuterMessage {
+  string address = 3
+      [ (convert_options.convert) = {type : "ethers::types::Address"} ];
+}
+
+message RepeatedValue {
+  string address = 1
+      [ (convert_options.convert) = {type : "ethers::types::Address"} ];
 }
 
 message ConversionsRequest {
-  option (convert_options.extra_fields) = { name: "field1", type: "String" };
-  option (convert_options.extra_fields) = { name: "field2", type: "i32" };
+  option (convert_options.extra_fields) = {
+    name : "field1",
+    type : "String"
+  };
+  option (convert_options.extra_fields) = {
+    name : "field2",
+    type : "i32"
+  };
   map<string, MapValue> map_field = 1;
+
+  string query = 2
+      [ (convert_options.convert) = {override : "Default::default()"} ];
+  repeated string addresses = 3 [ (convert_options.convert) = {
+    type : "std::collections::HashSet<ethers::types::Address>"
+  } ];
 
   enum NestedEnum {
     NESTED_OK = 0;
     NESTED_ERROR = 1;
   }
-
-  string query = 2 [ (convert_options.convert) = { override : "Default::default()" } ];
-  repeated string addresses = 3 [ (convert_options.convert) = { type : "std::collections::HashSet<ethers::types::Address>" } ];
   NestedEnum nested_enum = 4;
-  Nested nested = 5 [ (convert_options.convert) = { required : true } ];
+  OuterMessage outer = 5 [ (convert_options.convert) = {required : true} ];
+  repeated RepeatedValue repeated = 6;
 }
 
 message ConversionsResponse {
-  string address = 1 [ (convert_options.convert) = { type : "ethers::types::Address" } ];
-  Nested nested = 2;
+  string address = 1
+      [ (convert_options.convert) = {type : "ethers::types::Address"} ];
+  OuterMessage outer = 2;
   map<string, MapValue> map_field = 3;
 }

@@ -1,14 +1,21 @@
 #[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct Nested {
+pub struct MapValue {
+    #[prost(string, tag = "1")]
+    pub address: ::prost::alloc::string::String,
+}
+#[actix_prost_macros::serde]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct OuterMessage {
     #[prost(string, tag = "3")]
     pub address: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct MapValue {
+pub struct RepeatedValue {
     #[prost(string, tag = "1")]
     pub address: ::prost::alloc::string::String,
 }
@@ -25,7 +32,9 @@ pub struct ConversionsRequest {
     #[prost(enumeration = "conversions_request::NestedEnum", tag = "4")]
     pub nested_enum: i32,
     #[prost(message, optional, tag = "5")]
-    pub nested: ::core::option::Option<Nested>,
+    pub outer: ::core::option::Option<OuterMessage>,
+    #[prost(message, repeated, tag = "6")]
+    pub repeated: ::prost::alloc::vec::Vec<RepeatedValue>,
 }
 /// Nested message and enum types in `ConversionsRequest`.
 pub mod conversions_request {
@@ -74,7 +83,7 @@ pub struct ConversionsResponse {
     #[prost(string, tag = "1")]
     pub address: ::prost::alloc::string::String,
     #[prost(message, optional, tag = "2")]
-    pub nested: ::core::option::Option<Nested>,
+    pub outer: ::core::option::Option<OuterMessage>,
     #[prost(map = "string, message", tag = "3")]
     pub map_field: ::std::collections::HashMap<::prost::alloc::string::String, MapValue>,
 }
@@ -99,7 +108,9 @@ pub mod conversions_rpc_actix {
         #[prost(enumeration = "conversions_request::NestedEnum", tag = "4")]
         pub nested_enum: i32,
         #[prost(message, optional, tag = "5")]
-        pub nested: ::core::option::Option<Nested>,
+        pub outer: ::core::option::Option<OuterMessage>,
+        #[prost(message, repeated, tag = "6")]
+        pub repeated: ::prost::alloc::vec::Vec<RepeatedValue>,
     }
     async fn call_convert_rpc(
         service: ::actix_web::web::Data<dyn ConversionsRpc + Sync + Send + 'static>,
@@ -121,7 +132,8 @@ pub mod conversions_rpc_actix {
             query: json.query,
             addresses: json.addresses,
             nested_enum: json.nested_enum,
-            nested: json.nested,
+            outer: json.outer,
+            repeated: json.repeated,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.convert_rpc(request).await?;
@@ -148,11 +160,22 @@ impl convert_trait::TryConvert<MapValue> for MapValueInternal {
     }
 }
 #[derive(Debug)]
-pub struct NestedInternal {
+pub struct OuterMessageInternal {
     pub address: ethers::types::Address,
 }
-impl convert_trait::TryConvert<Nested> for NestedInternal {
-    fn try_convert(from: Nested) -> Result<Self, String> {
+impl convert_trait::TryConvert<OuterMessage> for OuterMessageInternal {
+    fn try_convert(from: OuterMessage) -> Result<Self, String> {
+        Ok(Self {
+            address: convert_trait::TryConvert::try_convert(from.address)?,
+        })
+    }
+}
+#[derive(Debug)]
+pub struct RepeatedValueInternal {
+    pub address: ethers::types::Address,
+}
+impl convert_trait::TryConvert<RepeatedValue> for RepeatedValueInternal {
+    fn try_convert(from: RepeatedValue) -> Result<Self, String> {
         Ok(Self {
             address: convert_trait::TryConvert::try_convert(from.address)?,
         })
@@ -167,7 +190,8 @@ pub struct ConversionsRequestInternal {
     pub query: ::prost::alloc::string::String,
     pub addresses: std::collections::HashSet<ethers::types::Address>,
     pub nested_enum: conversions_request::NestedEnum,
-    pub nested: NestedInternal,
+    pub outer: OuterMessageInternal,
+    pub repeated: ::prost::alloc::vec::Vec<RepeatedValueInternal>,
     pub field1: Option<String>,
     pub field2: Option<i32>,
 }
@@ -178,16 +202,17 @@ impl convert_trait::TryConvert<ConversionsRequest> for ConversionsRequestInterna
             query: Default::default(),
             addresses: convert_trait::TryConvert::try_convert(from.addresses)?,
             nested_enum: conversions_request::NestedEnum::try_from(from.nested_enum)?,
-            nested: convert_trait::TryConvert::try_convert(
-                from.nested.ok_or("field nested is required")?,
+            outer: convert_trait::TryConvert::try_convert(
+                from.outer.ok_or("field outer is required")?,
             )?,
+            repeated: convert_trait::TryConvert::try_convert(from.repeated)?,
             field1: None,
             field2: None,
         })
     }
 }
-impl convert_trait::TryConvert<NestedInternal> for Nested {
-    fn try_convert(from: NestedInternal) -> Result<Self, String> {
+impl convert_trait::TryConvert<OuterMessageInternal> for OuterMessage {
+    fn try_convert(from: OuterMessageInternal) -> Result<Self, String> {
         Ok(Self {
             address: convert_trait::TryConvert::try_convert(from.address)?,
         })
@@ -203,7 +228,7 @@ impl convert_trait::TryConvert<MapValueInternal> for MapValue {
 #[derive(Debug)]
 pub struct ConversionsResponseInternal {
     pub address: ethers::types::Address,
-    pub nested: ::core::option::Option<NestedInternal>,
+    pub outer: ::core::option::Option<OuterMessageInternal>,
     pub map_field: ::std::collections::HashMap<
         ::prost::alloc::string::String,
         MapValueInternal,
@@ -213,7 +238,7 @@ impl convert_trait::TryConvert<ConversionsResponseInternal> for ConversionsRespo
     fn try_convert(from: ConversionsResponseInternal) -> Result<Self, String> {
         Ok(Self {
             address: convert_trait::TryConvert::try_convert(from.address)?,
-            nested: convert_trait::TryConvert::try_convert(from.nested)?,
+            outer: convert_trait::TryConvert::try_convert(from.outer)?,
             map_field: convert_trait::TryConvert::try_convert(from.map_field)?,
         })
     }
