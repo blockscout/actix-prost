@@ -136,7 +136,7 @@ pub mod conversions_rpc_actix {
         config.route("/conversions", ::actix_web::web::post().to(call_convert_rpc));
     }
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct MapValueInternal {
     pub address: ethers::types::Address,
 }
@@ -147,7 +147,7 @@ impl convert_trait::TryConvert<MapValue> for MapValueInternal {
         })
     }
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct NestedInternal {
     pub address: ethers::types::Address,
 }
@@ -158,7 +158,7 @@ impl convert_trait::TryConvert<Nested> for NestedInternal {
         })
     }
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct ConversionsRequestInternal {
     pub map_field: ::std::collections::HashMap<
         ::prost::alloc::string::String,
@@ -200,7 +200,7 @@ impl convert_trait::TryConvert<MapValueInternal> for MapValue {
         })
     }
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct ConversionsResponseInternal {
     pub address: ethers::types::Address,
     pub nested: ::core::option::Option<NestedInternal>,

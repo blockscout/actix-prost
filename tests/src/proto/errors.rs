@@ -90,7 +90,7 @@ pub mod errors_rpc_actix {
         config.route("/errors/{code}", ::actix_web::web::post().to(call_error));
     }
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct ErrorRequestInternal {
     pub code: i32,
     pub query: ::prost::alloc::string::String,
@@ -105,7 +105,7 @@ impl convert_trait::TryConvert<ErrorRequest> for ErrorRequestInternal {
         })
     }
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct ErrorResponseInternal {}
 impl convert_trait::TryConvert<ErrorResponseInternal> for ErrorResponse {
     fn try_convert(_from: ErrorResponseInternal) -> Result<Self, String> {

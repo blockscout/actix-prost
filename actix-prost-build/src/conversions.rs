@@ -215,7 +215,7 @@ impl ConversionsGenerator {
         let struct_def = match struct_desc {
             None => {
                 quote!(
-                    #[derive(Debug)]
+                    #[derive(Clone, Debug)]
                     pub struct #internal_struct_ident {
                         #(#field_types,)*
                         #(#extra_field_types,)*
