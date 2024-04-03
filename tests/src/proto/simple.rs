@@ -86,7 +86,7 @@ pub mod simple_rpc_actix {
         config.route("/rest/post/{foo}", ::actix_web::web::post().to(call_post_rpc));
     }
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct PostInternal {
     pub foo: ::prost::alloc::string::String,
     pub bar: i64,

@@ -430,7 +430,7 @@ pub mod rest_rpc_actix {
             );
     }
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct GetInternal {
     pub foo: ::prost::alloc::string::String,
     pub bar: i64,
@@ -451,7 +451,7 @@ impl convert_trait::TryConvert<GetInternal> for Get {
         })
     }
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct PostInternal {
     pub foo: ::prost::alloc::string::String,
     pub bar: i64,

@@ -375,7 +375,7 @@ pub mod types_rpc_actix {
         config.route("/types/complex", ::actix_web::web::post().to(call_complex_rpc));
     }
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct ScalarsInternal {
     pub a: f64,
     pub b: i64,
@@ -405,7 +405,7 @@ impl convert_trait::TryConvert<ScalarsInternal> for Scalars {
         })
     }
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct OptionalScalarsInternal {
     pub a: ::core::option::Option<f64>,
     pub b: ::core::option::Option<i64>,
@@ -435,7 +435,7 @@ impl convert_trait::TryConvert<OptionalScalarsInternal> for OptionalScalars {
         })
     }
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct EnumsInternal {
     pub values: Values,
 }
@@ -451,7 +451,7 @@ impl convert_trait::TryConvert<EnumsInternal> for Enums {
         Ok(Self { values: from.values.into() })
     }
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct RepeatedInternal {
     pub foo: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
@@ -465,7 +465,7 @@ impl convert_trait::TryConvert<RepeatedInternal> for Repeated {
         Ok(Self { foo: from.foo })
     }
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct MapsInternal {
     pub foo: ::std::collections::HashMap<::prost::alloc::string::String, i32>,
 }
@@ -479,7 +479,7 @@ impl convert_trait::TryConvert<MapsInternal> for Maps {
         Ok(Self { foo: from.foo })
     }
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct OneOfsInternal {
     pub values: ::core::option::Option<one_ofs::Values>,
 }
@@ -493,7 +493,7 @@ impl convert_trait::TryConvert<OneOfsInternal> for OneOfs {
         Ok(Self { values: from.values })
     }
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct ComplexInternal {
     pub scalars: ::core::option::Option<ScalarsInternal>,
     pub enums: ::core::option::Option<EnumsInternal>,
