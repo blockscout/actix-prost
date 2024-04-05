@@ -8,14 +8,17 @@ option go_package = "github.com/blockscout/actix-prost/tests";
 service ConversionsRPC { rpc ConvertRPC(ConversionsRequest) returns (ConversionsResponse); }
 
 message Nested {
+  option (convert_options.derive) = { name: "serde::Serialize" };
   string address = 3 [ (convert_options.convert) = { type : "ethers::types::Address" } ];
 }
 
 message MapValue {
+  option (convert_options.derive) = { name: "serde::Serialize" };
   string address = 1 [ (convert_options.convert) = { type : "ethers::types::Address" } ];
 }
 
 message ConversionsRequest {
+  option (convert_options.derive) = { name: "serde::Serialize" };
   option (convert_options.extra_fields) = { name: "field1", type: "String" };
   option (convert_options.extra_fields) = { name: "field2", type: "i32" };
   map<string, MapValue> map_field = 1;

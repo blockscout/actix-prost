@@ -21,6 +21,12 @@ pub struct ExtraFieldOptions {
     pub name: String,
     pub ty: String,
 }
+
+#[derive(Debug)]
+pub struct DeriveOptions {
+    pub name: String,
+}
+
 #[derive(Debug)]
 pub struct ConvertFieldOptions {
     pub field: FieldDescriptor,
@@ -33,6 +39,7 @@ pub struct ConvertFieldOptions {
 struct ConvertOptions {
     fields: BTreeMap<String, ConvertFieldOptions>,
     extra: Vec<ExtraFieldOptions>,
+    derive: Vec<DeriveOptions>,
 }
 
 impl TryFrom<(&DescriptorPool, &MessageDescriptor)> for ConvertOptions {
@@ -41,11 +48,18 @@ impl TryFrom<(&DescriptorPool, &MessageDescriptor)> for ConvertOptions {
     fn try_from(
         (descriptors, message): (&DescriptorPool, &MessageDescriptor),
     ) -> Result<Self, Self::Error> {
-        let message_extension = descriptors
+        let message_options = descriptors
             .get_message_by_name("google.protobuf.MessageOptions")
-            .ok_or("MessageOptions not found")?
+            .ok_or("MessageOptions not found")?;
+
+        let extra_fields_ext = message_options
             .extensions()
             .find(|ext| ext.name() == "extra_fields")
+            .unwrap();
+
+        let derive_ext = message_options
+            .extensions()
+            .find(|ext| ext.name() == "derive")
             .unwrap();
 
         let fields_extension = descriptors
@@ -57,13 +71,24 @@ impl TryFrom<(&DescriptorPool, &MessageDescriptor)> for ConvertOptions {
 
         let options = message.options();
         let extra = options
-            .get_extension(&message_extension)
+            .get_extension(&extra_fields_ext)
             .as_list()
             .unwrap()
             .iter()
             .map(|v| {
                 let m = v.as_message().unwrap();
                 ExtraFieldOptions::from(m)
+            })
+            .collect();
+
+        let derive = options
+            .get_extension(&derive_ext)
+            .as_list()
+            .unwrap()
+            .iter()
+            .map(|v| {
+                let m = v.as_message().unwrap();
+                DeriveOptions::from(m)
             })
             .collect();
 
@@ -75,7 +100,11 @@ impl TryFrom<(&DescriptorPool, &MessageDescriptor)> for ConvertOptions {
                 (String::from(f.name()), convert_options)
             })
             .collect();
-        Ok(Self { fields, extra })
+        Ok(Self {
+            fields,
+            extra,
+            derive,
+        })
     }
 }
 
@@ -102,6 +131,14 @@ impl From<&DynamicMessage> for ExtraFieldOptions {
         Self {
             name: get_string_field(value, "name").unwrap(),
             ty: get_string_field(value, "type").unwrap(),
+        }
+    }
+}
+
+impl From<&DynamicMessage> for DeriveOptions {
+    fn from(value: &DynamicMessage) -> Self {
+        Self {
+            name: get_string_field(value, "name").unwrap(),
         }
     }
 }
@@ -201,6 +238,15 @@ impl ConversionsGenerator {
         // Filter out extra_fields for Internal -> Proto conversions
         extra_field_conversions.retain(|v| v.is_some());
 
+        let derives = convert_options
+            .derive
+            .iter()
+            .map(|d| {
+                let name: TokenStream = d.name.parse().unwrap();
+                quote!(#[derive(#name)])
+            })
+            .collect::<Vec<_>>();
+
         let struct_ident = &rust_struct.ident;
         let internal_struct_ident = quote::format_ident!("{}Internal", struct_ident);
 
@@ -215,6 +261,7 @@ impl ConversionsGenerator {
         let struct_def = match struct_desc {
             None => {
                 quote!(
+                    #(#derives)*
                     #[derive(Clone, Debug)]
                     pub struct #internal_struct_ident {
                         #(#field_types,)*
