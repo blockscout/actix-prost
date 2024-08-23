@@ -33,6 +33,7 @@ pub struct ConvertFieldOptions {
     pub ty: Option<String>,
     pub val_override: Option<String>,
     pub required: bool,
+    pub attributes: Vec<String>,
 }
 
 #[derive(Default, Debug)]
@@ -122,6 +123,7 @@ impl From<(&FieldDescriptor, &ExtensionDescriptor)> for ConvertFieldOptions {
                 Some(v) => v.as_bool().unwrap(),
                 None => false,
             },
+            attributes: get_repeated_string_field(ext_val, "attributes"),
         }
     }
 }
@@ -324,8 +326,13 @@ impl ConversionsGenerator {
         fields
             .map(|f| {
                 let name = f.ident.clone().unwrap();
+                // Remove the r# prefix if it exists, for example r#type -> type
+                let name_str = name.to_string().trim_start_matches("r#").to_string();
                 let vis = &f.vis;
-                let convert_field = convert_options.fields.get(&name.to_string());
+                let convert_field = convert_options.fields.get(&name_str);
+                let attributes = convert_field
+                    .map(|cf| cf.attributes.clone())
+                    .unwrap_or_default();
 
                 // 1. Check if the field contains a nested message
                 // 2. Check if the field is an enum
@@ -335,8 +342,20 @@ impl ConversionsGenerator {
                     .or_else(|| Self::process_enum(m_type, f))
                     .unwrap_or_else(|| self.process_default(f, convert_field));
 
+                let field_attributes = attributes.iter().filter_map(|a| {
+                    if a.contains("#[") {
+                        let a = syn::parse_str::<TokenStream>(a).unwrap_or_else(|e| {
+                            panic!("invalid attribute '{a}' of variable '{name_str}': {e}")
+                        });
+                        Some(quote!(#a))
+                    } else {
+                        None
+                    }
+                });
+
                 (
                     quote! {
+                        #(#field_attributes)*
                         #vis #name: #ty
                     },
                     quote! {
@@ -562,4 +581,20 @@ fn get_string_field(m: &DynamicMessage, name: &str) -> Option<String> {
     } else {
         Some(f)
     }
+}
+
+fn get_repeated_string_field(m: &DynamicMessage, name: &str) -> Vec<String> {
+    m.get_field_by_name(name)
+        .map(|f| {
+            f.as_list()
+                .unwrap_or_else(|| panic!("field '{name}' is not list"))
+                .iter()
+                .map(|v| {
+                    v.as_str()
+                        .unwrap_or_else(|| panic!("field '{name}' is not list of strings"))
+                        .to_string()
+                })
+                .collect()
+        })
+        .unwrap_or_default()
 }
