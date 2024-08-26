@@ -117,6 +117,8 @@ async fn conversions() {
 fn default_on_internal() {
     let config: ConfigInternal = serde_json::from_value(json!({})).unwrap();
     assert_eq!(config.r#type, ConfigType::Unspecified);
+    let config: ConfigInternal = serde_json::from_value(json!({"type": null})).unwrap();
+    assert_eq!(config.r#type, ConfigType::Unspecified);
     let config: ConfigInternal = serde_json::from_value(json!({"type": "FOO"})).unwrap();
     assert_eq!(config.r#type, ConfigType::Foo);
 }
