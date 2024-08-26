@@ -52,7 +52,7 @@ enum ConfigType {
 message Config {
 
   option (convert_options.attributes) = "#[serde_with::serde_as]";
-  option (convert_options.attributes) = "#[derive(serde::Deserialize)]";
+  option (convert_options.derive) = { name: "serde::Deserialize" };
 
   ConfigType type = 1 [ (convert_options.convert) = { attributes : [
           "#[serde(default)]",
