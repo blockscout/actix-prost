@@ -14,7 +14,9 @@ use prost_reflect::{
     MessageDescriptor,
 };
 use quote::quote;
-use syn::{punctuated::Punctuated, Expr, Field, Fields, Lit, Meta, MetaNameValue, Token, Type};
+use syn::{
+    punctuated::Punctuated, Attribute, Expr, Field, Fields, Lit, Meta, MetaNameValue, Token, Type,
+};
 
 #[derive(Debug)]
 pub struct ExtraFieldOptions {
@@ -342,15 +344,11 @@ impl ConversionsGenerator {
                     .or_else(|| Self::process_enum(m_type, f))
                     .unwrap_or_else(|| self.process_default(f, convert_field));
 
-                let field_attributes = attributes.iter().filter_map(|a| {
-                    if a.contains("#[") {
-                        let a = syn::parse_str::<TokenStream>(a).unwrap_or_else(|e| {
-                            panic!("invalid attribute '{a}' of variable '{name_str}': {e}")
-                        });
-                        Some(quote!(#a))
-                    } else {
-                        None
-                    }
+                // Ensure that all attributes are valid and convert them into tokens
+                let field_attributes = attributes.iter().map(|attr_raw| {
+                    let attr_token: TokenStream = attr_raw.parse().unwrap();
+                    let attr: Attribute = syn::parse_quote!(#attr_token);
+                    quote!(#attr)
                 });
 
                 (
