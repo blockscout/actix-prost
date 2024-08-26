@@ -8,6 +8,8 @@ pub struct ConvertOptions {
     pub r#override: ::prost::alloc::string::String,
     #[prost(bool, tag = "3")]
     pub required: bool,
+    #[prost(string, repeated, tag = "4")]
+    pub attributes: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 #[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]

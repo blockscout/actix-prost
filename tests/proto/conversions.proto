@@ -32,10 +32,25 @@ message ConversionsRequest {
   repeated string addresses = 3 [ (convert_options.convert) = { type : "std::collections::HashSet<ethers::types::Address>" } ];
   NestedEnum nested_enum = 4;
   Nested nested = 5 [ (convert_options.convert) = { required : true } ];
+
 }
 
 message ConversionsResponse {
   string address = 1 [ (convert_options.convert) = { type : "ethers::types::Address" } ];
   Nested nested = 2;
   map<string, MapValue> map_field = 3;
+  Config config = 4;
+}
+
+
+enum ConfigType {
+    CONFIG_TYPE_UNSPECIFIED = 0;
+    CONFIG_TYPE_FOO = 1;
+    CONFIG_TYPE_BAR = 2;
+}
+
+message Config {
+  option (convert_options.derive) = { name: "serde::Deserialize" };
+
+  ConfigType type = 1 [ (convert_options.convert) = { attributes : ["#[serde(default)]"] } ];
 }

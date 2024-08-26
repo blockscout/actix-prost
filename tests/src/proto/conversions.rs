@@ -77,6 +77,45 @@ pub struct ConversionsResponse {
     pub nested: ::core::option::Option<Nested>,
     #[prost(map = "string, message", tag = "3")]
     pub map_field: ::std::collections::HashMap<::prost::alloc::string::String, MapValue>,
+    #[prost(message, optional, tag = "4")]
+    pub config: ::core::option::Option<Config>,
+}
+#[actix_prost_macros::serde]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Config {
+    #[prost(enumeration = "ConfigType", tag = "1")]
+    pub r#type: i32,
+}
+#[actix_prost_macros::serde]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum ConfigType {
+    Unspecified = 0,
+    Foo = 1,
+    Bar = 2,
+}
+impl ConfigType {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            ConfigType::Unspecified => "CONFIG_TYPE_UNSPECIFIED",
+            ConfigType::Foo => "CONFIG_TYPE_FOO",
+            ConfigType::Bar => "CONFIG_TYPE_BAR",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "CONFIG_TYPE_UNSPECIFIED" => Some(Self::Unspecified),
+            "CONFIG_TYPE_FOO" => Some(Self::Foo),
+            "CONFIG_TYPE_BAR" => Some(Self::Bar),
+            _ => None,
+        }
+    }
 }
 pub mod conversions_rpc_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
@@ -203,6 +242,17 @@ impl convert_trait::TryConvert<MapValueInternal> for MapValue {
         })
     }
 }
+#[derive(serde::Deserialize)]
+#[derive(Clone, Debug)]
+pub struct ConfigInternal {
+    #[serde(default)]
+    pub r#type: ConfigType,
+}
+impl convert_trait::TryConvert<ConfigInternal> for Config {
+    fn try_convert(from: ConfigInternal) -> Result<Self, String> {
+        Ok(Self { r#type: from.r#type.into() })
+    }
+}
 #[derive(Clone, Debug)]
 pub struct ConversionsResponseInternal {
     pub address: ethers::types::Address,
@@ -211,6 +261,7 @@ pub struct ConversionsResponseInternal {
         ::prost::alloc::string::String,
         MapValueInternal,
     >,
+    pub config: ::core::option::Option<ConfigInternal>,
 }
 impl convert_trait::TryConvert<ConversionsResponseInternal> for ConversionsResponse {
     fn try_convert(from: ConversionsResponseInternal) -> Result<Self, String> {
@@ -218,6 +269,7 @@ impl convert_trait::TryConvert<ConversionsResponseInternal> for ConversionsRespo
             address: convert_trait::TryConvert::try_convert(from.address)?,
             nested: convert_trait::TryConvert::try_convert(from.nested)?,
             map_field: convert_trait::TryConvert::try_convert(from.map_field)?,
+            config: convert_trait::TryConvert::try_convert(from.config)?,
         })
     }
 }

@@ -3,15 +3,15 @@ use std::{collections::HashMap, net::SocketAddr, sync::Arc};
 use crate::{
     proto::conversions::{
         conversions_rpc_actix::route_conversions_rpc, conversions_rpc_server::ConversionsRpc,
-        ConversionsRequest, ConversionsRequestInternal, ConversionsResponse,
-        ConversionsResponseInternal, MapValue, Nested,
+        ConfigInternal, ConfigType, ConversionsRequest, ConversionsRequestInternal,
+        ConversionsResponse, ConversionsResponseInternal, MapValue, Nested,
     },
     test,
 };
 use actix_web::{App, HttpServer};
 use convert_trait::TryConvert;
 use ethers::types::Address;
-use serde_json::Value;
+use serde_json::{json, Value};
 use tonic::{Request, Response, Status};
 
 #[derive(Default)]
@@ -30,6 +30,7 @@ impl ConversionsRpc for ConversionsServer {
             address: Address::from_low_u64_be(0),
             nested: Some(internal_request.nested),
             map_field: internal_request.map_field,
+            config: None,
         };
 
         let response = ConversionsResponse::try_convert(internal_response)
@@ -110,4 +111,12 @@ async fn conversions() {
     let res: ConversionsResponse = serde_json::from_str(&res).unwrap();
     assert_eq!(res.nested.unwrap().address, test_address);
     assert_eq!(res.map_field.get("key").unwrap().address, test_address);
+}
+
+#[test]
+fn default_on_internal() {
+    let config: ConfigInternal = serde_json::from_value(json!({})).unwrap();
+    assert_eq!(config.r#type, ConfigType::Unspecified);
+    let config: ConfigInternal = serde_json::from_value(json!({"type": "FOO"})).unwrap();
+    assert_eq!(config.r#type, ConfigType::Foo);
 }
