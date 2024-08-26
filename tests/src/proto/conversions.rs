@@ -242,10 +242,12 @@ impl convert_trait::TryConvert<MapValueInternal> for MapValue {
         })
     }
 }
+#[serde_with::serde_as]
 #[derive(serde::Deserialize)]
 #[derive(Clone, Debug)]
 pub struct ConfigInternal {
     #[serde(default)]
+    #[serde_as(deserialize_as = "serde_with::DefaultOnNull")]
     pub r#type: ConfigType,
 }
 impl convert_trait::TryConvert<ConfigInternal> for Config {

@@ -43,6 +43,7 @@ struct ConvertOptions {
     fields: BTreeMap<String, ConvertFieldOptions>,
     extra: Vec<ExtraFieldOptions>,
     derive: Vec<DeriveOptions>,
+    attributes: Vec<String>,
 }
 
 impl TryFrom<(&DescriptorPool, &MessageDescriptor)> for ConvertOptions {
@@ -63,6 +64,11 @@ impl TryFrom<(&DescriptorPool, &MessageDescriptor)> for ConvertOptions {
         let derive_ext = message_options
             .extensions()
             .find(|ext| ext.name() == "derive")
+            .unwrap();
+
+        let attributes_ext = message_options
+            .extensions()
+            .find(|ext| ext.name() == "attributes")
             .unwrap();
 
         let fields_extension = descriptors
@@ -95,6 +101,17 @@ impl TryFrom<(&DescriptorPool, &MessageDescriptor)> for ConvertOptions {
             })
             .collect();
 
+        let attributes = options
+            .get_extension(&attributes_ext)
+            .as_list()
+            .expect("attributes should be vec")
+            .iter()
+            .map(|v| {
+                let attr = v.as_str().expect("attributes should be vec of strings");
+                attr.to_string()
+            })
+            .collect();
+
         let fields = message
             .fields()
             .map(|f| {
@@ -107,6 +124,7 @@ impl TryFrom<(&DescriptorPool, &MessageDescriptor)> for ConvertOptions {
             fields,
             extra,
             derive,
+            attributes,
         })
     }
 }
@@ -251,6 +269,18 @@ impl ConversionsGenerator {
             })
             .collect::<Vec<_>>();
 
+        let attributes = convert_options
+            .attributes
+            .iter()
+            .map(|attr| {
+                let attr_token: TokenStream = attr
+                    .parse()
+                    .expect("attribute should be a valid Attribute token");
+                let attr: Attribute = syn::parse_quote!(#attr_token);
+                quote!(#attr)
+            })
+            .collect::<Vec<_>>();
+
         let struct_ident = &rust_struct.ident;
         let internal_struct_ident = quote::format_ident!("{}Internal", struct_ident);
 
@@ -266,6 +296,7 @@ impl ConversionsGenerator {
             None => {
                 quote!(
                     #(#derives)*
+                    #(#attributes)*
                     #[derive(Clone, Debug)]
                     pub struct #internal_struct_ident {
                         #(#field_types,)*
