@@ -63,12 +63,15 @@ pub fn serde(attrs: TokenStream, item: TokenStream) -> TokenStream {
             }
             item.attrs
                 .push(syn::parse_quote!(#[derive(serde::Serialize, serde::Deserialize)]));
-            let rename = match find_rename_all(&attrs) {
-                Some(rename) => rename,
-                None => "camelCase".to_owned(),
+            let maybe_rename = match find_rename_all(&attrs) {
+                Some(rename) if rename.to_lowercase() == "none" => None,
+                Some(rename) => Some(rename),
+                None => Some("camelCase".to_owned()),
             };
-            item.attrs
-                .push(syn::parse_quote!(#[serde(rename_all = #rename)]));
+            if let Some(rename) = maybe_rename {
+                item.attrs
+                    .push(syn::parse_quote!(#[serde(rename_all = #rename)]));
+            }
         }
         _ => {}
     }
