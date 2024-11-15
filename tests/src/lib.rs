@@ -18,3 +18,6 @@ mod errors;
 
 #[cfg(test)]
 mod conversions;
+
+#[cfg(test)]
+mod snake_case_types;

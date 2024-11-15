@@ -1,0 +1,20 @@
+syntax = "proto3";
+package snake_case_types;
+
+option go_package = "github.com/blockscout/actix-prost/tests";
+
+message SimpleMessages {
+  int64 long_name_field = 1;
+}
+
+message OneOfs {
+  oneof snake_case_values {
+    int64 first_snake_case_value = 1;
+    int64 second_snake_case_value = 2;
+  }
+}
+
+service SnakeCaseTypesRPC {
+  rpc SimpleMessagesRPC(SimpleMessages) returns (SimpleMessages);
+  rpc OneOfsRPC(OneOfs) returns (OneOfs);
+}
