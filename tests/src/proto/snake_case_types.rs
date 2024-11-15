@@ -106,6 +106,42 @@ pub mod snake_case_types_rpc_actix {
             );
     }
 }
+#[derive(Clone, Debug)]
+pub struct SimpleMessagesInternal {
+    pub long_name_field: i64,
+}
+impl convert_trait::TryConvert<SimpleMessages> for SimpleMessagesInternal {
+    fn try_convert(from: SimpleMessages) -> Result<Self, String> {
+        Ok(Self {
+            long_name_field: from.long_name_field,
+        })
+    }
+}
+impl convert_trait::TryConvert<SimpleMessagesInternal> for SimpleMessages {
+    fn try_convert(from: SimpleMessagesInternal) -> Result<Self, String> {
+        Ok(Self {
+            long_name_field: from.long_name_field,
+        })
+    }
+}
+#[derive(Clone, Debug)]
+pub struct OneOfsInternal {
+    pub snake_case_values: ::core::option::Option<one_ofs::SnakeCaseValues>,
+}
+impl convert_trait::TryConvert<OneOfs> for OneOfsInternal {
+    fn try_convert(from: OneOfs) -> Result<Self, String> {
+        Ok(Self {
+            snake_case_values: from.snake_case_values,
+        })
+    }
+}
+impl convert_trait::TryConvert<OneOfsInternal> for OneOfs {
+    fn try_convert(from: OneOfsInternal) -> Result<Self, String> {
+        Ok(Self {
+            snake_case_values: from.snake_case_values,
+        })
+    }
+}
 /// Generated client implementations.
 pub mod snake_case_types_rpc_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
