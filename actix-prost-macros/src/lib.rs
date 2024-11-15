@@ -27,7 +27,19 @@ fn find_rename_all(attrs: &[syn::NestedMeta]) -> Option<String> {
 #[proc_macro_attribute]
 pub fn serde(attrs: TokenStream, item: TokenStream) -> TokenStream {
     let mut item = syn::parse_macro_input!(item as Item);
+
     let attrs = syn::parse_macro_input!(attrs as AttributeArgs);
+    let maybe_rename = match find_rename_all(&attrs) {
+        // 'none' option makes it possible to use rust default case
+        // by default (which is snake_case for structs and PascalCase for enums),
+        // and overwrite that value for some of the messages. For us it is a way
+        // to make most of the messages using snake_case, while small part of them
+        // using camelCase.
+        Some(rename) if rename.to_lowercase() == "none" => None,
+        Some(rename) => Some(rename),
+        None => Some("camelCase".to_owned()),
+    };
+
     let mut result = quote::quote!();
     match &mut item {
         syn::Item::Enum(item) => {
@@ -46,7 +58,7 @@ pub fn serde(attrs: TokenStream, item: TokenStream) -> TokenStream {
             }
             item.attrs
                 .push(syn::parse_quote!(#[derive(serde::Serialize, serde::Deserialize)]));
-            let enums = process_enum(item);
+            let enums = process_enum(item, maybe_rename.clone());
             result = quote::quote!(#result #enums);
         }
         syn::Item::Struct(item) => {
@@ -63,11 +75,6 @@ pub fn serde(attrs: TokenStream, item: TokenStream) -> TokenStream {
             }
             item.attrs
                 .push(syn::parse_quote!(#[derive(serde::Serialize, serde::Deserialize)]));
-            let maybe_rename = match find_rename_all(&attrs) {
-                Some(rename) if rename.to_lowercase() == "none" => None,
-                Some(rename) => Some(rename),
-                None => Some("camelCase".to_owned()),
-            };
             if let Some(rename) = maybe_rename {
                 item.attrs
                     .push(syn::parse_quote!(#[serde(rename_all = #rename)]));

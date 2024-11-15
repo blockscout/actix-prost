@@ -24,8 +24,10 @@ fn compile(
         .protoc_arg("--openapiv2_out=proto")
         .protoc_arg("--openapiv2_opt")
         .protoc_arg("grpc_api_configuration=proto/http_api.yaml,output_format=yaml")
+        .type_attribute(".conversions", "#[actix_prost_macros::serde]")
         .type_attribute(".errors", "#[actix_prost_macros::serde]")
         .type_attribute(".rest", "#[actix_prost_macros::serde]")
+        .type_attribute(".simple", "#[actix_prost_macros::serde]")
         .type_attribute(".types", "#[actix_prost_macros::serde]")
         .type_attribute(
             ".snake_case_types",
