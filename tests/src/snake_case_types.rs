@@ -1,4 +1,5 @@
 use crate::{
+    assert_ping,
     proto::snake_case_types::{
         snake_case_types_rpc_actix::route_snake_case_types_rpc,
         snake_case_types_rpc_server::SnakeCaseTypesRpc, OneOfs, SimpleMessages,
@@ -6,7 +7,6 @@ use crate::{
     test,
 };
 use actix_web::{App, HttpServer};
-use pretty_assertions::assert_eq;
 use std::{net::SocketAddr, sync::Arc};
 use tonic::{Request, Response, Status};
 
@@ -25,24 +25,6 @@ impl SnakeCaseTypesRpc for SnakeCaseTypesServer {
     async fn one_ofs_rpc(&self, request: Request<OneOfs>) -> Result<Response<OneOfs>, Status> {
         Ok(Response::new(request.into_inner()))
     }
-}
-
-async fn assert_ping(addr: &SocketAddr, path: &str, body: String) {
-    let client = reqwest::Client::new();
-    let resp = client
-        .post(format!("http://localhost:{}{}", addr.port(), path))
-        .body(body.clone())
-        .header("Content-Type", "application/json")
-        .send()
-        .await
-        .unwrap()
-        .text()
-        .await
-        .unwrap();
-    let body: serde_json::Value = serde_json::from_str(&body).unwrap();
-    let resp: serde_json::Value = serde_json::from_str(&resp)
-        .unwrap_or_else(|_| panic!("could not parse json, got: {}", resp));
-    assert_eq!(body, resp);
 }
 
 #[tokio::test]

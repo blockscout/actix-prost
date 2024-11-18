@@ -31,9 +31,9 @@ fn compile(
         .type_attribute(".types", "#[actix_prost_macros::serde]")
         .type_attribute(
             ".snake_case_types",
-            "#[actix_prost_macros::serde(rename_all=\"snake_case\")]",
-        );
-
+            "#[actix_prost_macros::serde(rename_all = \"snake_case\")]",
+        )
+        .type_attribute(".serde_overrides", "#[actix_prost_macros::serde]");
     config.compile_protos(protos, includes)?;
     Ok(())
 }
@@ -51,6 +51,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "proto/errors.proto",
             "proto/conversions.proto",
             "proto/snake_case_types.proto",
+            "proto/serde_overrides.proto",
         ],
         &["proto/", "proto/googleapis", "proto/grpc-gateway"],
         gens,

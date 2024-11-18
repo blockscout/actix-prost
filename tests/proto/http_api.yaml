@@ -75,3 +75,17 @@ http:
   - selector: "snake_case_types.SnakeCaseTypesRPC.OneOfsRPC"
     post: /snake-case-types/oneofs
     body: "*"
+
+  - selector: "serde_overrides.SerdeOverridesRPC.CamelCaseSimpleMessagesRPC"
+    post: /serde-overrides/camel-case-simple-messages
+    body: "*"
+  - selector: "serde_overrides.SerdeOverridesRPC.SnakeCaseSimpleMessagesRPC"
+    post: /serde-overrides/snake-case-simple-messages
+    body: "*"
+  - selector: "serde_overrides.SerdeOverridesRPC.UnspecifiedCaseSimpleMessagesRPC"
+    post: /serde-overrides/unspecified-case-simple-messages
+    body: "*"
+  - selector: "serde_overrides.SerdeOverridesRPC.CaseDependentOneOfsRPC"
+    post: /serde-overrides/case-dependent-oneofs
+    body: "*"
+

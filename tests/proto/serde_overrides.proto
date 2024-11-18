@@ -1,0 +1,40 @@
+syntax = "proto3";
+package serde_overrides;
+
+option go_package = "github.com/blockscout/actix-prost/tests";
+
+message CamelCaseSimpleMessages {
+  int64 long_name_field = 1;
+}
+
+message SnakeCaseSimpleMessages {
+  int64 long_name_field = 1;
+}
+
+message UnspecifiedCaseSimpleMessages {
+  int64 long_name_field = 1;
+}
+
+message CaseDependentOneOfs {
+  oneof camel_case_values {
+    int64 first_camel_case_value = 1;
+    int64 second_camel_case_value = 2;
+  }
+
+  oneof snake_case_values {
+    int64 first_snake_case_value = 3;
+    int64 second_snake_case_value = 4;
+  }
+
+  oneof unspecified_case_values {
+    int64 first_unspecified_case_value = 5;
+    int64 second_unspecified_case_value = 6;
+  }
+}
+
+service SerdeOverridesRPC {
+  rpc CamelCaseSimpleMessagesRPC(CamelCaseSimpleMessages) returns (CamelCaseSimpleMessages);
+  rpc SnakeCaseSimpleMessagesRPC(SnakeCaseSimpleMessages) returns (SnakeCaseSimpleMessages);
+  rpc UnspecifiedCaseSimpleMessagesRPC(UnspecifiedCaseSimpleMessages) returns (UnspecifiedCaseSimpleMessages);
+  rpc CaseDependentOneOfsRPC(CaseDependentOneOfs) returns (CaseDependentOneOfs);
+}
