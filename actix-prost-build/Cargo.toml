@@ -5,11 +5,11 @@ edition = "2021"
 
 [dependencies]
 convert-trait = { path = "../convert-trait", optional = true}
-thiserror = "1.0"
+thiserror = "2.0"
 proc-macro2 = "1.0"
-prost-build = "0.11"
+prost-build = "0.13"
 prettyplease = "0.2"
-prost-reflect = "0.12.0"
+prost-reflect = "0.14.2"
 quote = "1.0"
 syn = { version = "2.0", features = ["full"] }
 serde = { version = "1", features = ["derive"] }
