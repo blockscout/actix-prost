@@ -8,21 +8,21 @@ actix-prost = { path = "../actix-prost" }
 actix-prost-macros = { path = "../actix-prost-macros" }
 async-trait = "0.1"
 convert-trait ={ path = "../convert-trait" }
-tonic = "0.8"
-prost = "0.11"
+tonic = "0.12"
+prost = "0.13"
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 serde = { version = "1", features = ["derive"] }
 actix-web = "4"
-http = "0.2"
+http = "1.1"
 serde_json = "1.0"
-serde_with = { version = "2.3", features = ["base64"] }
+serde_with = { version = "3.11", features = ["base64"] }
 ethers = "2.0.14"
 
 [build-dependencies]
 actix-prost-build = { path = "../actix-prost-build", features = ["conversions"]}
-tonic-build = "0.8"
-prost-build = "0.11"
+tonic-build = "0.12"
+prost-build = "0.13"
 
 [dev-dependencies]
-reqwest = { version = "0.11", features = ["json"] }
+reqwest = { version = "0.12", features = ["json"] }
 pretty_assertions = "1.4"
