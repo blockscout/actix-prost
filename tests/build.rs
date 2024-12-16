@@ -24,16 +24,27 @@ fn compile(
         .protoc_arg("--openapiv2_out=proto")
         .protoc_arg("--openapiv2_opt")
         .protoc_arg("grpc_api_configuration=proto/http_api.yaml,output_format=yaml")
-        .type_attribute(".conversions", "#[actix_prost_macros::serde]")
-        .type_attribute(".errors", "#[actix_prost_macros::serde]")
-        .type_attribute(".rest", "#[actix_prost_macros::serde]")
-        .type_attribute(".simple", "#[actix_prost_macros::serde]")
-        .type_attribute(".types", "#[actix_prost_macros::serde]")
+        .type_attribute(".", "#[actix_prost_macros::serde]")
         .type_attribute(
             ".snake_case_types",
             "#[actix_prost_macros::serde(rename_all = \"snake_case\")]",
         )
-        .type_attribute(".serde_overrides", "#[actix_prost_macros::serde]");
+        .type_attribute(
+            ".serde_overrides.CamelCaseSimpleMessages",
+            "#[actix_prost_macros::serde(rename_all = \"camelCase\")]",
+        )
+        .type_attribute(
+            ".serde_overrides.SnakeCaseSimpleMessages",
+            "#[actix_prost_macros::serde(rename_all = \"snake_case\")]",
+        )
+        .type_attribute(
+            ".serde_overrides.CaseDependentOneOfs.CamelCaseValues",
+            "#[actix_prost_macros::serde(rename_all = \"camelCase\")]",
+        )
+        .type_attribute(
+            ".serde_overrides.CaseDependentOneOfs.snake_case_values",
+            "#[actix_prost_macros::serde(rename_all = \"snake_case\")]",
+        );
     config.compile_protos(protos, includes)?;
     Ok(())
 }

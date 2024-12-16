@@ -88,6 +88,7 @@
 /// <http://joda-time.sourceforge.net/apidocs/org/joda/time/format/ISODateTimeFormat.html#dateTime(>)
 /// ) to obtain a formatter capable of generating timestamps in this format.
 ///
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Timestamp {
@@ -189,6 +190,7 @@ pub struct Timestamp {
 ///        "value": "1.212s"
 ///      }
 ///
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Any {
@@ -229,6 +231,7 @@ pub struct Any {
 }
 /// The protocol compiler can output a FileDescriptorSet containing the .proto
 /// files it parses.
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FileDescriptorSet {
@@ -236,6 +239,7 @@ pub struct FileDescriptorSet {
     pub file: ::prost::alloc::vec::Vec<FileDescriptorProto>,
 }
 /// Describes a complete .proto file.
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FileDescriptorProto {
@@ -283,6 +287,7 @@ pub struct FileDescriptorProto {
     pub edition: ::core::option::Option<i32>,
 }
 /// Describes a message type.
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DescriptorProto {
@@ -311,6 +316,7 @@ pub struct DescriptorProto {
 }
 /// Nested message and enum types in `DescriptorProto`.
 pub mod descriptor_proto {
+    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct ExtensionRange {
@@ -326,6 +332,7 @@ pub mod descriptor_proto {
     /// Range of reserved tag numbers. Reserved tag numbers may not be used by
     /// fields or extension ranges in the same message. Reserved ranges may
     /// not overlap.
+    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct ReservedRange {
@@ -337,6 +344,7 @@ pub mod descriptor_proto {
         pub end: ::core::option::Option<i32>,
     }
 }
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ExtensionRangeOptions {
@@ -364,6 +372,7 @@ pub struct ExtensionRangeOptions {
 }
 /// Nested message and enum types in `ExtensionRangeOptions`.
 pub mod extension_range_options {
+    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Declaration {
@@ -390,6 +399,7 @@ pub mod extension_range_options {
         pub repeated: ::core::option::Option<bool>,
     }
     /// The verification state of the extension range.
+    #[actix_prost_macros::serde]
     #[derive(
         Clone,
         Copy,
@@ -429,6 +439,7 @@ pub mod extension_range_options {
     }
 }
 /// Describes a field within a message.
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FieldDescriptorProto {
@@ -497,6 +508,7 @@ pub struct FieldDescriptorProto {
 }
 /// Nested message and enum types in `FieldDescriptorProto`.
 pub mod field_descriptor_proto {
+    #[actix_prost_macros::serde]
     #[derive(
         Clone,
         Copy,
@@ -596,6 +608,7 @@ pub mod field_descriptor_proto {
             }
         }
     }
+    #[actix_prost_macros::serde]
     #[derive(
         Clone,
         Copy,
@@ -641,6 +654,7 @@ pub mod field_descriptor_proto {
     }
 }
 /// Describes a oneof.
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct OneofDescriptorProto {
@@ -650,6 +664,7 @@ pub struct OneofDescriptorProto {
     pub options: ::core::option::Option<OneofOptions>,
 }
 /// Describes an enum type.
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct EnumDescriptorProto {
@@ -679,6 +694,7 @@ pub mod enum_descriptor_proto {
     /// Note that this is distinct from DescriptorProto.ReservedRange in that it
     /// is inclusive such that it can appropriately represent the entire int32
     /// domain.
+    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct EnumReservedRange {
@@ -691,6 +707,7 @@ pub mod enum_descriptor_proto {
     }
 }
 /// Describes a value within an enum.
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct EnumValueDescriptorProto {
@@ -702,6 +719,7 @@ pub struct EnumValueDescriptorProto {
     pub options: ::core::option::Option<EnumValueOptions>,
 }
 /// Describes a service.
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ServiceDescriptorProto {
@@ -713,6 +731,7 @@ pub struct ServiceDescriptorProto {
     pub options: ::core::option::Option<ServiceOptions>,
 }
 /// Describes a method of a service.
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MethodDescriptorProto {
@@ -733,6 +752,7 @@ pub struct MethodDescriptorProto {
     #[prost(bool, optional, tag = "6", default = "false")]
     pub server_streaming: ::core::option::Option<bool>,
 }
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FileOptions {
@@ -856,6 +876,7 @@ pub struct FileOptions {
 /// Nested message and enum types in `FileOptions`.
 pub mod file_options {
     /// Generated classes can be optimized for speed or code size.
+    #[actix_prost_macros::serde]
     #[derive(
         Clone,
         Copy,
@@ -901,6 +922,7 @@ pub mod file_options {
         }
     }
 }
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MessageOptions {
@@ -978,6 +1000,7 @@ pub struct MessageOptions {
     #[prost(message, repeated, tag = "999")]
     pub uninterpreted_option: ::prost::alloc::vec::Vec<UninterpretedOption>,
 }
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FieldOptions {
@@ -1085,6 +1108,7 @@ pub struct FieldOptions {
 }
 /// Nested message and enum types in `FieldOptions`.
 pub mod field_options {
+    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct EditionDefault {
@@ -1095,6 +1119,7 @@ pub mod field_options {
         pub value: ::core::option::Option<::prost::alloc::string::String>,
     }
     /// Information about the support window of a feature.
+    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct FeatureSupport {
@@ -1117,6 +1142,7 @@ pub mod field_options {
         #[prost(enumeration = "super::Edition", optional, tag = "4")]
         pub edition_removed: ::core::option::Option<i32>,
     }
+    #[actix_prost_macros::serde]
     #[derive(
         Clone,
         Copy,
@@ -1163,6 +1189,7 @@ pub mod field_options {
             }
         }
     }
+    #[actix_prost_macros::serde]
     #[derive(
         Clone,
         Copy,
@@ -1208,6 +1235,7 @@ pub mod field_options {
     /// If set to RETENTION_SOURCE, the option will be omitted from the binary.
     /// Note: as of January 2023, support for this is in progress and does not yet
     /// have an effect (b/264593489).
+    #[actix_prost_macros::serde]
     #[derive(
         Clone,
         Copy,
@@ -1251,6 +1279,7 @@ pub mod field_options {
     /// as an option. If it is unset, then the field may be freely used as an
     /// option on any kind of entity. Note: as of January 2023, support for this is
     /// in progress and does not yet have an effect (b/264593489).
+    #[actix_prost_macros::serde]
     #[derive(
         Clone,
         Copy,
@@ -1314,6 +1343,7 @@ pub mod field_options {
         }
     }
 }
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct OneofOptions {
@@ -1324,6 +1354,7 @@ pub struct OneofOptions {
     #[prost(message, repeated, tag = "999")]
     pub uninterpreted_option: ::prost::alloc::vec::Vec<UninterpretedOption>,
 }
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct EnumOptions {
@@ -1353,6 +1384,7 @@ pub struct EnumOptions {
     #[prost(message, repeated, tag = "999")]
     pub uninterpreted_option: ::prost::alloc::vec::Vec<UninterpretedOption>,
 }
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct EnumValueOptions {
@@ -1377,6 +1409,7 @@ pub struct EnumValueOptions {
     #[prost(message, repeated, tag = "999")]
     pub uninterpreted_option: ::prost::alloc::vec::Vec<UninterpretedOption>,
 }
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ServiceOptions {
@@ -1393,6 +1426,7 @@ pub struct ServiceOptions {
     #[prost(message, repeated, tag = "999")]
     pub uninterpreted_option: ::prost::alloc::vec::Vec<UninterpretedOption>,
 }
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MethodOptions {
@@ -1421,6 +1455,7 @@ pub mod method_options {
     /// Is this method side-effect-free (or safe in HTTP parlance), or idempotent,
     /// or neither? HTTP based RPC implementation may choose GET verb for safe
     /// methods, and PUT verb for idempotent methods instead of the default POST.
+    #[actix_prost_macros::serde]
     #[derive(
         Clone,
         Copy,
@@ -1469,6 +1504,7 @@ pub mod method_options {
 /// options protos in descriptor objects (e.g. returned by Descriptor::options(),
 /// or produced by Descriptor::CopyTo()) will never have UninterpretedOptions
 /// in them.
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UninterpretedOption {
@@ -1496,6 +1532,7 @@ pub mod uninterpreted_option {
     /// extension (denoted with parentheses in options specs in .proto files).
     /// E.g.,{ ["foo", false], ["bar.baz", true], ["moo", false] } represents
     /// "foo.(bar.baz).moo".
+    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct NamePart {
@@ -1511,6 +1548,7 @@ pub mod uninterpreted_option {
 /// readability, but leave us very open to this scenario.  A future feature will
 /// be designed and implemented to handle this, hopefully before we ever hit a
 /// conflict here.
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FeatureSet {
@@ -1529,6 +1567,7 @@ pub struct FeatureSet {
 }
 /// Nested message and enum types in `FeatureSet`.
 pub mod feature_set {
+    #[actix_prost_macros::serde]
     #[derive(
         Clone,
         Copy,
@@ -1571,6 +1610,7 @@ pub mod feature_set {
             }
         }
     }
+    #[actix_prost_macros::serde]
     #[derive(
         Clone,
         Copy,
@@ -1610,6 +1650,7 @@ pub mod feature_set {
             }
         }
     }
+    #[actix_prost_macros::serde]
     #[derive(
         Clone,
         Copy,
@@ -1649,6 +1690,7 @@ pub mod feature_set {
             }
         }
     }
+    #[actix_prost_macros::serde]
     #[derive(
         Clone,
         Copy,
@@ -1688,6 +1730,7 @@ pub mod feature_set {
             }
         }
     }
+    #[actix_prost_macros::serde]
     #[derive(
         Clone,
         Copy,
@@ -1727,6 +1770,7 @@ pub mod feature_set {
             }
         }
     }
+    #[actix_prost_macros::serde]
     #[derive(
         Clone,
         Copy,
@@ -1771,6 +1815,7 @@ pub mod feature_set {
 /// messages are generated from FeatureSet extensions and can be used to seed
 /// feature resolution. The resolution with this object becomes a simple search
 /// for the closest matching edition, followed by proto merges.
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FeatureSetDefaults {
@@ -1793,6 +1838,7 @@ pub mod feature_set_defaults {
     /// defaults. Not all editions may be contained here.  For a given edition,
     /// the defaults at the closest matching edition ordered at or before it should
     /// be used.  This field must be in strict ascending order by edition.
+    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct FeatureSetEditionDefault {
@@ -1808,6 +1854,7 @@ pub mod feature_set_defaults {
 }
 /// Encapsulates information about the original source file from which a
 /// FileDescriptorProto was generated.
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SourceCodeInfo {
@@ -1859,6 +1906,7 @@ pub struct SourceCodeInfo {
 }
 /// Nested message and enum types in `SourceCodeInfo`.
 pub mod source_code_info {
+    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Location {
@@ -1954,6 +2002,7 @@ pub mod source_code_info {
 /// Describes the relationship between generated code and its original source
 /// file. A GeneratedCodeInfo message is associated with only one generated
 /// source file, but may contain references to different source .proto files.
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GeneratedCodeInfo {
@@ -1964,6 +2013,7 @@ pub struct GeneratedCodeInfo {
 }
 /// Nested message and enum types in `GeneratedCodeInfo`.
 pub mod generated_code_info {
+    #[actix_prost_macros::serde]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Annotation {
@@ -1990,6 +2040,7 @@ pub mod generated_code_info {
     pub mod annotation {
         /// Represents the identified object's effect on the element in the original
         /// .proto file.
+        #[actix_prost_macros::serde]
         #[derive(
             Clone,
             Copy,
@@ -2035,6 +2086,7 @@ pub mod generated_code_info {
     }
 }
 /// The full set of known editions.
+#[actix_prost_macros::serde]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum Edition {

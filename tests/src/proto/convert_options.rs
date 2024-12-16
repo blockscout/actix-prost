@@ -1,3 +1,4 @@
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ConvertOptions {
@@ -10,6 +11,7 @@ pub struct ConvertOptions {
     #[prost(string, repeated, tag = "4")]
     pub attributes: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ExtraFieldOptions {
@@ -18,6 +20,7 @@ pub struct ExtraFieldOptions {
     #[prost(string, tag = "2")]
     pub r#type: ::prost::alloc::string::String,
 }
+#[actix_prost_macros::serde]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeriveOptions {

@@ -1,4 +1,5 @@
 #[actix_prost_macros::serde]
+#[actix_prost_macros::serde(rename_all = "camelCase")]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CamelCaseSimpleMessages {
@@ -6,6 +7,7 @@ pub struct CamelCaseSimpleMessages {
     pub long_name_field: i64,
 }
 #[actix_prost_macros::serde]
+#[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SnakeCaseSimpleMessages {
@@ -48,6 +50,7 @@ pub mod case_dependent_one_ofs {
         SecondCamelCaseValue(i64),
     }
     #[actix_prost_macros::serde]
+    #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum SnakeCaseValues {
@@ -72,6 +75,7 @@ pub mod serde_overrides_rpc_actix {
     use super::serde_overrides_rpc_server::SerdeOverridesRpc;
     use std::sync::Arc;
     #[actix_prost_macros::serde]
+    #[actix_prost_macros::serde(rename_all = "camelCase")]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct CamelCaseSimpleMessagesRPCJson {
@@ -79,6 +83,7 @@ pub mod serde_overrides_rpc_actix {
         pub long_name_field: i64,
     }
     #[actix_prost_macros::serde]
+    #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct SnakeCaseSimpleMessagesRPCJson {
