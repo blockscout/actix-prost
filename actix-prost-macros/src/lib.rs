@@ -24,16 +24,12 @@ fn find_rename_all(attrs: &[syn::NestedMeta]) -> Option<String> {
     None
 }
 
-/// Checks if any other `actix_prost_macros::serde` attribute exist
-/// for the item defined after the current attribute.
+/// Checks if any other `actix_prost_macros::serde` attribute exists
+/// for the item defined **after** the current attribute.
 fn has_other_actix_prost_serde_attributes(item_attributes: &[Attribute]) -> bool {
-    for attribute in item_attributes {
-        if attribute.path == syn::parse_quote!(actix_prost_macros::serde) {
-            return true;
-        }
-    }
-
-    false
+    item_attributes
+        .iter()
+        .any(|attribute| attribute.path == syn::parse_quote!(actix_prost_macros::serde))
 }
 
 #[proc_macro_attribute]
