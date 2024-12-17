@@ -2,7 +2,7 @@ use enums::process_enum;
 use field::process_field;
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{AttributeArgs, Item};
+use syn::{Attribute, AttributeArgs, Item};
 
 mod enums;
 mod field;
@@ -24,6 +24,14 @@ fn find_rename_all(attrs: &[syn::NestedMeta]) -> Option<String> {
     None
 }
 
+/// Checks if any other `actix_prost_macros::serde` attribute exists
+/// for the item defined **after** the current attribute.
+fn has_other_actix_prost_serde_attributes(item_attributes: &[Attribute]) -> bool {
+    item_attributes
+        .iter()
+        .any(|attribute| attribute.path == syn::parse_quote!(actix_prost_macros::serde))
+}
+
 #[proc_macro_attribute]
 pub fn serde(attrs: TokenStream, item: TokenStream) -> TokenStream {
     let mut item = syn::parse_macro_input!(item as Item);
@@ -32,7 +40,7 @@ pub fn serde(attrs: TokenStream, item: TokenStream) -> TokenStream {
     let maybe_rename = match find_rename_all(&attrs) {
         // 'none' option makes it possible to use rust default case
         // by default (which is snake_case for structs and PascalCase for enums),
-        // and overwrite that value for some of the messages. For us it is a way
+        // and overwrite that value for some of the messages. For us, it is a way
         // to make most of the messages using snake_case, while small part of them
         // using camelCase.
         Some(rename) if rename.to_lowercase() == "none" => None,
@@ -41,8 +49,12 @@ pub fn serde(attrs: TokenStream, item: TokenStream) -> TokenStream {
     };
 
     let mut result = quote::quote!();
+    // Checking that no other `actix_prost_macros::serde` attributes exist for an item
+    // allows us to override 'rename_all' attribute for the type.
+    // That allows to specify a default serialization case convention and override it
+    // for some of the types only (e.g., for legacy reasons).
     match &mut item {
-        syn::Item::Enum(item) => {
+        syn::Item::Enum(item) if !has_other_actix_prost_serde_attributes(&item.attrs) => {
             let mut need_serde_as = false;
             for variant in item.variants.iter_mut() {
                 for field in variant.fields.iter_mut() {
@@ -61,7 +73,7 @@ pub fn serde(attrs: TokenStream, item: TokenStream) -> TokenStream {
             let enums = process_enum(item, maybe_rename.clone());
             result = quote::quote!(#result #enums);
         }
-        syn::Item::Struct(item) => {
+        syn::Item::Struct(item) if !has_other_actix_prost_serde_attributes(&item.attrs) => {
             let mut need_serde_as = false;
             for field in item.fields.iter_mut() {
                 let (attr, need) = process_field(field);

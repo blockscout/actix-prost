@@ -1,3 +1,4 @@
+#[actix_prost_macros::serde]
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -5,6 +6,7 @@ pub struct SimpleMessages {
     #[prost(int64, tag = "1")]
     pub long_name_field: i64,
 }
+#[actix_prost_macros::serde]
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -14,6 +16,7 @@ pub struct OneOfs {
 }
 /// Nested message and enum types in `OneOfs`.
 pub mod one_ofs {
+    #[actix_prost_macros::serde]
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
@@ -29,6 +32,7 @@ pub mod snake_case_types_rpc_actix {
     use super::*;
     use super::snake_case_types_rpc_server::SnakeCaseTypesRpc;
     use std::sync::Arc;
+    #[actix_prost_macros::serde]
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
@@ -36,6 +40,7 @@ pub mod snake_case_types_rpc_actix {
         #[prost(int64, tag = "1")]
         pub long_name_field: i64,
     }
+    #[actix_prost_macros::serde]
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
