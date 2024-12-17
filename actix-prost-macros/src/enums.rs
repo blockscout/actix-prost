@@ -5,7 +5,7 @@ enum Kind {
     OneOf,
 }
 
-pub fn process_enum(item: &mut syn::ItemEnum) -> Option<TokenStream> {
+pub fn process_enum(item: &mut syn::ItemEnum, maybe_rename: Option<String>) -> Option<TokenStream> {
     let derive = item
         .attrs
         .iter()
@@ -43,8 +43,10 @@ pub fn process_enum(item: &mut syn::ItemEnum) -> Option<TokenStream> {
     };
     match kind {
         Kind::OneOf => {
-            item.attrs
-                .push(syn::parse_quote!(#[serde(rename_all="camelCase")]));
+            if let Some(rename) = maybe_rename {
+                item.attrs
+                    .push(syn::parse_quote!(#[serde(rename_all=#rename)]));
+            }
             None
         }
         Kind::Enum => {

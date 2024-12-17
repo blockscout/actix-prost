@@ -68,3 +68,10 @@ http:
   - selector: "conversions.ConversionsRPC.ConvertRPC"
     post: /conversions
     body: "*"
+
+  - selector: "snake_case_types.SnakeCaseTypesRPC.SimpleMessagesRPC"
+    post: /snake-case-types/simple-messages
+    body: "*"
+  - selector: "snake_case_types.SnakeCaseTypesRPC.OneOfsRPC"
+    post: /snake-case-types/oneofs
+    body: "*"
