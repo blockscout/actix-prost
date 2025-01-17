@@ -392,7 +392,17 @@ pub mod extension_range_options {
     }
     /// The verification state of the extension range.
     #[actix_prost_macros::serde]
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
     #[repr(i32)]
     pub enum VerificationState {
         /// All the extensions of the range must be declared.
@@ -490,7 +500,17 @@ pub struct FieldDescriptorProto {
 /// Nested message and enum types in `FieldDescriptorProto`.
 pub mod field_descriptor_proto {
     #[actix_prost_macros::serde]
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
     #[repr(i32)]
     pub enum Type {
         /// 0 is reserved for errors.
@@ -580,7 +600,17 @@ pub mod field_descriptor_proto {
         }
     }
     #[actix_prost_macros::serde]
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
     #[repr(i32)]
     pub enum Label {
         /// 0 is reserved for errors
@@ -637,7 +667,9 @@ pub struct EnumDescriptorProto {
     /// by enum values in the same enum declaration. Reserved ranges may not
     /// overlap.
     #[prost(message, repeated, tag = "4")]
-    pub reserved_range: ::prost::alloc::vec::Vec<enum_descriptor_proto::EnumReservedRange>,
+    pub reserved_range: ::prost::alloc::vec::Vec<
+        enum_descriptor_proto::EnumReservedRange,
+    >,
     /// Reserved enum value names, which may not be reused. A given name may only
     /// be reserved once.
     #[prost(string, repeated, tag = "5")]
@@ -829,7 +861,17 @@ pub struct FileOptions {
 pub mod file_options {
     /// Generated classes can be optimized for speed or code size.
     #[actix_prost_macros::serde]
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
     #[repr(i32)]
     pub enum OptimizeMode {
         /// Generate complete code for parsing, serialization,
@@ -1081,7 +1123,17 @@ pub mod field_options {
         pub edition_removed: ::core::option::Option<i32>,
     }
     #[actix_prost_macros::serde]
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
     #[repr(i32)]
     pub enum CType {
         /// Default mode.
@@ -1118,7 +1170,17 @@ pub mod field_options {
         }
     }
     #[actix_prost_macros::serde]
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
     #[repr(i32)]
     pub enum JsType {
         /// Use the default type.
@@ -1154,7 +1216,17 @@ pub mod field_options {
     /// Note: as of January 2023, support for this is in progress and does not yet
     /// have an effect (b/264593489).
     #[actix_prost_macros::serde]
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
     #[repr(i32)]
     pub enum OptionRetention {
         RetentionUnknown = 0,
@@ -1188,7 +1260,17 @@ pub mod field_options {
     /// option on any kind of entity. Note: as of January 2023, support for this is
     /// in progress and does not yet have an effect (b/264593489).
     #[actix_prost_macros::serde]
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
     #[repr(i32)]
     pub enum OptionTargetType {
         TargetTypeUnknown = 0,
@@ -1347,7 +1429,17 @@ pub mod method_options {
     /// or neither? HTTP based RPC implementation may choose GET verb for safe
     /// methods, and PUT verb for idempotent methods instead of the default POST.
     #[actix_prost_macros::serde]
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
     #[repr(i32)]
     pub enum IdempotencyLevel {
         IdempotencyUnknown = 0,
@@ -1434,11 +1526,7 @@ pub struct FeatureSet {
     pub field_presence: ::core::option::Option<i32>,
     #[prost(enumeration = "feature_set::EnumType", optional, tag = "2")]
     pub enum_type: ::core::option::Option<i32>,
-    #[prost(
-        enumeration = "feature_set::RepeatedFieldEncoding",
-        optional,
-        tag = "3"
-    )]
+    #[prost(enumeration = "feature_set::RepeatedFieldEncoding", optional, tag = "3")]
     pub repeated_field_encoding: ::core::option::Option<i32>,
     #[prost(enumeration = "feature_set::Utf8Validation", optional, tag = "4")]
     pub utf8_validation: ::core::option::Option<i32>,
@@ -1450,7 +1538,17 @@ pub struct FeatureSet {
 /// Nested message and enum types in `FeatureSet`.
 pub mod feature_set {
     #[actix_prost_macros::serde]
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
     #[repr(i32)]
     pub enum FieldPresence {
         Unknown = 0,
@@ -1483,7 +1581,17 @@ pub mod feature_set {
         }
     }
     #[actix_prost_macros::serde]
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
     #[repr(i32)]
     pub enum EnumType {
         Unknown = 0,
@@ -1513,7 +1621,17 @@ pub mod feature_set {
         }
     }
     #[actix_prost_macros::serde]
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
     #[repr(i32)]
     pub enum RepeatedFieldEncoding {
         Unknown = 0,
@@ -1543,7 +1661,17 @@ pub mod feature_set {
         }
     }
     #[actix_prost_macros::serde]
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
     #[repr(i32)]
     pub enum Utf8Validation {
         Unknown = 0,
@@ -1573,7 +1701,17 @@ pub mod feature_set {
         }
     }
     #[actix_prost_macros::serde]
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
     #[repr(i32)]
     pub enum MessageEncoding {
         Unknown = 0,
@@ -1603,7 +1741,17 @@ pub mod feature_set {
         }
     }
     #[actix_prost_macros::serde]
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
     #[repr(i32)]
     pub enum JsonFormat {
         Unknown = 0,
@@ -1641,7 +1789,9 @@ pub mod feature_set {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FeatureSetDefaults {
     #[prost(message, repeated, tag = "1")]
-    pub defaults: ::prost::alloc::vec::Vec<feature_set_defaults::FeatureSetEditionDefault>,
+    pub defaults: ::prost::alloc::vec::Vec<
+        feature_set_defaults::FeatureSetEditionDefault,
+    >,
     /// The minimum supported edition (inclusive) when this was constructed.
     /// Editions before this will not have defaults.
     #[prost(enumeration = "Edition", optional, tag = "4")]
@@ -1810,7 +1960,9 @@ pub mod source_code_info {
         #[prost(string, optional, tag = "4")]
         pub trailing_comments: ::core::option::Option<::prost::alloc::string::String>,
         #[prost(string, repeated, tag = "6")]
-        pub leading_detached_comments: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+        pub leading_detached_comments: ::prost::alloc::vec::Vec<
+            ::prost::alloc::string::String,
+        >,
     }
 }
 /// Describes the relationship between generated code and its original source
@@ -1854,7 +2006,15 @@ pub mod generated_code_info {
         /// .proto file.
         #[actix_prost_macros::serde]
         #[derive(
-            Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration,
+            Clone,
+            Copy,
+            Debug,
+            PartialEq,
+            Eq,
+            Hash,
+            PartialOrd,
+            Ord,
+            ::prost::Enumeration
         )]
         #[repr(i32)]
         pub enum Semantic {
