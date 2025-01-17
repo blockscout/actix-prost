@@ -428,7 +428,7 @@ pub struct EnumsInternal {
 impl convert_trait::TryConvert<Enums> for EnumsInternal {
     fn try_convert(from: Enums) -> Result<Self, String> {
         Ok(Self {
-            values: Values::try_from(from.values)?,
+            values: Values::try_from(from.values).map_err(|e| e.to_string())?,
         })
     }
 }

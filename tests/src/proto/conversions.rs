@@ -214,7 +214,8 @@ impl convert_trait::TryConvert<ConversionsRequest> for ConversionsRequestInterna
             map_field: convert_trait::TryConvert::try_convert(from.map_field)?,
             query: Default::default(),
             addresses: convert_trait::TryConvert::try_convert(from.addresses)?,
-            nested_enum: conversions_request::NestedEnum::try_from(from.nested_enum)?,
+            nested_enum: conversions_request::NestedEnum::try_from(from.nested_enum)
+                .map_err(|e| e.to_string())?,
             nested: convert_trait::TryConvert::try_convert(
                 from.nested.ok_or("field nested is required")?,
             )?,

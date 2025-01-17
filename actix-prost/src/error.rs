@@ -6,6 +6,8 @@ use serde_with::{serde_as, FromInto};
 use std::fmt::Display;
 use tonic::{Code, Status};
 
+use crate::http_compatibility::to_actix_status;
+
 #[serde_as]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Error {
@@ -53,8 +55,8 @@ impl Display for Error {
 }
 
 impl ResponseError for Error {
-    fn status_code(&self) -> StatusCode {
-        Self::map_tonic_code(self.code)
+    fn status_code(&self) -> actix_web::http::StatusCode {
+        to_actix_status(Self::map_tonic_code(self.code))
     }
 
     fn error_response(&self) -> HttpResponse<BoxBody> {
@@ -70,7 +72,7 @@ impl ResponseError for Error {
                     err,
                     self
                 );
-                HttpResponse::build(StatusCode::INTERNAL_SERVER_ERROR)
+                HttpResponse::build(actix_http::StatusCode::INTERNAL_SERVER_ERROR)
                     .content_type("application/json")
                     .body(body)
             }

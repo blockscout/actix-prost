@@ -530,7 +530,7 @@ impl ConversionsGenerator {
                         let enum_ident = lit.parse::<syn::Path>().ok();
                         let conv = match m_type {
                             MessageType::Input => {
-                                quote!(#enum_ident::try_from(from.#name)?)
+                                quote!(#enum_ident::try_from(from.#name).map_err(|e| e.to_string())?)
                             }
                             MessageType::Output => {
                                 quote!(from.#name.into())
