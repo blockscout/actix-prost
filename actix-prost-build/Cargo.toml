@@ -1,19 +1,19 @@
 [package]
 name = "actix-prost-build"
-version = "0.1.0"
+version = "2.0.0"
 edition = "2021"
 
 [dependencies]
-convert-trait = { path = "../convert-trait", optional = true}
-thiserror = "1.0"
+convert-trait = { path = "../convert-trait", optional = true }
+thiserror = "2.0"
 proc-macro2 = "1.0"
-prost-build = "0.11"
+prost-build = "0.13"
 prettyplease = "0.2"
-prost-reflect = "0.12.0"
+prost-reflect = "0.14.4"
 quote = "1.0"
-syn = { version = "2.0", features = ["full"] }
-serde = { version = "1", features = ["derive"] }
+syn = { version = "2.0", features = [ "full" ] }
+serde = { version = "1", features = [ "derive" ] }
 serde_yaml = "0.9"
 
 [features]
-conversions = ["dep:convert-trait"]
+conversions = [ "dep:convert-trait" ]
