@@ -1,7 +1,13 @@
 [package]
 name = "actix-prost-convert-trait"
-version = "0.1.0"
-edition = "2021"
+description = "Conversions between proto and some of the user types."
+homepage = "https://github.com/blockscout/actix-prost/tree/main/actix-prost-convert-trait"
+
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+exclude.workspace = true
 
 [dependencies]
 ethers-core = { version = "2.0.14", optional = true }

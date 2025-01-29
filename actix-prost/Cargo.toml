@@ -1,7 +1,13 @@
 [package]
 name = "actix-prost"
-version = "0.1.0"
-edition = "2021"
+description = "Generate actix handles and routes from grpc definitions"
+homepage = "https://github.com/blockscout/actix-prost/tree/main/actix-prost"
+
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+exclude.workspace = true
 
 [dependencies]
 http = "1.2"

@@ -1,7 +1,13 @@
 [package]
 name = "actix-prost-build"
-version = "0.1.0"
-edition = "2021"
+description = "Generate actix handles from Protocol Buffer files"
+homepage = "https://github.com/blockscout/actix-prost/tree/main/actix-prost-build"
+
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+exclude.workspace = true
 
 [dependencies]
 convert-trait = { version = "0.1.0", path = "../actix-prost-convert-trait", package = "actix-prost-convert-trait", optional = true }
