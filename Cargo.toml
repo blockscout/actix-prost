@@ -4,6 +4,6 @@ members = [
     "actix-prost",
     "actix-prost-build",
     "actix-prost-macros",
-    "convert-trait",
+    "actix-prost-convert-trait",
     "tests",
 ]

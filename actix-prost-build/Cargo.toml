@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-convert-trait = { path = "../convert-trait", optional = true }
+convert-trait = { version = "0.1.0", path = "../actix-prost-convert-trait", package = "actix-prost-convert-trait", optional = true }
 thiserror = "2.0"
 proc-macro2 = "1.0"
 prost-build = "0.13"

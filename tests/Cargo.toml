@@ -7,7 +7,7 @@ edition = "2021"
 actix-prost = { path = "../actix-prost" }
 actix-prost-macros = { path = "../actix-prost-macros" }
 async-trait = "0.1"
-convert-trait = { path = "../convert-trait" }
+convert-trait = { path = "../actix-prost-convert-trait", package = "actix-prost-convert-trait" }
 tonic = "0.12"
 prost = "0.13"
 tokio = { version = "1", features = [ "rt-multi-thread", "macros" ] }
