@@ -3,8 +3,8 @@ resolver = "1"
 members = [
     "actix-prost",
     "actix-prost-build",
-    "actix-prost-macros",
     "actix-prost-convert-trait",
+    "actix-prost-macros",
     "tests",
 ]
 
@@ -14,3 +14,36 @@ edition = "2021"
 license = "MIT"
 repository = "https://github.com/blockscout/actix-prost"
 exclude = ["tests"]
+
+[workspace.dependencies]
+actix-prost = { version = "0.1.0", path = "actix-prost" }
+actix-prost-build = { version = "0.1.0", path = "actix-prost-build" }
+actix-prost-macros = { version = "0.1.0", path = "actix-prost-macros" }
+convert-trait = { version = "0.1.0", path = "actix-prost-convert-trait", package = "actix-prost-convert-trait" }
+
+actix-http = { version = "3" }
+actix-web = { version = "4" }
+async-trait = { version = "0.1" }
+bytes = { version = "1.9" }
+ethers = { version = "2.0.14" }
+ethers-core = { version = "2.0.14" }
+hex = { version = "0.4" }
+http = { version = "1.2" }
+pretty_assertions = { version = "1.4" }
+prettyplease = { version = "0.2" }
+proc-macro2 = { version = "1.0" }
+prost = { version = "0.13" }
+prost-build = { version = "0.13" }
+prost-reflect = { version = "0.14.4" }
+quote = { version = "1.0" }
+reqwest = { version = "0.12" }
+serde = { version = "1" }
+serde_json = { version = "1.0" }
+serde_with = { version = "3.12" }
+serde_yaml = { version = "0.9" }
+syn = { version = "2.0" }
+thiserror = { version = "2.0" }
+tokio = { version = "1" }
+tonic = { version = "0.12" }
+tonic-build = { version = "0.12" }
+url = { version = "2" }
