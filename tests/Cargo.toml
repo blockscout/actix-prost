@@ -9,26 +9,25 @@ repository.workspace = true
 exclude.workspace = true
 
 [dependencies]
-actix-prost = { path = "../actix-prost" }
-actix-prost-macros = { path = "../actix-prost-macros" }
-async-trait = "0.1"
-convert-trait = { path = "../actix-prost-convert-trait", package = "actix-prost-convert-trait" }
-tonic = "0.12"
-prost = "0.13"
-tokio = { version = "1", features = [ "rt-multi-thread", "macros" ] }
-serde = { version = "1", features = [ "derive" ] }
-actix-web = "4"
-actix-http = "3"
-http = "1.2"
-serde_json = "1.0"
-serde_with = { version = "3.12", features = [ "base64" ] }
-ethers = "2.0.14"
+actix-http = { workspace = true }
+actix-prost = { workspace = true }
+actix-prost-macros = { workspace = true }
+async-trait = { workspace = true }
+actix-web = { workspace = true }
+convert-trait = { workspace = true }
+ethers = { workspace = true }
+prost = { workspace = true }
+serde = { workspace = true, features = [ "derive" ] }
+serde_json = { workspace = true }
+serde_with = { workspace = true, features = [ "base64" ] }
+tokio = { workspace = true, features = [ "rt-multi-thread", "macros" ] }
+tonic = { workspace = true }
 
 [build-dependencies]
-actix-prost-build = { path = "../actix-prost-build", features = [ "conversions" ] }
-tonic-build = "0.12"
-prost-build = "0.13"
+actix-prost-build = { workspace = true, features = [ "conversions" ] }
+prost-build = { workspace = true }
+tonic-build = { workspace = true }
 
 [dev-dependencies]
-reqwest = { version = "0.12", features = [ "json" ] }
-pretty_assertions = "1.4"
+pretty_assertions = { workspace = true }
+reqwest = { workspace = true, features = [ "json" ] }
