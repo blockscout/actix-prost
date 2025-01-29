@@ -23,7 +23,7 @@ mod tests {
 
     #[test]
     fn test_header_names() {
-        let a_1 = "a".repeat(1);
+        let a_1 = "a".to_string();
         let a_8192 = "a".repeat(8192);
         let a_8193 = "a".repeat(8193);
         let a_16384 = "a".repeat(16384);

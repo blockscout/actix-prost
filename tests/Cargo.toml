@@ -1,13 +1,13 @@
 [package]
 name = "tests"
-version = "2.0.0"
+version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 actix-prost = { path = "../actix-prost" }
 actix-prost-macros = { path = "../actix-prost-macros" }
 async-trait = "0.1"
-convert-trait = { path = "../convert-trait" }
+convert-trait = { path = "../actix-prost-convert-trait", package = "actix-prost-convert-trait" }
 tonic = "0.12"
 prost = "0.13"
 tokio = { version = "1", features = [ "rt-multi-thread", "macros" ] }
