@@ -9,17 +9,17 @@ members = [
 ]
 
 [workspace.package]
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/blockscout/actix-prost"
 exclude = ["tests"]
 
 [workspace.dependencies]
-actix-prost = { version = "0.1.0", path = "actix-prost" }
-actix-prost-build = { version = "0.1.0", path = "actix-prost-build" }
-actix-prost-macros = { version = "0.1.0", path = "actix-prost-macros" }
-convert-trait = { version = "0.1.0", path = "actix-prost-convert-trait", package = "actix-prost-convert-trait" }
+actix-prost = { version = "0.2.0", path = "actix-prost" }
+actix-prost-build = { version = "0.2.0", path = "actix-prost-build" }
+actix-prost-macros = { version = "0.2.0", path = "actix-prost-macros" }
+convert-trait = { version = "0.2.0", path = "actix-prost-convert-trait", package = "actix-prost-convert-trait" }
 
 actix-http = { version = "3" }
 actix-web = { version = "4" }
