@@ -68,6 +68,7 @@ pub mod serde_overrides_rpc_actix {
     use super::*;
     use super::serde_overrides_rpc_server::SerdeOverridesRpc;
     use std::sync::Arc;
+    use actix_web::Responder;
     #[actix_prost_macros::serde]
     #[actix_prost_macros::serde(rename_all = "camelCase")]
     #[derive(Clone, Copy, PartialEq, ::prost::Message)]
@@ -108,7 +109,7 @@ pub mod serde_overrides_rpc_actix {
         service: ::actix_web::web::Data<dyn SerdeOverridesRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<CamelCaseSimpleMessages>, ::actix_prost::Error> {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             CamelCaseSimpleMessagesRPCJson,
@@ -124,14 +125,20 @@ pub mod serde_overrides_rpc_actix {
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.camel_case_simple_messages_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     async fn call_snake_case_simple_messages_rpc(
         service: ::actix_web::web::Data<dyn SerdeOverridesRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<SnakeCaseSimpleMessages>, ::actix_prost::Error> {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             SnakeCaseSimpleMessagesRPCJson,
@@ -147,17 +154,20 @@ pub mod serde_overrides_rpc_actix {
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.snake_case_simple_messages_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     async fn call_unspecified_case_simple_messages_rpc(
         service: ::actix_web::web::Data<dyn SerdeOverridesRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<
-        ::actix_web::web::Json<UnspecifiedCaseSimpleMessages>,
-        ::actix_prost::Error,
-    > {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             UnspecifiedCaseSimpleMessagesRPCJson,
@@ -173,14 +183,20 @@ pub mod serde_overrides_rpc_actix {
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.unspecified_case_simple_messages_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     async fn call_case_dependent_one_ofs_rpc(
         service: ::actix_web::web::Data<dyn SerdeOverridesRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<CaseDependentOneOfs>, ::actix_prost::Error> {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             CaseDependentOneOfsRPCJson,
@@ -198,8 +214,14 @@ pub mod serde_overrides_rpc_actix {
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.case_dependent_one_ofs_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     pub fn route_serde_overrides_rpc(
         config: &mut ::actix_web::web::ServiceConfig,

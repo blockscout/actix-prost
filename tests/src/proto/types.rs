@@ -111,6 +111,7 @@ pub mod types_rpc_actix {
     use super::*;
     use super::types_rpc_server::TypesRpc;
     use std::sync::Arc;
+    use actix_web::Responder;
     #[actix_prost_macros::serde]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct ScalarsRPCJson {
@@ -182,7 +183,7 @@ pub mod types_rpc_actix {
         service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<Scalars>, ::actix_prost::Error> {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             ScalarsRPCJson,
@@ -202,14 +203,20 @@ pub mod types_rpc_actix {
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.scalars_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     async fn call_optional_scalars_rpc(
         service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<OptionalScalars>, ::actix_prost::Error> {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             OptionalScalarsRPCJson,
@@ -229,14 +236,20 @@ pub mod types_rpc_actix {
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.optional_scalars_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     async fn call_enums_rpc(
         service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<Enums>, ::actix_prost::Error> {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             EnumsRPCJson,
@@ -250,14 +263,20 @@ pub mod types_rpc_actix {
         let request = Enums { values: json.values };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.enums_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     async fn call_repeated_rpc(
         service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<Repeated>, ::actix_prost::Error> {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             RepeatedRPCJson,
@@ -271,14 +290,20 @@ pub mod types_rpc_actix {
         let request = Repeated { foo: json.foo };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.repeated_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     async fn call_maps_rpc(
         service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<Maps>, ::actix_prost::Error> {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             MapsRPCJson,
@@ -292,14 +317,20 @@ pub mod types_rpc_actix {
         let request = Maps { foo: json.foo };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.maps_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     async fn call_one_ofs_rpc(
         service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<OneOfs>, ::actix_prost::Error> {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             OneOfsRPCJson,
@@ -313,14 +344,20 @@ pub mod types_rpc_actix {
         let request = OneOfs { values: json.values };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.one_ofs_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     async fn call_complex_rpc(
         service: ::actix_web::web::Data<dyn TypesRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<Complex>, ::actix_prost::Error> {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             ComplexRPCJson,
@@ -340,8 +377,14 @@ pub mod types_rpc_actix {
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.complex_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     pub fn route_types_rpc(
         config: &mut ::actix_web::web::ServiceConfig,

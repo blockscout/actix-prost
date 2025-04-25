@@ -14,6 +14,7 @@ pub mod simple_rpc_actix {
     use super::*;
     use super::simple_rpc_server::SimpleRpc;
     use std::sync::Arc;
+    use actix_web::Responder;
     #[derive(Clone, PartialEq, ::prost::Message)]
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     pub struct PostRPCPath {
@@ -36,7 +37,7 @@ pub mod simple_rpc_actix {
         service: ::actix_web::web::Data<dyn SimpleRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<Post>, ::actix_prost::Error> {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let path = <::actix_web::web::Path<
             PostRPCPath,
@@ -72,8 +73,14 @@ pub mod simple_rpc_actix {
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.post_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     pub fn route_simple_rpc(
         config: &mut ::actix_web::web::ServiceConfig,

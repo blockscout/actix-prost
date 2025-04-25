@@ -30,6 +30,7 @@ pub mod snake_case_types_rpc_actix {
     use super::*;
     use super::snake_case_types_rpc_server::SnakeCaseTypesRpc;
     use std::sync::Arc;
+    use actix_web::Responder;
     #[actix_prost_macros::serde]
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[derive(Clone, Copy, PartialEq, ::prost::Message)]
@@ -48,7 +49,7 @@ pub mod snake_case_types_rpc_actix {
         service: ::actix_web::web::Data<dyn SnakeCaseTypesRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<SimpleMessages>, ::actix_prost::Error> {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             SimpleMessagesRPCJson,
@@ -64,14 +65,20 @@ pub mod snake_case_types_rpc_actix {
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.simple_messages_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     async fn call_one_ofs_rpc(
         service: ::actix_web::web::Data<dyn SnakeCaseTypesRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<OneOfs>, ::actix_prost::Error> {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             OneOfsRPCJson,
@@ -87,8 +94,14 @@ pub mod snake_case_types_rpc_actix {
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.one_ofs_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     pub fn route_snake_case_types_rpc(
         config: &mut ::actix_web::web::ServiceConfig,

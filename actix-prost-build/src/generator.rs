@@ -91,6 +91,7 @@ impl ActixGenerator {
                 use super::*;
                 use #full_trait;
                 use std::sync::Arc;
+                use actix_web::Responder;
 
                 #(#request_structs)*
 

@@ -22,6 +22,7 @@ pub mod rest_rpc_actix {
     use super::*;
     use super::rest_rpc_server::RestRpc;
     use std::sync::Arc;
+    use actix_web::Responder;
     #[derive(Clone, PartialEq, ::prost::Message)]
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     pub struct GetRPCPath {
@@ -125,7 +126,7 @@ pub mod rest_rpc_actix {
     async fn call_get_rpc(
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
-    ) -> Result<::actix_web::web::Json<Get>, ::actix_prost::Error> {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let path = <::actix_web::web::Path<
             GetRPCPath,
         > as ::actix_web::FromRequest>::extract(&http_request)
@@ -141,13 +142,19 @@ pub mod rest_rpc_actix {
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.get_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     async fn call_get_query_rpc(
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
-    ) -> Result<::actix_web::web::Json<Get>, ::actix_prost::Error> {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let path = <::actix_web::web::Path<
             GetQueryRPCPath,
         > as ::actix_web::FromRequest>::extract(&http_request)
@@ -172,14 +179,20 @@ pub mod rest_rpc_actix {
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.get_query_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     async fn call_post_rpc(
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<Post>, ::actix_prost::Error> {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let path = <::actix_web::web::Path<
             PostRPCPath,
@@ -206,14 +219,20 @@ pub mod rest_rpc_actix {
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.post_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     async fn call_post_query_rpc(
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<Post>, ::actix_prost::Error> {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let path = <::actix_web::web::Path<
             PostQueryRPCPath,
@@ -249,14 +268,20 @@ pub mod rest_rpc_actix {
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.post_query_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     async fn call_post_no_path_rpc(
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<Post>, ::actix_prost::Error> {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             PostNoPathRPCJson,
@@ -274,14 +299,20 @@ pub mod rest_rpc_actix {
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.post_no_path_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     async fn call_post_get_rpc(
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<Get>, ::actix_prost::Error> {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             PostGetRPCJson,
@@ -299,16 +330,19 @@ pub mod rest_rpc_actix {
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.post_get_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     async fn call_get_response_rpc(
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
-    ) -> Result<
-        ::actix_web::web::Json<::prost::alloc::string::String>,
-        ::actix_prost::Error,
-    > {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let path = <::actix_web::web::Path<
             GetResponseRPCPath,
         > as ::actix_web::FromRequest>::extract(&http_request)
@@ -324,15 +358,21 @@ pub mod rest_rpc_actix {
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.get_response_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
         let response = response.foo;
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     async fn call_post_response_rpc(
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<i64>, ::actix_prost::Error> {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             PostResponseRPCJson,
@@ -350,18 +390,21 @@ pub mod rest_rpc_actix {
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.post_response_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
         let response = response.bar;
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     async fn call_post_response_get_rpc(
         service: ::actix_web::web::Data<dyn RestRpc + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<
-        ::actix_web::web::Json<::prost::alloc::string::String>,
-        ::actix_prost::Error,
-    > {
+    ) -> Result<impl Responder, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             PostResponseGetRPCJson,
@@ -379,9 +422,15 @@ pub mod rest_rpc_actix {
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.post_response_get_rpc(request).await?;
+        let headers = response.metadata().clone().into_headers();
         let response = response.into_inner();
         let response = response.foo;
-        Ok(::actix_web::web::Json(response))
+        let mut json_response = ::actix_web::web::Json(response).customize();
+        for (key, value) in headers.iter() {
+            json_response = json_response
+                .insert_header((key.as_str(), value.as_bytes()));
+        }
+        Ok(json_response)
     }
     pub fn route_rest_rpc(
         config: &mut ::actix_web::web::ServiceConfig,
