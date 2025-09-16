@@ -9,16 +9,28 @@ service ConversionsRPC { rpc ConvertRPC(ConversionsRequest) returns (Conversions
 
 message Nested {
   option (convert_options.derive) = { name: "serde::Serialize" };
+  option (convert_options.derive) = { name: "serde::Deserialize" };
+  option (convert_options.derive) = { name: "PartialEq" };
+  option (convert_options.derive) = { name: "Eq" };
+
   string address = 3 [ (convert_options.convert) = { type : "ethers::types::Address" } ];
 }
 
 message MapValue {
   option (convert_options.derive) = { name: "serde::Serialize" };
+  option (convert_options.derive) = { name: "serde::Deserialize" };
+  option (convert_options.derive) = { name: "PartialEq" };
+  option (convert_options.derive) = { name: "Eq" };
+
   string address = 1 [ (convert_options.convert) = { type : "ethers::types::Address" } ];
 }
 
 message ConversionsRequest {
   option (convert_options.derive) = { name: "serde::Serialize" };
+  option (convert_options.derive) = { name: "serde::Deserialize" };
+  option (convert_options.derive) = { name: "PartialEq" };
+  option (convert_options.derive) = { name: "Eq" };
+
   option (convert_options.extra_fields) = { name: "field1", type: "String" };
   option (convert_options.extra_fields) = { name: "field2", type: "i32" };
   map<string, MapValue> map_field = 1;
@@ -33,6 +45,28 @@ message ConversionsRequest {
   NestedEnum nested_enum = 4;
   Nested nested = 5 [ (convert_options.convert) = { required : true } ];
 
+  // DateTime conversions
+  string utc_datetime = 6 [ (convert_options.convert) = { type : "chrono::DateTime<chrono::Utc>" } ];
+  string fixed_offset_datetime = 7 [ (convert_options.convert) = { type : "chrono::DateTime<chrono::FixedOffset>" } ];
+  string naive_datetime = 8 [ (convert_options.convert) = { type : "chrono::NaiveDateTime" } ];
+
+  // UUID conversions
+  string uuid_field = 9 [ (convert_options.convert) = { type : "uuid::Uuid" } ];
+
+  // IP address conversions
+  string ipv4_address = 10 [ (convert_options.convert) = { type : "std::net::Ipv4Addr" } ];
+  string ipv6_address = 11 [ (convert_options.convert) = { type : "std::net::Ipv6Addr" } ];
+  string ip_address = 12 [ (convert_options.convert) = { type : "std::net::IpAddr" } ];
+
+  // Path conversions
+  string path_buf = 13 [ (convert_options.convert) = { type : "std::path::PathBuf" } ];
+
+  // Duration conversions
+  string duration_seconds = 14 [ (convert_options.convert) = { type : "std::time::Duration" } ];
+
+  // Decimal conversions
+  string decimal_field = 15 [ (convert_options.convert) = { type : "rust_decimal::Decimal" } ];
+
 }
 
 message ConversionsResponse {
@@ -40,6 +74,11 @@ message ConversionsResponse {
   Nested nested = 2;
   map<string, MapValue> map_field = 3;
   Config config = 4;
+  
+  // Response fields with conversions
+  string response_utc_datetime = 5 [ (convert_options.convert) = { type : "chrono::DateTime<chrono::Utc>" } ];
+  string response_uuid = 6 [ (convert_options.convert) = { type : "uuid::Uuid" } ];
+  string response_decimal = 7 [ (convert_options.convert) = { type : "rust_decimal::Decimal" } ];
 }
 
 
@@ -53,6 +92,10 @@ message Config {
 
   option (convert_options.attributes) = "#[serde_with::serde_as]";
   option (convert_options.derive) = { name: "serde::Deserialize" };
+  option (convert_options.derive) = { name: "serde::Serialize" };
+  option (convert_options.derive) = { name: "PartialEq" };
+  option (convert_options.derive) = { name: "Eq" };
+
 
   ConfigType type = 1 [ (convert_options.convert) = { attributes : [
           "#[serde(default)]",

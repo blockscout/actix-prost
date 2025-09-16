@@ -1,14 +1,16 @@
-use crate::TryConvert;
+use crate::{impl_try_convert_from_string, impl_try_convert_to_string, TryConvert};
 use url::Url;
 
-impl TryConvert<String> for Url {
-    fn try_convert(input: String) -> Result<Self, String> {
-        Url::parse(&input).map_err(|e| format!("Invalid URL: {e}"))
-    }
-}
+impl_try_convert_from_string!(Url, "url");
+impl_try_convert_to_string!(Url);
 
-impl TryConvert<Url> for String {
-    fn try_convert(input: Url) -> Result<Self, String> {
-        Ok(input.to_string())
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_conversion_url() {
+        let url = Url::try_convert("https://www.google.com".to_string()).unwrap();
+        assert_eq!(url, Url::parse("https://www.google.com").unwrap());
     }
 }

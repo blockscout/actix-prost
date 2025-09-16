@@ -24,6 +24,32 @@ pub struct ConversionsRequest {
     pub nested_enum: i32,
     #[prost(message, optional, tag = "5")]
     pub nested: ::core::option::Option<Nested>,
+    /// DateTime conversions
+    #[prost(string, tag = "6")]
+    pub utc_datetime: ::prost::alloc::string::String,
+    #[prost(string, tag = "7")]
+    pub fixed_offset_datetime: ::prost::alloc::string::String,
+    #[prost(string, tag = "8")]
+    pub naive_datetime: ::prost::alloc::string::String,
+    /// UUID conversions
+    #[prost(string, tag = "9")]
+    pub uuid_field: ::prost::alloc::string::String,
+    /// IP address conversions
+    #[prost(string, tag = "10")]
+    pub ipv4_address: ::prost::alloc::string::String,
+    #[prost(string, tag = "11")]
+    pub ipv6_address: ::prost::alloc::string::String,
+    #[prost(string, tag = "12")]
+    pub ip_address: ::prost::alloc::string::String,
+    /// Path conversions
+    #[prost(string, tag = "13")]
+    pub path_buf: ::prost::alloc::string::String,
+    /// Duration conversions
+    #[prost(string, tag = "14")]
+    pub duration_seconds: ::prost::alloc::string::String,
+    /// Decimal conversions
+    #[prost(string, tag = "15")]
+    pub decimal_field: ::prost::alloc::string::String,
 }
 /// Nested message and enum types in `ConversionsRequest`.
 pub mod conversions_request {
@@ -76,6 +102,13 @@ pub struct ConversionsResponse {
     pub map_field: ::std::collections::HashMap<::prost::alloc::string::String, MapValue>,
     #[prost(message, optional, tag = "4")]
     pub config: ::core::option::Option<Config>,
+    /// Response fields with conversions
+    #[prost(string, tag = "5")]
+    pub response_utc_datetime: ::prost::alloc::string::String,
+    #[prost(string, tag = "6")]
+    pub response_uuid: ::prost::alloc::string::String,
+    #[prost(string, tag = "7")]
+    pub response_decimal: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
@@ -135,6 +168,32 @@ pub mod conversions_rpc_actix {
         pub nested_enum: i32,
         #[prost(message, optional, tag = "5")]
         pub nested: ::core::option::Option<Nested>,
+        /// DateTime conversions
+        #[prost(string, tag = "6")]
+        pub utc_datetime: ::prost::alloc::string::String,
+        #[prost(string, tag = "7")]
+        pub fixed_offset_datetime: ::prost::alloc::string::String,
+        #[prost(string, tag = "8")]
+        pub naive_datetime: ::prost::alloc::string::String,
+        /// UUID conversions
+        #[prost(string, tag = "9")]
+        pub uuid_field: ::prost::alloc::string::String,
+        /// IP address conversions
+        #[prost(string, tag = "10")]
+        pub ipv4_address: ::prost::alloc::string::String,
+        #[prost(string, tag = "11")]
+        pub ipv6_address: ::prost::alloc::string::String,
+        #[prost(string, tag = "12")]
+        pub ip_address: ::prost::alloc::string::String,
+        /// Path conversions
+        #[prost(string, tag = "13")]
+        pub path_buf: ::prost::alloc::string::String,
+        /// Duration conversions
+        #[prost(string, tag = "14")]
+        pub duration_seconds: ::prost::alloc::string::String,
+        /// Decimal conversions
+        #[prost(string, tag = "15")]
+        pub decimal_field: ::prost::alloc::string::String,
     }
     async fn call_convert_rpc(
         service: ::actix_web::web::Data<dyn ConversionsRpc + Sync + Send + 'static>,
@@ -157,6 +216,16 @@ pub mod conversions_rpc_actix {
             addresses: json.addresses,
             nested_enum: json.nested_enum,
             nested: json.nested,
+            utc_datetime: json.utc_datetime,
+            fixed_offset_datetime: json.fixed_offset_datetime,
+            naive_datetime: json.naive_datetime,
+            uuid_field: json.uuid_field,
+            ipv4_address: json.ipv4_address,
+            ipv6_address: json.ipv6_address,
+            ip_address: json.ip_address,
+            path_buf: json.path_buf,
+            duration_seconds: json.duration_seconds,
+            decimal_field: json.decimal_field,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.convert_rpc(request).await?;
@@ -178,6 +247,9 @@ pub mod conversions_rpc_actix {
     }
 }
 #[derive(serde::Serialize)]
+#[derive(serde::Deserialize)]
+#[derive(PartialEq)]
+#[derive(Eq)]
 #[derive(Clone, Debug)]
 pub struct MapValueInternal {
     pub address: ethers::types::Address,
@@ -190,6 +262,9 @@ impl convert_trait::TryConvert<MapValue> for MapValueInternal {
     }
 }
 #[derive(serde::Serialize)]
+#[derive(serde::Deserialize)]
+#[derive(PartialEq)]
+#[derive(Eq)]
 #[derive(Clone, Debug)]
 pub struct NestedInternal {
     pub address: ethers::types::Address,
@@ -202,6 +277,9 @@ impl convert_trait::TryConvert<Nested> for NestedInternal {
     }
 }
 #[derive(serde::Serialize)]
+#[derive(serde::Deserialize)]
+#[derive(PartialEq)]
+#[derive(Eq)]
 #[derive(Clone, Debug)]
 pub struct ConversionsRequestInternal {
     pub map_field: ::std::collections::HashMap<
@@ -212,6 +290,16 @@ pub struct ConversionsRequestInternal {
     pub addresses: std::collections::HashSet<ethers::types::Address>,
     pub nested_enum: conversions_request::NestedEnum,
     pub nested: NestedInternal,
+    pub utc_datetime: chrono::DateTime<chrono::Utc>,
+    pub fixed_offset_datetime: chrono::DateTime<chrono::FixedOffset>,
+    pub naive_datetime: chrono::NaiveDateTime,
+    pub uuid_field: uuid::Uuid,
+    pub ipv4_address: std::net::Ipv4Addr,
+    pub ipv6_address: std::net::Ipv6Addr,
+    pub ip_address: std::net::IpAddr,
+    pub path_buf: std::path::PathBuf,
+    pub duration_seconds: std::time::Duration,
+    pub decimal_field: rust_decimal::Decimal,
     pub field1: Option<String>,
     pub field2: Option<i32>,
 }
@@ -226,6 +314,20 @@ impl convert_trait::TryConvert<ConversionsRequest> for ConversionsRequestInterna
             nested: convert_trait::TryConvert::try_convert(
                 from.nested.ok_or("field nested is required")?,
             )?,
+            utc_datetime: convert_trait::TryConvert::try_convert(from.utc_datetime)?,
+            fixed_offset_datetime: convert_trait::TryConvert::try_convert(
+                from.fixed_offset_datetime,
+            )?,
+            naive_datetime: convert_trait::TryConvert::try_convert(from.naive_datetime)?,
+            uuid_field: convert_trait::TryConvert::try_convert(from.uuid_field)?,
+            ipv4_address: convert_trait::TryConvert::try_convert(from.ipv4_address)?,
+            ipv6_address: convert_trait::TryConvert::try_convert(from.ipv6_address)?,
+            ip_address: convert_trait::TryConvert::try_convert(from.ip_address)?,
+            path_buf: convert_trait::TryConvert::try_convert(from.path_buf)?,
+            duration_seconds: convert_trait::TryConvert::try_convert(
+                from.duration_seconds,
+            )?,
+            decimal_field: convert_trait::TryConvert::try_convert(from.decimal_field)?,
             field1: None,
             field2: None,
         })
@@ -247,6 +349,9 @@ impl convert_trait::TryConvert<MapValueInternal> for MapValue {
 }
 #[serde_with::serde_as]
 #[derive(serde::Deserialize)]
+#[derive(serde::Serialize)]
+#[derive(PartialEq)]
+#[derive(Eq)]
 #[derive(Clone, Debug)]
 pub struct ConfigInternal {
     #[serde(default)]
@@ -267,6 +372,9 @@ pub struct ConversionsResponseInternal {
         MapValueInternal,
     >,
     pub config: ::core::option::Option<ConfigInternal>,
+    pub response_utc_datetime: chrono::DateTime<chrono::Utc>,
+    pub response_uuid: uuid::Uuid,
+    pub response_decimal: rust_decimal::Decimal,
 }
 impl convert_trait::TryConvert<ConversionsResponseInternal> for ConversionsResponse {
     fn try_convert(from: ConversionsResponseInternal) -> Result<Self, String> {
@@ -275,6 +383,13 @@ impl convert_trait::TryConvert<ConversionsResponseInternal> for ConversionsRespo
             nested: convert_trait::TryConvert::try_convert(from.nested)?,
             map_field: convert_trait::TryConvert::try_convert(from.map_field)?,
             config: convert_trait::TryConvert::try_convert(from.config)?,
+            response_utc_datetime: convert_trait::TryConvert::try_convert(
+                from.response_utc_datetime,
+            )?,
+            response_uuid: convert_trait::TryConvert::try_convert(from.response_uuid)?,
+            response_decimal: convert_trait::TryConvert::try_convert(
+                from.response_decimal,
+            )?,
         })
     }
 }
