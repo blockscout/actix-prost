@@ -1,4 +1,5 @@
 use crate::TryConvert;
+use chrono::Duration as ChronoDuration;
 use std::time::Duration;
 
 const SECONDS_PER_MINUTE: u64 = 60;
@@ -28,6 +29,13 @@ impl TryConvert<String> for Duration {
         if let Some(suffix) = input.chars().last() {
             if let Some(number_part) = input.get(0..input.len() - 1) {
                 if let Ok(value) = number_part.parse::<f64>() {
+                    if value < 0.0 {
+                        return Err(crate::failed_to_parse_error_message_with_description(
+                            input,
+                            "Duration",
+                            "cannot be negative",
+                        ));
+                    }
                     match suffix {
                         's' => {
                             let secs = value as u64;
@@ -160,12 +168,51 @@ impl TryConvert<Duration> for u32 {
     }
 }
 
+impl TryConvert<ChronoDuration> for Duration {
+    fn try_convert(input: ChronoDuration) -> Result<Self, String> {
+        let secs = input.num_seconds();
+        if secs < 0 {
+            return Err(crate::failed_to_parse_error_message_with_description(
+                input,
+                "Duration",
+                "chrono duration cannot be negative",
+            ));
+        }
+        let nanos = input.num_nanoseconds().unwrap_or(0) % 1_000_000_000;
+        Ok(Duration::new(secs as u64, nanos as u32))
+    }
+}
+
+impl TryConvert<Duration> for ChronoDuration {
+    fn try_convert(input: Duration) -> Result<Self, String> {
+        Ok(ChronoDuration::seconds(input.as_secs() as i64)
+            + ChronoDuration::nanoseconds(input.subsec_nanos() as i64))
+    }
+}
+
+impl TryConvert<String> for ChronoDuration {
+    fn try_convert(input: String) -> Result<Self, String> {
+        let std_duration = Duration::try_convert(input)?;
+        ChronoDuration::try_convert(std_duration)
+    }
+}
+
+impl TryConvert<ChronoDuration> for String {
+    fn try_convert(input: ChronoDuration) -> Result<Self, String> {
+        let std_duration = Duration::try_convert(input)?;
+        String::try_convert(std_duration)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn test_conversion_duration() {
+        let duration = Duration::try_convert("0s".to_string()).unwrap();
+        assert_eq!(duration, Duration::from_secs(0));
+
         let duration = Duration::try_convert("34.5s".to_string()).unwrap();
         assert_eq!(duration, Duration::from_nanos(34_500_000_000));
 
@@ -194,6 +241,24 @@ mod tests {
         assert_eq!(
             error,
             "failed to parse '1.1sy' as Duration: try '1s', '1m' or '1h' instead"
+        );
+    }
+
+    #[test]
+    fn test_conversion_chrono_duration() {
+        let duration = ChronoDuration::try_convert("2m".to_string()).unwrap();
+        assert_eq!(duration, ChronoDuration::seconds(120));
+
+        let duration = ChronoDuration::seconds(120);
+        let string_duration = String::try_convert(duration).unwrap();
+        assert_eq!(string_duration, "120".to_string());
+
+        // Test negative chrono duration (should fail)
+        let error = ChronoDuration::try_convert("-1s".to_string())
+            .expect_err("Negative duration should fail");
+        assert_eq!(
+            error,
+            "failed to parse '-1s' as Duration: cannot be negative"
         );
     }
 }

@@ -1,13 +1,73 @@
-use crate::{impl_try_convert_from_string, impl_try_convert_to_string, TryConvert};
+use crate::{impl_try_convert_to_string, TryConvert};
 use chrono::{DateTime, FixedOffset, NaiveDateTime, Utc};
 
-impl_try_convert_from_string!(DateTime<Utc>);
+// DateTime<Utc> conversions
+impl TryConvert<String> for DateTime<Utc> {
+    fn try_convert(value: String) -> Result<Self, String> {
+        if let Ok(value) = value.parse::<i64>() {
+            DateTime::from_timestamp(value, 0).ok_or_else(|| {
+                crate::failed_to_parse_error_message_with_description(
+                    value,
+                    "DateTime<Utc>",
+                    "invalid timestamp",
+                )
+            })
+        } else {
+            value.parse().map_err(|e| {
+                crate::failed_to_parse_error_message_with_description(value, "DateTime<Utc>", e)
+            })
+        }
+    }
+}
+
 impl_try_convert_to_string!(DateTime<Utc>);
 
-impl_try_convert_from_string!(DateTime<FixedOffset>);
+// DateTime<FixedOffset> conversions
+impl TryConvert<String> for DateTime<FixedOffset> {
+    fn try_convert(value: String) -> Result<Self, String> {
+        if let Ok(value) = value.parse::<i64>() {
+            let datetime_utc = DateTime::from_timestamp(value, 0).ok_or_else(|| {
+                crate::failed_to_parse_error_message_with_description(
+                    value,
+                    "DateTime<FixedOffset>",
+                    "invalid timestamp",
+                )
+            })?;
+            Ok(datetime_utc.with_timezone(&FixedOffset::east_opt(0).unwrap()))
+        } else {
+            value.parse().map_err(|e| {
+                crate::failed_to_parse_error_message_with_description(
+                    value,
+                    "DateTime<FixedOffset>",
+                    e,
+                )
+            })
+        }
+    }
+}
+
 impl_try_convert_to_string!(DateTime<FixedOffset>);
 
-impl_try_convert_from_string!(NaiveDateTime);
+// NaiveDateTime conversions
+impl TryConvert<String> for NaiveDateTime {
+    fn try_convert(value: String) -> Result<Self, String> {
+        if let Ok(value) = value.parse::<i64>() {
+            let datetime_utc = DateTime::from_timestamp(value, 0).ok_or_else(|| {
+                crate::failed_to_parse_error_message_with_description(
+                    value,
+                    "NaiveDateTime",
+                    "invalid timestamp",
+                )
+            })?;
+            Ok(datetime_utc.naive_utc())
+        } else {
+            value.parse().map_err(|e| {
+                crate::failed_to_parse_error_message_with_description(value, "NaiveDateTime", e)
+            })
+        }
+    }
+}
+
 impl_try_convert_to_string!(NaiveDateTime);
 
 #[cfg(test)]
@@ -17,6 +77,26 @@ mod tests {
 
     #[test]
     fn test_conversion_datetime() {
+        let datetime = DateTime::<Utc>::try_convert("1645491600".to_string()).unwrap();
+        assert_eq!(
+            datetime,
+            "2022-02-22T01:00:00Z".parse::<DateTime<Utc>>().unwrap()
+        );
+
+        let datetime = DateTime::<FixedOffset>::try_convert("1645491600".to_string()).unwrap();
+        assert_eq!(
+            datetime,
+            "2022-02-22T01:00:00+00:00"
+                .parse::<DateTime<FixedOffset>>()
+                .unwrap()
+        );
+
+        let datetime = NaiveDateTime::try_convert("1645491600".to_string()).unwrap();
+        assert_eq!(
+            datetime,
+            "2022-02-22T01:00:00".parse::<NaiveDateTime>().unwrap()
+        );
+
         let datetime = DateTime::<Utc>::try_convert("2021-01-01T00:00:00Z".to_string()).unwrap();
         assert_eq!(
             datetime,
