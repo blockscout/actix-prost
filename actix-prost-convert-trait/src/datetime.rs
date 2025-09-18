@@ -1,18 +1,19 @@
 use crate::{impl_try_convert_from_string, impl_try_convert_to_string, TryConvert};
 use chrono::{DateTime, FixedOffset, NaiveDateTime, Utc};
 
-impl_try_convert_from_string!(DateTime<Utc>, "datetime");
+impl_try_convert_from_string!(DateTime<Utc>);
 impl_try_convert_to_string!(DateTime<Utc>);
 
-impl_try_convert_from_string!(DateTime<FixedOffset>, "datetime");
+impl_try_convert_from_string!(DateTime<FixedOffset>);
 impl_try_convert_to_string!(DateTime<FixedOffset>);
 
-impl_try_convert_from_string!(NaiveDateTime, "datetime");
+impl_try_convert_from_string!(NaiveDateTime);
 impl_try_convert_to_string!(NaiveDateTime);
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use pretty_assertions::assert_eq;
 
     #[test]
     fn test_conversion_datetime() {
@@ -76,24 +77,24 @@ mod tests {
             .expect_err("Invalid datetime");
         assert_eq!(
             error,
-            "failed to parse '2021-01-01T00:00:00' as datetime: premature end of input"
+            "failed to parse '2021-01-01T00:00:00' as DateTime<Utc>: premature end of input"
         );
         let error = DateTime::<FixedOffset>::try_convert("2021-01-01T00:00:00".to_string())
             .expect_err("Invalid datetime");
         assert_eq!(
             error,
-            "failed to parse '2021-01-01T00:00:00' as datetime: premature end of input"
+            "failed to parse '2021-01-01T00:00:00' as DateTime<FixedOffset>: premature end of input"
         );
         let error = NaiveDateTime::try_convert("2021-01-01-00:00:00".to_string())
             .expect_err("Invalid datetime");
         assert_eq!(
             error,
-            "failed to parse '2021-01-01-00:00:00' as datetime: input contains invalid characters"
+            "failed to parse '2021-01-01-00:00:00' as NaiveDateTime: input contains invalid characters"
         );
         let error = NaiveDateTime::try_convert("".to_string()).expect_err("Invalid datetime");
         assert_eq!(
             error,
-            "failed to parse '' as datetime: premature end of input"
+            "failed to parse '' as NaiveDateTime: premature end of input"
         );
     }
 }

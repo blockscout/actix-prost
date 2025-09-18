@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 mod impls;
 
 #[cfg(feature = "conv-address")]
@@ -31,26 +33,17 @@ pub trait TryConvert<T>: Sized {
     fn try_convert(value: T) -> Result<Self, String>;
 }
 
-#[macro_export]
-macro_rules! impl_try_convert_from_string {
-    ($type:ty, $type_name:expr) => {
-        impl TryConvert<String> for $type {
-            fn try_convert(value: String) -> Result<Self, String> {
-                value
-                    .parse()
-                    .map_err(|e| format!("failed to parse '{}' as {}: {}", value, $type_name, e))
-            }
-        }
-    };
+pub fn failed_to_parse_error_message_with_description(
+    value: impl Display,
+    type_name: impl Display,
+    error_description: impl Display,
+) -> String {
+    format!(
+        "failed to parse '{}' as {}: {}",
+        value, type_name, error_description
+    )
 }
 
-#[macro_export]
-macro_rules! impl_try_convert_to_string {
-    ($type:ty) => {
-        impl TryConvert<$type> for String {
-            fn try_convert(value: $type) -> Result<Self, String> {
-                Ok(value.to_string())
-            }
-        }
-    };
+pub fn failed_to_parse_error_message(value: impl Display, type_name: impl Display) -> String {
+    format!("failed to parse '{}' as {}", value, type_name)
 }

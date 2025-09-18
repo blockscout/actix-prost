@@ -103,7 +103,7 @@ async fn conversions() {
     let res: Value = serde_json::from_str(&res).unwrap();
     assert_eq!(
         &res["message"],
-        "invalid request: Invalid address: Invalid input length"
+        "invalid request: failed to parse '' as Address: Invalid input length"
     );
 
     // Valid request

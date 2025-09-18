@@ -1,13 +1,13 @@
 use crate::{impl_try_convert_from_string, impl_try_convert_to_string, TryConvert};
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
-impl_try_convert_from_string!(IpAddr, "IP address");
+impl_try_convert_from_string!(IpAddr);
 impl_try_convert_to_string!(IpAddr);
 
-impl_try_convert_from_string!(Ipv4Addr, "IPv4 address");
+impl_try_convert_from_string!(Ipv4Addr);
 impl_try_convert_to_string!(Ipv4Addr);
 
-impl_try_convert_from_string!(Ipv6Addr, "IPv6 address");
+impl_try_convert_from_string!(Ipv6Addr);
 impl_try_convert_to_string!(Ipv6Addr);
 
 #[cfg(test)]

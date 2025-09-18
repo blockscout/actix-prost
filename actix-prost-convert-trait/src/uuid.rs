@@ -1,7 +1,7 @@
 use crate::{impl_try_convert_from_string, impl_try_convert_to_string, TryConvert};
 use uuid::Uuid;
 
-impl_try_convert_from_string!(Uuid, "uuid");
+impl_try_convert_from_string!(Uuid);
 impl_try_convert_to_string!(Uuid);
 
 #[cfg(test)]

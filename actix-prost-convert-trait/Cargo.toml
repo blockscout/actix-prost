@@ -18,6 +18,9 @@ chrono = { version = "0.4", features = ["serde"], optional = true }
 uuid = { version = "1.0", features = ["serde"], optional = true }
 rust_decimal = { version = "1.32", features = ["serde"], optional = true }
 
+[dev-dependencies]
+pretty_assertions = { workspace = true }
+
 [features]
 default = [ "conv-full" ]
 conv-full = [ 
