@@ -14,10 +14,32 @@ ethers-core = { workspace = true, optional = true }
 bytes = { workspace = true, optional = true }
 hex = { workspace = true, optional = true }
 url = { workspace = true, optional = true }
+chrono = { version = "0.4", features = ["serde"], optional = true }
+uuid = { version = "1.0", features = ["serde"], optional = true }
+rust_decimal = { version = "1.32", features = ["serde"], optional = true }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }
 
 [features]
 default = [ "conv-full" ]
-conv-full = [ "conv-bytes", "conv-address", "conv-url" ]
+conv-full = [ 
+    "conv-bytes", 
+    "conv-address", 
+    "conv-url", 
+    "conv-datetime", 
+    "conv-uuid", 
+    "conv-ip", 
+    "conv-path", 
+    "conv-duration", 
+    "conv-decimal" 
+]
 conv-bytes = [ "dep:bytes", "dep:hex" ]
 conv-address = [ "dep:ethers-core" ]
 conv-url = [ "dep:url" ]
+conv-datetime = [ "dep:chrono" ]
+conv-uuid = [ "dep:uuid" ]
+conv-ip = []
+conv-path = []
+conv-duration = []
+conv-decimal = [ "dep:rust_decimal" ]

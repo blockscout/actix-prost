@@ -9,7 +9,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/blockscout/actix-prost"
@@ -47,3 +47,6 @@ tokio = { version = "1" }
 tonic = { version = "0.12" }
 tonic-build = { version = "0.12" }
 url = { version = "2" }
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.0"}
+rust_decimal = { version = "1.32"}
