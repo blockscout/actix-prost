@@ -13,6 +13,12 @@ pub struct MapValue {
 }
 #[actix_prost_macros::serde]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct RepeatedValue {
+    #[prost(string, tag = "1")]
+    pub address: ::prost::alloc::string::String,
+}
+#[actix_prost_macros::serde]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ConversionsRequest {
     #[prost(map = "string, message", tag = "1")]
     pub map_field: ::std::collections::HashMap<::prost::alloc::string::String, MapValue>,
@@ -50,6 +56,8 @@ pub struct ConversionsRequest {
     /// Decimal conversions
     #[prost(string, tag = "15")]
     pub decimal_field: ::prost::alloc::string::String,
+    #[prost(message, repeated, tag = "16")]
+    pub repeated: ::prost::alloc::vec::Vec<RepeatedValue>,
 }
 /// Nested message and enum types in `ConversionsRequest`.
 pub mod conversions_request {
@@ -194,6 +202,8 @@ pub mod conversions_rpc_actix {
         /// Decimal conversions
         #[prost(string, tag = "15")]
         pub decimal_field: ::prost::alloc::string::String,
+        #[prost(message, repeated, tag = "16")]
+        pub repeated: ::prost::alloc::vec::Vec<RepeatedValue>,
     }
     async fn call_convert_rpc(
         service: ::actix_web::web::Data<dyn ConversionsRpc + Sync + Send + 'static>,
@@ -226,6 +236,7 @@ pub mod conversions_rpc_actix {
             path_buf: json.path_buf,
             duration_seconds: json.duration_seconds,
             decimal_field: json.decimal_field,
+            repeated: json.repeated,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.convert_rpc(request).await?;
@@ -281,6 +292,21 @@ impl convert_trait::TryConvert<Nested> for NestedInternal {
 #[derive(PartialEq)]
 #[derive(Eq)]
 #[derive(Clone, Debug)]
+pub struct RepeatedValueInternal {
+    pub address: ethers::types::Address,
+}
+impl convert_trait::TryConvert<RepeatedValue> for RepeatedValueInternal {
+    fn try_convert(from: RepeatedValue) -> Result<Self, String> {
+        Ok(Self {
+            address: convert_trait::TryConvert::try_convert(from.address)?,
+        })
+    }
+}
+#[derive(serde::Serialize)]
+#[derive(serde::Deserialize)]
+#[derive(PartialEq)]
+#[derive(Eq)]
+#[derive(Clone, Debug)]
 pub struct ConversionsRequestInternal {
     pub map_field: ::std::collections::HashMap<
         ::prost::alloc::string::String,
@@ -300,6 +326,7 @@ pub struct ConversionsRequestInternal {
     pub path_buf: std::path::PathBuf,
     pub duration_seconds: std::time::Duration,
     pub decimal_field: rust_decimal::Decimal,
+    pub repeated: ::prost::alloc::vec::Vec<RepeatedValueInternal>,
     pub field1: Option<String>,
     pub field2: Option<i32>,
 }
@@ -328,6 +355,7 @@ impl convert_trait::TryConvert<ConversionsRequest> for ConversionsRequestInterna
                 from.duration_seconds,
             )?,
             decimal_field: convert_trait::TryConvert::try_convert(from.decimal_field)?,
+            repeated: convert_trait::TryConvert::try_convert(from.repeated)?,
             field1: None,
             field2: None,
         })

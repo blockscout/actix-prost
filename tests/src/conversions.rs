@@ -6,7 +6,7 @@ use crate::{
         conversions_request::NestedEnum, conversions_rpc_actix::route_conversions_rpc,
         conversions_rpc_server::ConversionsRpc, ConfigInternal, ConfigType, ConversionsRequest,
         ConversionsRequestInternal, ConversionsResponse, ConversionsResponseInternal, MapValue,
-        MapValueInternal, Nested, NestedInternal,
+        MapValueInternal, Nested, NestedInternal, RepeatedValue, RepeatedValueInternal,
     },
     test,
 };
@@ -95,6 +95,9 @@ async fn conversions() {
         path_buf: "/tmp/test".to_string(),
         duration_seconds: "1h".to_string(),
         decimal_field: "123.45".to_string(),
+        repeated: vec![RepeatedValue {
+            address: "".to_string(),
+        }],
     };
 
     let (status, res) = send_post(&addr, "/conversions", serde_json::to_value(req).unwrap()).await;
@@ -146,6 +149,9 @@ async fn conversions() {
         decimal_field: test_decimal_field.parse().unwrap(),
         field1: None,
         field2: None,
+        repeated: vec![RepeatedValueInternal {
+            address: test_address.parse().unwrap(),
+        }],
     };
 
     let req = ConversionsRequest {
@@ -171,6 +177,9 @@ async fn conversions() {
         path_buf: test_path_buf.to_string(),
         duration_seconds: test_duration_seconds.to_string(),
         decimal_field: test_decimal_field.to_string(),
+        repeated: vec![RepeatedValue {
+            address: test_address.to_string(),
+        }],
     };
 
     let req_internal = ConversionsRequestInternal::try_convert(req.clone()).unwrap();

@@ -25,6 +25,16 @@ message MapValue {
   string address = 1 [ (convert_options.convert) = { type : "ethers::types::Address" } ];
 }
 
+message RepeatedValue {
+  option (convert_options.derive) = { name: "serde::Serialize" };
+  option (convert_options.derive) = { name: "serde::Deserialize" };
+  option (convert_options.derive) = { name: "PartialEq" };
+  option (convert_options.derive) = { name: "Eq" };
+
+  string address = 1
+      [ (convert_options.convert) = {type : "ethers::types::Address"} ];
+}
+
 message ConversionsRequest {
   option (convert_options.derive) = { name: "serde::Serialize" };
   option (convert_options.derive) = { name: "serde::Deserialize" };
@@ -35,13 +45,16 @@ message ConversionsRequest {
   option (convert_options.extra_fields) = { name: "field2", type: "i32" };
   map<string, MapValue> map_field = 1;
 
+  string query = 2
+      [ (convert_options.convert) = {override : "Default::default()"} ];
+  repeated string addresses = 3 [ (convert_options.convert) = {
+    type : "std::collections::HashSet<ethers::types::Address>"
+  } ];
+
   enum NestedEnum {
     NESTED_OK = 0;
     NESTED_ERROR = 1;
   }
-
-  string query = 2 [ (convert_options.convert) = { override : "Default::default()" } ];
-  repeated string addresses = 3 [ (convert_options.convert) = { type : "std::collections::HashSet<ethers::types::Address>" } ];
   NestedEnum nested_enum = 4;
   Nested nested = 5 [ (convert_options.convert) = { required : true } ];
 
@@ -67,6 +80,7 @@ message ConversionsRequest {
   // Decimal conversions
   string decimal_field = 15 [ (convert_options.convert) = { type : "rust_decimal::Decimal" } ];
 
+  repeated RepeatedValue repeated = 16;
 }
 
 message ConversionsResponse {
