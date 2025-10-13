@@ -5,9 +5,9 @@ use crate::{
     },
     test,
 };
-use actix_prost::Error;
+use actix_http::StatusCode;
+use actix_prost::{http_compatibility::to_actix_status, Error};
 use actix_web::{App, HttpServer};
-use http::StatusCode;
 use pretty_assertions::assert_eq;
 use serde::de::DeserializeOwned;
 use std::{net::SocketAddr, sync::Arc};
@@ -46,7 +46,7 @@ async fn send_post<T: DeserializeOwned>(
     (
         serde_json::from_str(&data)
             .unwrap_or_else(|_| panic!("could not parse json, got: {}", data)),
-        status,
+        to_actix_status(status),
     )
 }
 
@@ -63,7 +63,7 @@ async fn send_code(addr: &SocketAddr, code: Code) {
                 code,
                 message: format!("status {}", code)
             },
-            Error::map_tonic_code(code)
+            to_actix_status(Error::map_tonic_code(code))
         )
     );
 }

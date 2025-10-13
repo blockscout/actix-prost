@@ -1,0 +1,255 @@
+swagger: "2.0"
+info:
+  title: types.proto
+  version: version not set
+tags:
+  - name: TypesRPC
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /types/complex:
+    post:
+      summary: rpc GoogleRPC(Google) returns (Google);
+      operationId: TypesRPC_ComplexRPC
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/typesComplex'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/typesComplex'
+      tags:
+        - TypesRPC
+  /types/enums:
+    post:
+      operationId: TypesRPC_EnumsRPC
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/typesEnums'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/typesEnums'
+      tags:
+        - TypesRPC
+  /types/maps:
+    post:
+      operationId: TypesRPC_MapsRPC
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/typesMaps'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/typesMaps'
+      tags:
+        - TypesRPC
+  /types/oneofs:
+    post:
+      operationId: TypesRPC_OneOfsRPC
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/typesOneOfs'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/typesOneOfs'
+      tags:
+        - TypesRPC
+  /types/optional_scalars:
+    post:
+      operationId: TypesRPC_OptionalScalarsRPC
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/typesOptionalScalars'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/typesOptionalScalars'
+      tags:
+        - TypesRPC
+  /types/repeated:
+    post:
+      operationId: TypesRPC_RepeatedRPC
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/typesRepeated'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/typesRepeated'
+      tags:
+        - TypesRPC
+  /types/scalars:
+    post:
+      operationId: TypesRPC_ScalarsRPC
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/typesScalars'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/typesScalars'
+      tags:
+        - TypesRPC
+definitions:
+  protobufAny:
+    type: object
+    properties:
+      '@type':
+        type: string
+    additionalProperties: {}
+  rpcStatus:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      details:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/protobufAny'
+  typesComplex:
+    type: object
+    properties:
+      scalars:
+        $ref: '#/definitions/typesScalars'
+      enums:
+        $ref: '#/definitions/typesEnums'
+      repeated:
+        $ref: '#/definitions/typesRepeated'
+      maps:
+        $ref: '#/definitions/typesMaps'
+      oneofs:
+        $ref: '#/definitions/typesOneOfs'
+        title: Google google = 6;
+  typesEnums:
+    type: object
+    properties:
+      values:
+        $ref: '#/definitions/typesValues'
+  typesMaps:
+    type: object
+    properties:
+      foo:
+        type: object
+        additionalProperties:
+          type: integer
+          format: int32
+  typesOneOfs:
+    type: object
+    properties:
+      foo:
+        type: string
+      bar:
+        type: string
+        format: byte
+      baz:
+        type: string
+        format: int64
+  typesOptionalScalars:
+    type: object
+    properties:
+      a:
+        type: number
+        format: double
+      b:
+        type: string
+        format: int64
+      c:
+        type: string
+      d:
+        type: string
+        format: byte
+      e:
+        type: boolean
+  typesRepeated:
+    type: object
+    properties:
+      foo:
+        type: array
+        items:
+          type: string
+  typesScalars:
+    type: object
+    properties:
+      a:
+        type: number
+        format: double
+      b:
+        type: string
+        format: int64
+      c:
+        type: string
+      d:
+        type: string
+        format: byte
+      e:
+        type: boolean
+  typesValues:
+    type: string
+    enum:
+      - FOO
+      - BAR
+    default: FOO

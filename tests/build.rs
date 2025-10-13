@@ -24,8 +24,27 @@ fn compile(
         .protoc_arg("--openapiv2_out=proto")
         .protoc_arg("--openapiv2_opt")
         .protoc_arg("grpc_api_configuration=proto/http_api.yaml,output_format=yaml")
-        .type_attribute(".", "#[actix_prost_macros::serde]");
-
+        .type_attribute(".", "#[actix_prost_macros::serde]")
+        .type_attribute(
+            ".snake_case_types",
+            "#[actix_prost_macros::serde(rename_all = \"snake_case\")]",
+        )
+        .type_attribute(
+            ".serde_overrides.CamelCaseSimpleMessages",
+            "#[actix_prost_macros::serde(rename_all = \"camelCase\")]",
+        )
+        .type_attribute(
+            ".serde_overrides.SnakeCaseSimpleMessages",
+            "#[actix_prost_macros::serde(rename_all = \"snake_case\")]",
+        )
+        .type_attribute(
+            ".serde_overrides.CaseDependentOneOfs.CamelCaseValues",
+            "#[actix_prost_macros::serde(rename_all = \"camelCase\")]",
+        )
+        .type_attribute(
+            ".serde_overrides.CaseDependentOneOfs.snake_case_values",
+            "#[actix_prost_macros::serde(rename_all = \"snake_case\")]",
+        );
     config.compile_protos(protos, includes)?;
     Ok(())
 }
@@ -42,6 +61,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "proto/types.proto",
             "proto/errors.proto",
             "proto/conversions.proto",
+            "proto/snake_case_types.proto",
+            "proto/serde_overrides.proto",
         ],
         &["proto/", "proto/googleapis", "proto/grpc-gateway"],
         gens,

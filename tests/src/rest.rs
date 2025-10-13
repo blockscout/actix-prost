@@ -65,18 +65,23 @@ async fn send_get<T: DeserializeOwned>(addr: &SocketAddr, path: &str) -> T {
 }
 
 async fn send_post<T: DeserializeOwned>(addr: &SocketAddr, path: &str, body: String) -> T {
+    let data = send_post_raw_response(addr, path, body)
+        .await
+        .text()
+        .await
+        .unwrap();
+    serde_json::from_str(&data).unwrap_or_else(|_| panic!("could not parse json, got: {}", data))
+}
+
+async fn send_post_raw_response(addr: &SocketAddr, path: &str, body: String) -> reqwest::Response {
     let client = reqwest::Client::new();
-    let data = client
+    client
         .post(format!("http://localhost:{}{}", addr.port(), path))
         .body(body)
         .header("Content-Type", "application/json")
         .send()
         .await
         .unwrap()
-        .text()
-        .await
-        .unwrap();
-    serde_json::from_str(&data).unwrap_or_else(|_| panic!("could not parse json, got: {}", data))
 }
 
 #[tokio::test]
@@ -228,11 +233,14 @@ impl SimpleRpc for HeaderServer {
             .collect::<Vec<_>>();
         meta.sort();
         let meta = meta.join(",");
-        Ok(Response::new(SimplePost {
+        let mut res = Response::new(SimplePost {
             foo: meta,
             bar: request.get_ref().bar,
             long_name: request.get_ref().long_name,
-        }))
+        });
+        res.metadata_mut()
+            .insert("x-test-header", "test-value".parse().unwrap());
+        Ok(res)
     }
 }
 
@@ -270,4 +278,20 @@ async fn headers() {
             long_name: post.long_name,
         }
     );
+
+    let res = send_post_raw_response(
+        &addr,
+        &format!("/rest/post/{}?bar={}", post.foo, post.bar),
+        format!(r#"{{"longName":{}}}"#, post.long_name),
+    )
+    .await;
+
+    // default content-length, content-type, date headers + 1 custom header
+    assert_eq!(res.headers().len(), 4);
+    assert_eq!(
+        res.headers()
+            .get("x-test-header")
+            .map(|v| v.to_str().unwrap()),
+        Some("test-value"),
+    )
 }

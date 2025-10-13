@@ -1,12 +1,17 @@
 [package]
 name = "actix-prost-macros"
-version = "0.1.0"
-edition = "2021"
+description = "Generating encoding and decoding implementations for `actix-prost` generated types."
+homepage = "https://github.com/blockscout/actix-prost/blob/main/actix-prost-macros"
+
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+exclude.workspace = true
 
 [lib]
 proc-macro = true
 
 [dependencies]
-proc-macro2 = "1.0"
-syn = { version = "1.0", features = ["extra-traits", "full"] }
+syn = { version = "1.0", features = [ "extra-traits", "full" ] }
 quote = "1.0"

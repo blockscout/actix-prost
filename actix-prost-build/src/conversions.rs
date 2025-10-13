@@ -14,25 +14,36 @@ use prost_reflect::{
     MessageDescriptor,
 };
 use quote::quote;
-use syn::{punctuated::Punctuated, Expr, Field, Fields, Lit, Meta, MetaNameValue, Token, Type};
+use syn::{
+    punctuated::Punctuated, Attribute, Expr, Field, Fields, Lit, Meta, MetaNameValue, Token, Type,
+};
 
 #[derive(Debug)]
 pub struct ExtraFieldOptions {
     pub name: String,
     pub ty: String,
 }
+
+#[derive(Debug)]
+pub struct DeriveOptions {
+    pub name: String,
+}
+
 #[derive(Debug)]
 pub struct ConvertFieldOptions {
     pub field: FieldDescriptor,
     pub ty: Option<String>,
     pub val_override: Option<String>,
     pub required: bool,
+    pub attributes: Vec<String>,
 }
 
 #[derive(Default, Debug)]
 struct ConvertOptions {
     fields: BTreeMap<String, ConvertFieldOptions>,
     extra: Vec<ExtraFieldOptions>,
+    derive: Vec<DeriveOptions>,
+    attributes: Vec<String>,
 }
 
 impl TryFrom<(&DescriptorPool, &MessageDescriptor)> for ConvertOptions {
@@ -41,11 +52,23 @@ impl TryFrom<(&DescriptorPool, &MessageDescriptor)> for ConvertOptions {
     fn try_from(
         (descriptors, message): (&DescriptorPool, &MessageDescriptor),
     ) -> Result<Self, Self::Error> {
-        let message_extension = descriptors
+        let message_options = descriptors
             .get_message_by_name("google.protobuf.MessageOptions")
-            .ok_or("MessageOptions not found")?
+            .ok_or("MessageOptions not found")?;
+
+        let extra_fields_ext = message_options
             .extensions()
             .find(|ext| ext.name() == "extra_fields")
+            .unwrap();
+
+        let derive_ext = message_options
+            .extensions()
+            .find(|ext| ext.name() == "derive")
+            .unwrap();
+
+        let attributes_ext = message_options
+            .extensions()
+            .find(|ext| ext.name() == "attributes")
             .unwrap();
 
         let fields_extension = descriptors
@@ -57,13 +80,35 @@ impl TryFrom<(&DescriptorPool, &MessageDescriptor)> for ConvertOptions {
 
         let options = message.options();
         let extra = options
-            .get_extension(&message_extension)
+            .get_extension(&extra_fields_ext)
             .as_list()
             .unwrap()
             .iter()
             .map(|v| {
                 let m = v.as_message().unwrap();
                 ExtraFieldOptions::from(m)
+            })
+            .collect();
+
+        let derive = options
+            .get_extension(&derive_ext)
+            .as_list()
+            .unwrap()
+            .iter()
+            .map(|v| {
+                let m = v.as_message().unwrap();
+                DeriveOptions::from(m)
+            })
+            .collect();
+
+        let attributes = options
+            .get_extension(&attributes_ext)
+            .as_list()
+            .expect("attributes should be vec")
+            .iter()
+            .map(|v| {
+                let attr = v.as_str().expect("attributes should be vec of strings");
+                attr.to_string()
             })
             .collect();
 
@@ -75,7 +120,12 @@ impl TryFrom<(&DescriptorPool, &MessageDescriptor)> for ConvertOptions {
                 (String::from(f.name()), convert_options)
             })
             .collect();
-        Ok(Self { fields, extra })
+        Ok(Self {
+            fields,
+            extra,
+            derive,
+            attributes,
+        })
     }
 }
 
@@ -93,6 +143,7 @@ impl From<(&FieldDescriptor, &ExtensionDescriptor)> for ConvertFieldOptions {
                 Some(v) => v.as_bool().unwrap(),
                 None => false,
             },
+            attributes: get_repeated_string_field(ext_val, "attributes"),
         }
     }
 }
@@ -102,6 +153,14 @@ impl From<&DynamicMessage> for ExtraFieldOptions {
         Self {
             name: get_string_field(value, "name").unwrap(),
             ty: get_string_field(value, "type").unwrap(),
+        }
+    }
+}
+
+impl From<&DynamicMessage> for DeriveOptions {
+    fn from(value: &DynamicMessage) -> Self {
+        Self {
+            name: get_string_field(value, "name").unwrap(),
         }
     }
 }
@@ -201,6 +260,27 @@ impl ConversionsGenerator {
         // Filter out extra_fields for Internal -> Proto conversions
         extra_field_conversions.retain(|v| v.is_some());
 
+        let derives = convert_options
+            .derive
+            .iter()
+            .map(|d| {
+                let name: TokenStream = d.name.parse().unwrap();
+                quote!(#[derive(#name)])
+            })
+            .collect::<Vec<_>>();
+
+        let attributes = convert_options
+            .attributes
+            .iter()
+            .map(|attr| {
+                let attr_token: TokenStream = attr
+                    .parse()
+                    .expect("attribute should be a valid Attribute token");
+                let attr: Attribute = syn::parse_quote!(#attr_token);
+                quote!(#attr)
+            })
+            .collect::<Vec<_>>();
+
         let struct_ident = &rust_struct.ident;
         let internal_struct_ident = quote::format_ident!("{}Internal", struct_ident);
 
@@ -215,7 +295,9 @@ impl ConversionsGenerator {
         let struct_def = match struct_desc {
             None => {
                 quote!(
-                    #[derive(Debug)]
+                    #(#attributes)*
+                    #(#derives)*
+                    #[derive(Clone, Debug)]
                     pub struct #internal_struct_ident {
                         #(#field_types,)*
                         #(#extra_field_types,)*
@@ -277,8 +359,13 @@ impl ConversionsGenerator {
         fields
             .map(|f| {
                 let name = f.ident.clone().unwrap();
+                // Remove the r# prefix if it exists, for example r#type -> type
+                let name_str = name.to_string().trim_start_matches("r#").to_string();
                 let vis = &f.vis;
-                let convert_field = convert_options.fields.get(&name.to_string());
+                let convert_field = convert_options.fields.get(&name_str);
+                let attributes = convert_field
+                    .map(|cf| cf.attributes.clone())
+                    .unwrap_or_default();
 
                 // 1. Check if the field contains a nested message
                 // 2. Check if the field is an enum
@@ -288,8 +375,16 @@ impl ConversionsGenerator {
                     .or_else(|| Self::process_enum(m_type, f))
                     .unwrap_or_else(|| self.process_default(f, convert_field));
 
+                // Ensure that all attributes are valid and convert them into tokens
+                let field_attributes = attributes.iter().map(|attr_raw| {
+                    let attr_token: TokenStream = attr_raw.parse().unwrap();
+                    let attr: Attribute = syn::parse_quote!(#attr_token);
+                    quote!(#attr)
+                });
+
                 (
                     quote! {
+                        #(#field_attributes)*
                         #vis #name: #ty
                     },
                     quote! {
@@ -461,7 +556,7 @@ impl ConversionsGenerator {
                         let enum_ident = lit.parse::<syn::Path>().ok();
                         let conv = match m_type {
                             MessageType::Input => {
-                                quote!(#enum_ident::try_from(from.#name)?)
+                                quote!(#enum_ident::try_from(from.#name).map_err(|e| e.to_string())?)
                             }
                             MessageType::Output => {
                                 quote!(from.#name.into())
@@ -541,4 +636,20 @@ fn get_string_field(m: &DynamicMessage, name: &str) -> Option<String> {
     } else {
         Some(f)
     }
+}
+
+fn get_repeated_string_field(m: &DynamicMessage, name: &str) -> Vec<String> {
+    m.get_field_by_name(name)
+        .map(|f| {
+            f.as_list()
+                .unwrap_or_else(|| panic!("field '{name}' is not list"))
+                .iter()
+                .map(|v| {
+                    v.as_str()
+                        .unwrap_or_else(|| panic!("field '{name}' is not list of strings"))
+                        .to_string()
+                })
+                .collect()
+        })
+        .unwrap_or_default()
 }

@@ -59,14 +59,13 @@ impl Method {
         } else {
             (None, None)
         };
-        let response_type = self.response.name();
         let response_convert = self.response.generate_convert();
         quote::quote!(
             async fn #method_name(
                 service: ::actix_web::web::Data<dyn #trait_name + Sync + Send + 'static>,
                 http_request: ::actix_web::HttpRequest,
                 #payload
-            ) -> Result<::actix_web::web::Json<#response_type>, ::actix_prost::Error> {
+            ) -> Result<impl Responder, ::actix_prost::Error> {
                 #payload_convert
                 #extractors
                 let request = #request_init;
@@ -74,9 +73,14 @@ impl Method {
                 let response = service
                     .#name(request)
                     .await?;
+                let headers = response.metadata().clone().into_headers();
                 let response = response.into_inner();
                 #response_convert
-                Ok(::actix_web::web::Json(response))
+                let mut json_response = ::actix_web::web::Json(response).customize();
+                for (key, value) in headers.iter() {
+                    json_response = json_response.insert_header((key.as_str(), value.as_bytes()));
+                }
+                Ok(json_response)
             }
         )
     }
