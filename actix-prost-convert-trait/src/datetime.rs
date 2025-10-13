@@ -1,5 +1,15 @@
-use crate::{impl_try_convert_to_string, TryConvert};
+use crate::TryConvert;
 use chrono::{DateTime, FixedOffset, NaiveDateTime, Utc};
+
+macro_rules! impl_try_convert_datetime_to_string {
+    ($type:ty) => {
+        impl TryConvert<$type> for String {
+            fn try_convert(value: $type) -> Result<Self, String> {
+                Ok(value.to_rfc3339())
+            }
+        }
+    };
+}
 
 // DateTime<Utc> conversions
 impl TryConvert<String> for DateTime<Utc> {
@@ -20,7 +30,7 @@ impl TryConvert<String> for DateTime<Utc> {
     }
 }
 
-impl_try_convert_to_string!(DateTime<Utc>);
+impl_try_convert_datetime_to_string!(DateTime<Utc>);
 
 // DateTime<FixedOffset> conversions
 impl TryConvert<String> for DateTime<FixedOffset> {
@@ -46,7 +56,7 @@ impl TryConvert<String> for DateTime<FixedOffset> {
     }
 }
 
-impl_try_convert_to_string!(DateTime<FixedOffset>);
+impl_try_convert_datetime_to_string!(DateTime<FixedOffset>);
 
 // NaiveDateTime conversions
 impl TryConvert<String> for NaiveDateTime {
@@ -68,7 +78,11 @@ impl TryConvert<String> for NaiveDateTime {
     }
 }
 
-impl_try_convert_to_string!(NaiveDateTime);
+impl TryConvert<NaiveDateTime> for String {
+    fn try_convert(value: NaiveDateTime) -> Result<Self, String> {
+        Ok(value.format("%Y-%m-%dT%H:%M:%S").to_string())
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -76,7 +90,7 @@ mod tests {
     use pretty_assertions::assert_eq;
 
     #[test]
-    fn test_conversion_datetime() {
+    fn test_conversion_datetime_from_string() {
         let datetime = DateTime::<Utc>::try_convert("1645491600".to_string()).unwrap();
         assert_eq!(
             datetime,
@@ -151,7 +165,10 @@ mod tests {
             datetime,
             "2021-01-01T00:00:00Z".parse::<DateTime<Utc>>().unwrap()
         );
+    }
 
+    #[test]
+    fn test_conversion_datetime_errors() {
         // Error cases
         let error = DateTime::<Utc>::try_convert("2021-01-01T00:00:00".to_string())
             .expect_err("Invalid datetime");
@@ -176,5 +193,24 @@ mod tests {
             error,
             "failed to parse '' as NaiveDateTime: premature end of input"
         );
+    }
+
+    #[test]
+    fn test_conversion_datetime_to_string() {
+        let datetime = "2021-01-01T00:00:00+00:00"
+            .parse::<DateTime<Utc>>()
+            .unwrap();
+        let string = String::try_convert(datetime).unwrap();
+        assert_eq!(string, "2021-01-01T00:00:00+00:00");
+
+        let datetime = "2021-01-01T00:00:00+00:00"
+            .parse::<DateTime<FixedOffset>>()
+            .unwrap();
+        let string = String::try_convert(datetime).unwrap();
+        assert_eq!(string, "2021-01-01T00:00:00+00:00");
+
+        let datetime = "2021-01-01T00:00:00".parse::<NaiveDateTime>().unwrap();
+        let string = String::try_convert(datetime).unwrap();
+        assert_eq!(string, "2021-01-01T00:00:00");
     }
 }

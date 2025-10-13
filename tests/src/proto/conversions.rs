@@ -113,9 +113,13 @@ pub struct ConversionsResponse {
     /// Response fields with conversions
     #[prost(string, tag = "5")]
     pub response_utc_datetime: ::prost::alloc::string::String,
-    #[prost(string, tag = "6")]
-    pub response_uuid: ::prost::alloc::string::String,
     #[prost(string, tag = "7")]
+    pub response_fixed_offset_datetime: ::prost::alloc::string::String,
+    #[prost(string, tag = "8")]
+    pub response_naive_datetime: ::prost::alloc::string::String,
+    #[prost(string, tag = "9")]
+    pub response_uuid: ::prost::alloc::string::String,
+    #[prost(string, tag = "10")]
     pub response_decimal: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde]
@@ -401,6 +405,8 @@ pub struct ConversionsResponseInternal {
     >,
     pub config: ::core::option::Option<ConfigInternal>,
     pub response_utc_datetime: chrono::DateTime<chrono::Utc>,
+    pub response_fixed_offset_datetime: chrono::DateTime<chrono::FixedOffset>,
+    pub response_naive_datetime: chrono::NaiveDateTime,
     pub response_uuid: uuid::Uuid,
     pub response_decimal: rust_decimal::Decimal,
 }
@@ -413,6 +419,12 @@ impl convert_trait::TryConvert<ConversionsResponseInternal> for ConversionsRespo
             config: convert_trait::TryConvert::try_convert(from.config)?,
             response_utc_datetime: convert_trait::TryConvert::try_convert(
                 from.response_utc_datetime,
+            )?,
+            response_fixed_offset_datetime: convert_trait::TryConvert::try_convert(
+                from.response_fixed_offset_datetime,
+            )?,
+            response_naive_datetime: convert_trait::TryConvert::try_convert(
+                from.response_naive_datetime,
             )?,
             response_uuid: convert_trait::TryConvert::try_convert(from.response_uuid)?,
             response_decimal: convert_trait::TryConvert::try_convert(
