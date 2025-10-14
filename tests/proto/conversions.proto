@@ -91,8 +91,10 @@ message ConversionsResponse {
   
   // Response fields with conversions
   string response_utc_datetime = 5 [ (convert_options.convert) = { type : "chrono::DateTime<chrono::Utc>" } ];
-  string response_uuid = 6 [ (convert_options.convert) = { type : "uuid::Uuid" } ];
-  string response_decimal = 7 [ (convert_options.convert) = { type : "rust_decimal::Decimal" } ];
+  string response_fixed_offset_datetime = 7 [ (convert_options.convert) = { type : "chrono::DateTime<chrono::FixedOffset>" } ];
+  string response_naive_datetime = 8 [ (convert_options.convert) = { type : "chrono::NaiveDateTime" } ];
+  string response_uuid = 9 [ (convert_options.convert) = { type : "uuid::Uuid" } ];
+  string response_decimal = 10 [ (convert_options.convert) = { type : "rust_decimal::Decimal" } ];
 }
 
 

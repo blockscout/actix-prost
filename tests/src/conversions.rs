@@ -35,6 +35,8 @@ impl ConversionsRpc for ConversionsServer {
             map_field: internal_request.map_field,
             config: None,
             response_utc_datetime: internal_request.utc_datetime,
+            response_fixed_offset_datetime: internal_request.fixed_offset_datetime,
+            response_naive_datetime: internal_request.naive_datetime,
             response_uuid: internal_request.uuid_field,
             response_decimal: internal_request.decimal_field,
         };
@@ -189,6 +191,12 @@ async fn conversions() {
     assert_eq!(status, StatusCode::OK, "error: {res}");
     let res: ConversionsResponse = serde_json::from_str(&res).unwrap();
     assert_eq!(res.nested.unwrap().address, test_address);
+    assert_eq!(res.response_utc_datetime, "2023-01-01T00:00:00+00:00");
+    assert_eq!(
+        res.response_fixed_offset_datetime,
+        "2023-01-01T00:00:00+01:00"
+    );
+    assert_eq!(res.response_naive_datetime, "2023-01-01T00:00:00");
 }
 
 #[test]
