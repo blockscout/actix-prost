@@ -108,6 +108,10 @@ impl convert_trait::TryConvert<ErrorRequest> for ErrorRequestInternal {
         })
     }
 }
+#[derive(serde::Serialize)]
+#[derive(serde::Deserialize)]
+#[derive(PartialEq)]
+#[derive(Eq)]
 #[derive(Clone, Debug)]
 pub struct ErrorResponseInternal {}
 impl convert_trait::TryConvert<ErrorResponseInternal> for ErrorResponse {

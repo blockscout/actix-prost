@@ -39,6 +39,7 @@ impl ConversionsRpc for ConversionsServer {
             response_naive_datetime: internal_request.naive_datetime,
             response_uuid: internal_request.uuid_field,
             response_decimal: internal_request.decimal_field,
+            error: None,
         };
 
         let response = ConversionsResponse::try_convert(internal_response)

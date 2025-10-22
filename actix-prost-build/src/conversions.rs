@@ -6,7 +6,7 @@ use std::{
     rc::Rc,
 };
 
-use crate::helpers::extract_type_from_option;
+use crate::helpers::{extract_type_from_option, try_construct_external_type_path};
 use proc_macro2::{Ident, TokenStream};
 use prost_build::Service;
 use prost_reflect::{
@@ -443,10 +443,23 @@ impl ConversionsGenerator {
 
         match extract_type_from_option(&f.ty) {
             Some(Type::Path(ty)) => {
-                let ty = ty.path.segments.first()?;
-                let rust_struct_name = self.messages.get(&ty.ident.to_string())?.ident.clone();
-                let new_struct_name =
-                    self.build_internal_nested_struct(m_type, &rust_struct_name, res);
+                let maybe_local_message = ty
+                    .path
+                    .segments
+                    .first()
+                    .and_then(|s| self.messages.get(&s.ident.to_string()));
+
+                let new_struct_name = if let Some(item_struct) = maybe_local_message {
+                    let rust_struct_name = item_struct.ident.clone();
+                    let new_struct_name =
+                        self.build_internal_nested_struct(m_type, &rust_struct_name, res);
+                    quote!(#new_struct_name)
+                } else if let Some(path) = try_construct_external_type_path(&ty.path) {
+                    quote!(#path)
+                } else {
+                    return None;
+                };
+
                 let convert = &self.convert_prefix;
                 let (ty, conversion) = match convert_field {
                     Some(ConvertFieldOptions { required: true, .. }) => {

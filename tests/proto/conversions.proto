@@ -2,6 +2,7 @@ syntax = "proto3";
 package conversions;
 
 import "convert_options.proto";
+import "errors.proto";
 
 option go_package = "github.com/blockscout/actix-prost/tests";
 
@@ -95,6 +96,8 @@ message ConversionsResponse {
   string response_naive_datetime = 8 [ (convert_options.convert) = { type : "chrono::NaiveDateTime" } ];
   string response_uuid = 9 [ (convert_options.convert) = { type : "uuid::Uuid" } ];
   string response_decimal = 10 [ (convert_options.convert) = { type : "rust_decimal::Decimal" } ];
+
+  errors.ErrorResponse error = 11;
 }
 
 

@@ -38,18 +38,12 @@ message OneOfs {
   }
 }
 
-// message Google {
-//   google.protobuf.Timestamp foo = 1;
-//   google.protobuf.Any bar = 2;
-// }
-
 message Complex {
   Scalars scalars = 1;
   Enums enums = 2;
   Repeated repeated = 3;
   Maps maps = 4;
   OneOfs oneofs = 5;
-  // Google google = 6;
 }
 
 service TypesRPC {
@@ -59,6 +53,5 @@ service TypesRPC {
   rpc RepeatedRPC(Repeated) returns (Repeated);
   rpc MapsRPC(Maps) returns (Maps);
   rpc OneOfsRPC(OneOfs) returns (OneOfs);
-  // rpc GoogleRPC(Google) returns (Google);
   rpc ComplexRPC(Complex) returns (Complex);
 }

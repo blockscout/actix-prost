@@ -121,6 +121,8 @@ pub struct ConversionsResponse {
     pub response_uuid: ::prost::alloc::string::String,
     #[prost(string, tag = "10")]
     pub response_decimal: ::prost::alloc::string::String,
+    #[prost(message, optional, tag = "11")]
+    pub error: ::core::option::Option<super::errors::ErrorResponse>,
 }
 #[actix_prost_macros::serde]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
@@ -409,6 +411,7 @@ pub struct ConversionsResponseInternal {
     pub response_naive_datetime: chrono::NaiveDateTime,
     pub response_uuid: uuid::Uuid,
     pub response_decimal: rust_decimal::Decimal,
+    pub error: ::core::option::Option<super::errors::ErrorResponseInternal>,
 }
 impl convert_trait::TryConvert<ConversionsResponseInternal> for ConversionsResponse {
     fn try_convert(from: ConversionsResponseInternal) -> Result<Self, String> {
@@ -430,6 +433,7 @@ impl convert_trait::TryConvert<ConversionsResponseInternal> for ConversionsRespo
             response_decimal: convert_trait::TryConvert::try_convert(
                 from.response_decimal,
             )?,
+            error: convert_trait::TryConvert::try_convert(from.error)?,
         })
     }
 }
