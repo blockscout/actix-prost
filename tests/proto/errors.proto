@@ -1,6 +1,8 @@
 syntax = "proto3";
 package errors;
 
+import "convert_options.proto";
+
 option go_package = "github.com/blockscout/actix-prost/tests";
 
 service ErrorsRPC { rpc Error(ErrorRequest) returns (ErrorResponse); }
@@ -11,4 +13,9 @@ message ErrorRequest {
   string message = 3;
 }
 
-message ErrorResponse {}
+message ErrorResponse {
+  option (convert_options.derive) = { name: "serde::Serialize" };
+  option (convert_options.derive) = { name: "serde::Deserialize" };
+  option (convert_options.derive) = { name: "PartialEq" };
+  option (convert_options.derive) = { name: "Eq" };
+}

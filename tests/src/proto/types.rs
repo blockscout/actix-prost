@@ -75,7 +75,6 @@ pub struct Complex {
     pub repeated: ::core::option::Option<Repeated>,
     #[prost(message, optional, tag = "4")]
     pub maps: ::core::option::Option<Maps>,
-    /// Google google = 6;
     #[prost(message, optional, tag = "5")]
     pub oneofs: ::core::option::Option<OneOfs>,
 }
@@ -175,7 +174,6 @@ pub mod types_rpc_actix {
         pub repeated: ::core::option::Option<Repeated>,
         #[prost(message, optional, tag = "4")]
         pub maps: ::core::option::Option<Maps>,
-        /// Google google = 6;
         #[prost(message, optional, tag = "5")]
         pub oneofs: ::core::option::Option<OneOfs>,
     }
@@ -762,7 +760,6 @@ pub mod types_rpc_client {
             req.extensions_mut().insert(GrpcMethod::new("types.TypesRPC", "OneOfsRPC"));
             self.inner.unary(req, path, codec).await
         }
-        /// rpc GoogleRPC(Google) returns (Google);
         pub async fn complex_rpc(
             &mut self,
             request: impl tonic::IntoRequest<super::Complex>,
@@ -822,7 +819,6 @@ pub mod types_rpc_server {
             &self,
             request: tonic::Request<super::OneOfs>,
         ) -> std::result::Result<tonic::Response<super::OneOfs>, tonic::Status>;
-        /// rpc GoogleRPC(Google) returns (Google);
         async fn complex_rpc(
             &self,
             request: tonic::Request<super::Complex>,

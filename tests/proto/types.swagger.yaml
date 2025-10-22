@@ -11,7 +11,6 @@ produces:
 paths:
   /types/complex:
     post:
-      summary: rpc GoogleRPC(Google) returns (Google);
       operationId: TypesRPC_ComplexRPC
       responses:
         "200":
@@ -183,7 +182,6 @@ definitions:
         $ref: '#/definitions/typesMaps'
       oneofs:
         $ref: '#/definitions/typesOneOfs'
-        title: Google google = 6;
   typesEnums:
     type: object
     properties:
