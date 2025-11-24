@@ -32,9 +32,9 @@ http = { version = "1.2" }
 pretty_assertions = { version = "1.4" }
 prettyplease = { version = "0.2" }
 proc-macro2 = { version = "1.0" }
-prost = { version = "0.13" }
-prost-build = { version = "0.13" }
-prost-reflect = { version = "0.14.4" }
+prost = { version = "0.14" }
+prost-build = { version = "0.14" }
+prost-reflect = { version = "0.16" }
 quote = { version = "1.0" }
 reqwest = { version = "0.12" }
 serde = { version = "1" }
@@ -44,8 +44,9 @@ serde_yaml = { version = "0.9" }
 syn = { version = "2.0" }
 thiserror = { version = "2.0" }
 tokio = { version = "1" }
-tonic = { version = "0.12" }
-tonic-build = { version = "0.12" }
+tonic = { version = "0.14" }
+tonic-prost = { version = "0.14" }
+tonic-prost-build = { version = "0.14" }
 url = { version = "2" }
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1.0"}

@@ -22,6 +22,7 @@ serde_json = { workspace = true }
 serde_with = { workspace = true, features = [ "base64" ] }
 tokio = { workspace = true, features = [ "rt-multi-thread", "macros" ] }
 tonic = { workspace = true }
+tonic-prost = { workspace = true }
 chrono = { workspace = true, features = ["serde"] }
 uuid = { workspace = true, features = ["serde"] }
 rust_decimal = { workspace = true, features = ["serde"] }
@@ -30,7 +31,7 @@ rust_decimal = { workspace = true, features = ["serde"] }
 [build-dependencies]
 actix-prost-build = { workspace = true, features = [ "conversions" ] }
 prost-build = { workspace = true }
-tonic-build = { workspace = true }
+tonic-prost-build = { workspace = true }
 
 [dev-dependencies]
 pretty_assertions = { workspace = true }

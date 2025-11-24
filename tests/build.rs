@@ -51,7 +51,7 @@ fn compile(
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let gens = Box::new(GeneratorList::new(vec![
-        tonic_build::configure().service_generator(),
+        tonic_prost_build::configure().service_generator(),
         Box::new(ActixGenerator::new("proto/http_api.yaml").unwrap()),
     ]));
     compile(
