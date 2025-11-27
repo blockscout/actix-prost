@@ -112,7 +112,7 @@ pub mod descriptor_proto {
     /// fields or extension ranges in the same message. Reserved ranges may
     /// not overlap.
     #[actix_prost_macros::serde]
-    #[derive(Clone, Copy, PartialEq, ::prost::Message)]
+    #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct ReservedRange {
         /// Inclusive.
         #[prost(int32, optional, tag = "1")]
@@ -150,7 +150,7 @@ pub struct ExtensionRangeOptions {
 /// Nested message and enum types in `ExtensionRangeOptions`.
 pub mod extension_range_options {
     #[actix_prost_macros::serde]
-    #[derive(Clone, PartialEq, ::prost::Message)]
+    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct Declaration {
         /// The extension number declared within the extension range.
         #[prost(int32, optional, tag = "1")]
@@ -471,7 +471,7 @@ pub mod enum_descriptor_proto {
     /// is inclusive such that it can appropriately represent the entire int32
     /// domain.
     #[actix_prost_macros::serde]
-    #[derive(Clone, Copy, PartialEq, ::prost::Message)]
+    #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct EnumReservedRange {
         /// Inclusive.
         #[prost(int32, optional, tag = "1")]
@@ -573,9 +573,10 @@ pub struct FileOptions {
     pub optimize_for: ::core::option::Option<i32>,
     /// Sets the Go package where structs generated from this .proto will be
     /// placed. If omitted, the Go package will be derived from the following:
-    ///    - The basename of the package import path, if provided.
-    ///    - Otherwise, the package statement in the .proto file, if present.
-    ///    - Otherwise, the basename of the .proto file, without extension.
+    ///
+    /// * The basename of the package import path, if provided.
+    /// * Otherwise, the package statement in the .proto file, if present.
+    /// * Otherwise, the basename of the .proto file, without extension.
     #[prost(string, optional, tag = "11")]
     pub go_package: ::core::option::Option<::prost::alloc::string::String>,
     /// Should generic services be generated in each language?  "Generic" services
@@ -705,10 +706,10 @@ pub struct MessageOptions {
     /// efficient, has fewer features, and is more complicated.
     ///
     /// The message must be defined exactly as follows:
-    ///    message Foo {
-    ///      option message_set_wire_format = true;
-    ///      extensions 4 to max;
-    ///    }
+    /// message Foo {
+    /// option message_set_wire_format = true;
+    /// extensions 4 to max;
+    /// }
     /// Note that the message cannot have any defined fields; MessageSets only
     /// have extensions.
     ///
@@ -734,14 +735,14 @@ pub struct MessageOptions {
     /// maps field.
     ///
     /// For maps fields:
-    ///      map<KeyType, ValueType> map_field = 1;
+    /// map\<KeyType, ValueType> map_field = 1;
     /// The parsed descriptor looks like:
-    ///      message MapFieldEntry {
-    ///          option map_entry = true;
-    ///          optional KeyType key = 1;
-    ///          optional ValueType value = 2;
-    ///      }
-    ///      repeated MapFieldEntry map_field = 1;
+    /// message MapFieldEntry {
+    /// option map_entry = true;
+    /// optional KeyType key = 1;
+    /// optional ValueType value = 2;
+    /// }
+    /// repeated MapFieldEntry map_field = 1;
     ///
     /// Implementations may choose not to generate the map_entry=true message, but
     /// use a native map in the target language to hold the keys and values.
@@ -890,7 +891,7 @@ pub struct FieldOptions {
 /// Nested message and enum types in `FieldOptions`.
 pub mod field_options {
     #[actix_prost_macros::serde]
-    #[derive(Clone, PartialEq, ::prost::Message)]
+    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct EditionDefault {
         #[prost(enumeration = "super::Edition", optional, tag = "3")]
         pub edition: ::core::option::Option<i32>,
@@ -900,7 +901,7 @@ pub mod field_options {
     }
     /// Information about the support window of a feature.
     #[actix_prost_macros::serde]
-    #[derive(Clone, PartialEq, ::prost::Message)]
+    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct FeatureSupport {
         /// The edition that this feature was first available in.  In editions
         /// earlier than this one, the default assigned to EDITION_LEGACY will be
@@ -1316,7 +1317,7 @@ pub mod uninterpreted_option {
     /// E.g.,{ \["foo", false\], \["bar.baz", true\], \["moo", false\] } represents
     /// "foo.(bar.baz).moo".
     #[actix_prost_macros::serde]
-    #[derive(Clone, PartialEq, ::prost::Message)]
+    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct NamePart {
         #[prost(string, required, tag = "1")]
         pub name_part: ::prost::alloc::string::String,
@@ -1331,7 +1332,7 @@ pub mod uninterpreted_option {
 /// be designed and implemented to handle this, hopefully before we ever hit a
 /// conflict here.
 #[actix_prost_macros::serde]
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct FeatureSet {
     #[prost(enumeration = "feature_set::FieldPresence", optional, tag = "1")]
     pub field_presence: ::core::option::Option<i32>,
@@ -1357,7 +1358,7 @@ pub struct FeatureSet {
 /// Nested message and enum types in `FeatureSet`.
 pub mod feature_set {
     #[actix_prost_macros::serde]
-    #[derive(Clone, Copy, PartialEq, ::prost::Message)]
+    #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct VisibilityFeature {}
     /// Nested message and enum types in `VisibilityFeature`.
     pub mod visibility_feature {
@@ -1725,7 +1726,7 @@ pub mod feature_set_defaults {
     /// the defaults at the closest matching edition ordered at or before it should
     /// be used.  This field must be in strict ascending order by edition.
     #[actix_prost_macros::serde]
-    #[derive(Clone, Copy, PartialEq, ::prost::Message)]
+    #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct FeatureSetEditionDefault {
         #[prost(enumeration = "super::Edition", optional, tag = "3")]
         pub edition: ::core::option::Option<i32>,
@@ -1748,50 +1749,51 @@ pub struct SourceCodeInfo {
     /// tools.
     ///
     /// For example, say we have a file like:
-    ///    message Foo {
-    ///      optional string foo = 1;
-    ///    }
+    /// message Foo {
+    /// optional string foo = 1;
+    /// }
     /// Let's look at just the field definition:
-    ///    optional string foo = 1;
-    ///    ^       ^^     ^^  ^  ^^^
-    ///    a       bc     de  f  ghi
+    /// optional string foo = 1;
+    /// ^       ^^     ^^  ^  ^^^
+    /// a       bc     de  f  ghi
     /// We have the following locations:
-    ///    span   path               represents
-    ///    \[a,i)  [ 4, 0, 2, 0 \]     The whole field definition.
-    ///    \[a,b)  [ 4, 0, 2, 0, 4 \]  The label (optional).
-    ///    \[c,d)  [ 4, 0, 2, 0, 5 \]  The type (string).
-    ///    \[e,f)  [ 4, 0, 2, 0, 1 \]  The name (foo).
-    ///    \[g,h)  [ 4, 0, 2, 0, 3 \]  The number (1).
+    /// span   path               represents
+    /// \[a,i)  \[ 4, 0, 2, 0 \]     The whole field definition.
+    /// \[a,b)  \[ 4, 0, 2, 0, 4 \]  The label (optional).
+    /// \[c,d)  \[ 4, 0, 2, 0, 5 \]  The type (string).
+    /// \[e,f)  \[ 4, 0, 2, 0, 1 \]  The name (foo).
+    /// \[g,h)  \[ 4, 0, 2, 0, 3 \]  The number (1).
     ///
     /// Notes:
-    /// - A location may refer to a repeated field itself (i.e. not to any
-    ///    particular index within it).  This is used whenever a set of elements are
-    ///    logically enclosed in a single code segment.  For example, an entire
-    ///    extend block (possibly containing multiple extension definitions) will
-    ///    have an outer location whose path refers to the "extensions" repeated
-    ///    field without an index.
-    /// - Multiple locations may have the same path.  This happens when a single
-    ///    logical declaration is spread out across multiple places.  The most
-    ///    obvious example is the "extend" block again -- there may be multiple
-    ///    extend blocks in the same scope, each of which will have the same path.
-    /// - A location's span is not always a subset of its parent's span.  For
-    ///    example, the "extendee" of an extension declaration appears at the
-    ///    beginning of the "extend" block and is shared by all extensions within
-    ///    the block.
-    /// - Just because a location's span is a subset of some other location's span
-    ///    does not mean that it is a descendant.  For example, a "group" defines
-    ///    both a type and a field in a single declaration.  Thus, the locations
-    ///    corresponding to the type and field and their components will overlap.
-    /// - Code which tries to interpret locations should probably be designed to
-    ///    ignore those that it doesn't understand, as more types of locations could
-    ///    be recorded in the future.
+    ///
+    /// * A location may refer to a repeated field itself (i.e. not to any
+    ///   particular index within it).  This is used whenever a set of elements are
+    ///   logically enclosed in a single code segment.  For example, an entire
+    ///   extend block (possibly containing multiple extension definitions) will
+    ///   have an outer location whose path refers to the "extensions" repeated
+    ///   field without an index.
+    /// * Multiple locations may have the same path.  This happens when a single
+    ///   logical declaration is spread out across multiple places.  The most
+    ///   obvious example is the "extend" block again -- there may be multiple
+    ///   extend blocks in the same scope, each of which will have the same path.
+    /// * A location's span is not always a subset of its parent's span.  For
+    ///   example, the "extendee" of an extension declaration appears at the
+    ///   beginning of the "extend" block and is shared by all extensions within
+    ///   the block.
+    /// * Just because a location's span is a subset of some other location's span
+    ///   does not mean that it is a descendant.  For example, a "group" defines
+    ///   both a type and a field in a single declaration.  Thus, the locations
+    ///   corresponding to the type and field and their components will overlap.
+    /// * Code which tries to interpret locations should probably be designed to
+    ///   ignore those that it doesn't understand, as more types of locations could
+    ///   be recorded in the future.
     #[prost(message, repeated, tag = "1")]
     pub location: ::prost::alloc::vec::Vec<source_code_info::Location>,
 }
 /// Nested message and enum types in `SourceCodeInfo`.
 pub mod source_code_info {
     #[actix_prost_macros::serde]
-    #[derive(Clone, PartialEq, ::prost::Message)]
+    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct Location {
         /// Identifies which part of the FileDescriptorProto was defined at this
         /// location.
@@ -1799,21 +1801,21 @@ pub mod source_code_info {
         /// Each element is a field number or an index.  They form a path from
         /// the root FileDescriptorProto to the place where the definition appears.
         /// For example, this path:
-        ///    \[ 4, 3, 2, 7, 1 \]
+        /// \[ 4, 3, 2, 7, 1 \]
         /// refers to:
-        ///    file.message_type(3)  // 4, 3
-        ///        .field(7)         // 2, 7
-        ///        .name()           // 1
+        /// file.message_type(3)  // 4, 3
+        /// .field(7)         // 2, 7
+        /// .name()           // 1
         /// This is because FileDescriptorProto.message_type has field number 4:
-        ///    repeated DescriptorProto message_type = 4;
+        /// repeated DescriptorProto message_type = 4;
         /// and DescriptorProto.field has field number 2:
-        ///    repeated FieldDescriptorProto field = 2;
+        /// repeated FieldDescriptorProto field = 2;
         /// and FieldDescriptorProto.name has field number 1:
-        ///    optional string name = 1;
+        /// optional string name = 1;
         ///
         /// Thus, the above path gives the location of a field name.  If we removed
         /// the last element:
-        ///    \[ 4, 3, 2, 7 \]
+        /// \[ 4, 3, 2, 7 \]
         /// this path refers to the whole field declaration (from the beginning
         /// of the label to the terminating semicolon).
         #[prost(int32, repeated, tag = "1")]
@@ -1844,34 +1846,34 @@ pub mod source_code_info {
         ///
         /// Examples:
         ///
-        ///    optional int32 foo = 1;  // Comment attached to foo.
-        ///    // Comment attached to bar.
-        ///    optional int32 bar = 2;
+        /// optional int32 foo = 1;  // Comment attached to foo.
+        /// // Comment attached to bar.
+        /// optional int32 bar = 2;
         ///
-        ///    optional string baz = 3;
-        ///    // Comment attached to baz.
-        ///    // Another line attached to baz.
+        /// optional string baz = 3;
+        /// // Comment attached to baz.
+        /// // Another line attached to baz.
         ///
-        ///    // Comment attached to moo.
-        ///    //
-        ///    // Another line attached to moo.
-        ///    optional double moo = 4;
+        /// // Comment attached to moo.
+        /// //
+        /// // Another line attached to moo.
+        /// optional double moo = 4;
         ///
-        ///    // Detached comment for corge. This is not leading or trailing comments
-        ///    // to moo or corge because there are blank lines separating it from
-        ///    // both.
+        /// // Detached comment for corge. This is not leading or trailing comments
+        /// // to moo or corge because there are blank lines separating it from
+        /// // both.
         ///
-        ///    // Detached comment for corge paragraph 2.
+        /// // Detached comment for corge paragraph 2.
         ///
-        ///    optional string corge = 5;
-        ///    /* Block comment attached
-        ///     * to corge.  Leading asterisks
-        ///     * will be removed. */
-        ///    /* Block comment attached to
-        ///     * grault. */
-        ///    optional int32 grault = 6;
+        /// optional string corge = 5;
+        /// /\* Block comment attached
+        /// \* to corge.  Leading asterisks
+        /// \* will be removed. */
+        /// /* Block comment attached to
+        /// \* grault. \*/
+        /// optional int32 grault = 6;
         ///
-        ///    // ignored detached comments.
+        /// // ignored detached comments.
         #[prost(string, optional, tag = "3")]
         pub leading_comments: ::core::option::Option<::prost::alloc::string::String>,
         #[prost(string, optional, tag = "4")]
@@ -1896,7 +1898,7 @@ pub struct GeneratedCodeInfo {
 /// Nested message and enum types in `GeneratedCodeInfo`.
 pub mod generated_code_info {
     #[actix_prost_macros::serde]
-    #[derive(Clone, PartialEq, ::prost::Message)]
+    #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
     pub struct Annotation {
         /// Identifies the element in the original source .proto file. This field
         /// is formatted the same as SourceCodeInfo.Location.path.

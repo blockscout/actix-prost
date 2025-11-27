@@ -78,7 +78,6 @@ impl TryConvert<String> for NaiveDateTime {
     }
 }
 
-
 // implemented via Debug according to the implementation of the serde module
 // https://github.com/chronotope/chrono/blob/e632ffd3b89d3cfaa96776f2368ee4c21a972766/src/naive/datetime/serde.rs#L6-L26
 // https://docs.rs/chrono/latest/chrono/naive/struct.NaiveDateTime.html#impl-Debug-for-NaiveDateTime
@@ -213,7 +212,9 @@ mod tests {
         let string = String::try_convert(datetime).unwrap();
         assert_eq!(string, "2021-01-01T00:00:00.123456789+00:00");
 
-        let datetime = "2021-01-01T00:00:00.123456789".parse::<NaiveDateTime>().unwrap();
+        let datetime = "2021-01-01T00:00:00.123456789"
+            .parse::<NaiveDateTime>()
+            .unwrap();
         let string = String::try_convert(datetime).unwrap();
         assert_eq!(string, "2021-01-01T00:00:00.123456789");
     }
