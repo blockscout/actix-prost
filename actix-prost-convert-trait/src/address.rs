@@ -1,11 +1,20 @@
 use crate::{impl_try_convert_from_string, TryConvert};
 use ethers_core::{types::Address, utils::to_checksum};
+use alloy::primitives::Address as AlloyAddress;
 
 impl_try_convert_from_string!(Address);
 
 impl TryConvert<Address> for String {
     fn try_convert(input: Address) -> Result<Self, String> {
         Ok(to_checksum(&input, None))
+    }
+}
+
+impl_try_convert_from_string!(AlloyAddress);
+
+impl TryConvert<AlloyAddress> for String {
+    fn try_convert(input: AlloyAddress) -> Result<Self, String> {
+        Ok(input.to_checksum(None))
     }
 }
 

@@ -50,6 +50,9 @@ message ConversionsRequest {
   repeated string addresses = 3 [ (convert_options.convert) = {
     type : "std::collections::HashSet<ethers::types::Address>"
   } ];
+  repeated string alloy_addresses = 17 [ (convert_options.convert) = {
+    type : "std::collections::HashSet<alloy::primitives::Address>"
+  } ];
 
   enum NestedEnum {
     NESTED_OK = 0;
@@ -85,6 +88,7 @@ message ConversionsRequest {
 
 message ConversionsResponse {
   string address = 1 [ (convert_options.convert) = { type : "ethers::types::Address" } ];
+  string alloy_address = 11 [ (convert_options.convert) = { type : "alloy::primitives::Address" } ];
   Nested nested = 2;
   map<string, MapValue> map_field = 3;
   Config config = 4;

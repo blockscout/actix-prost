@@ -1,6 +1,5 @@
 use reqwest::StatusCode;
 use std::{collections::HashMap, net::SocketAddr, sync::Arc, time::Duration};
-
 use crate::{
     proto::conversions::{
         conversions_request::NestedEnum, conversions_rpc_actix::route_conversions_rpc,
@@ -31,6 +30,7 @@ impl ConversionsRpc for ConversionsServer {
 
         let internal_response = ConversionsResponseInternal {
             address: Address::from_low_u64_be(0),
+            alloy_address: "0x1234567890123456789012345678901234567890".parse().unwrap(),
             nested: Some(internal_request.nested),
             map_field: internal_request.map_field,
             config: None,
@@ -83,6 +83,7 @@ async fn conversions() {
         )]),
         query: "some_string".to_string(),
         addresses: vec!["".to_string()],
+        alloy_addresses: vec!["".to_string()],
         nested_enum: 1,
         nested: Some(Nested {
             address: "".to_string(),
@@ -135,6 +136,7 @@ async fn conversions() {
         // query is overidded to Default::default() in conversions.proto
         query: Default::default(),
         addresses: vec![test_address.parse().unwrap()].into_iter().collect(),
+        alloy_addresses: vec![test_address.parse().unwrap()].into_iter().collect(),
         nested_enum: NestedEnum::NestedOk,
         nested: NestedInternal {
             address: test_address.parse().unwrap(),
@@ -165,6 +167,7 @@ async fn conversions() {
         )]),
         query: test_query.to_string(),
         addresses: vec![test_address.to_string()],
+        alloy_addresses: vec![test_address.to_string()],
         nested_enum: NestedEnum::NestedOk as i32,
         nested: Some(Nested {
             address: test_address.to_string(),
