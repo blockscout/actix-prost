@@ -43,10 +43,10 @@ impl<K: std::cmp::Ord, T, R: TryConvert<T>> TryConvert<BTreeMap<K, T>> for BTree
 #[macro_export]
 macro_rules! impl_try_convert_from_string {
     ($type:ty) => {
-        impl_try_convert_from_string!($type, stringify!($type));
+        $crate::impl_try_convert_from_string!($type, stringify!($type));
     };
     ($type:ty, $type_name:expr) => {
-        impl TryConvert<String> for $type {
+        impl $crate::TryConvert<String> for $type {
             fn try_convert(value: String) -> Result<Self, String> {
                 value.parse().map_err(|e| {
                     $crate::failed_to_parse_error_message_with_description(&value, $type_name, e)
@@ -59,7 +59,7 @@ macro_rules! impl_try_convert_from_string {
 #[macro_export]
 macro_rules! impl_try_convert_to_string {
     ($type:ty) => {
-        impl TryConvert<$type> for String {
+        impl $crate::TryConvert<$type> for String {
             fn try_convert(value: $type) -> Result<Self, String> {
                 Ok(value.to_string())
             }

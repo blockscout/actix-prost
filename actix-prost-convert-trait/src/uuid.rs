@@ -1,4 +1,4 @@
-use crate::{impl_try_convert_from_string, impl_try_convert_to_string, TryConvert};
+use crate::{impl_try_convert_from_string, impl_try_convert_to_string};
 use uuid::Uuid;
 
 impl_try_convert_from_string!(Uuid);
@@ -7,6 +7,7 @@ impl_try_convert_to_string!(Uuid);
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::TryConvert;
 
     #[test]
     fn test_conversion_uuid() {

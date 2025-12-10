@@ -27,6 +27,7 @@ default = [ "conv-full" ]
 conv-full = [ 
     "conv-bytes", 
     "conv-address", 
+    "conv-hash",
     "conv-url", 
     "conv-datetime", 
     "conv-uuid", 
@@ -37,6 +38,7 @@ conv-full = [
 ]
 conv-bytes = [ "dep:bytes", "dep:hex" ]
 conv-address = [ "dep:ethers-core", "dep:alloy" ]
+conv-hash = [ "dep:alloy" ]
 conv-url = [ "dep:url" ]
 conv-datetime = [ "dep:chrono" ]
 conv-uuid = [ "dep:uuid" ]

@@ -60,6 +60,10 @@ pub struct ConversionsRequest {
     pub decimal_field: ::prost::alloc::string::String,
     #[prost(message, repeated, tag = "16")]
     pub repeated: ::prost::alloc::vec::Vec<RepeatedValue>,
+    #[prost(string, tag = "18")]
+    pub block_hash: ::prost::alloc::string::String,
+    #[prost(string, tag = "19")]
+    pub tx_hash: ::prost::alloc::string::String,
 }
 /// Nested message and enum types in `ConversionsRequest`.
 pub mod conversions_request {
@@ -513,6 +517,10 @@ pub mod conversions_rpc_actix {
         pub decimal_field: ::prost::alloc::string::String,
         #[prost(message, repeated, tag = "16")]
         pub repeated: ::prost::alloc::vec::Vec<RepeatedValue>,
+        #[prost(string, tag = "18")]
+        pub block_hash: ::prost::alloc::string::String,
+        #[prost(string, tag = "19")]
+        pub tx_hash: ::prost::alloc::string::String,
     }
     async fn call_convert_rpc(
         service: ::actix_web::web::Data<dyn ConversionsRpc + Sync + Send + 'static>,
@@ -547,6 +555,8 @@ pub mod conversions_rpc_actix {
             duration_seconds: json.duration_seconds,
             decimal_field: json.decimal_field,
             repeated: json.repeated,
+            block_hash: json.block_hash,
+            tx_hash: json.tx_hash,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.convert_rpc(request).await?;
@@ -638,6 +648,8 @@ pub struct ConversionsRequestInternal {
     pub duration_seconds: std::time::Duration,
     pub decimal_field: rust_decimal::Decimal,
     pub repeated: ::prost::alloc::vec::Vec<RepeatedValueInternal>,
+    pub block_hash: alloy::primitives::BlockHash,
+    pub tx_hash: alloy::primitives::TxHash,
     pub field1: Option<String>,
     pub field2: Option<i32>,
 }
@@ -670,6 +682,8 @@ impl convert_trait::TryConvert<ConversionsRequest> for ConversionsRequestInterna
             )?,
             decimal_field: convert_trait::TryConvert::try_convert(from.decimal_field)?,
             repeated: convert_trait::TryConvert::try_convert(from.repeated)?,
+            block_hash: convert_trait::TryConvert::try_convert(from.block_hash)?,
+            tx_hash: convert_trait::TryConvert::try_convert(from.tx_hash)?,
             field1: None,
             field2: None,
         })

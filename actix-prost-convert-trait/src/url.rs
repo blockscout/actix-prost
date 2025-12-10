@@ -1,4 +1,4 @@
-use crate::{impl_try_convert_from_string, impl_try_convert_to_string, TryConvert};
+use crate::{impl_try_convert_from_string, impl_try_convert_to_string};
 use url::Url;
 
 impl_try_convert_from_string!(Url);
@@ -7,6 +7,7 @@ impl_try_convert_to_string!(Url);
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::TryConvert;
 
     #[test]
     fn test_conversion_url() {

@@ -84,6 +84,9 @@ message ConversionsRequest {
   string decimal_field = 15 [ (convert_options.convert) = { type : "rust_decimal::Decimal" } ];
 
   repeated RepeatedValue repeated = 16;
+
+  string block_hash = 18 [ (convert_options.convert) = { type : "alloy::primitives::BlockHash" } ];
+  string tx_hash = 19 [ (convert_options.convert) = { type : "alloy::primitives::TxHash" } ];
 }
 
 message ConversionsResponse {

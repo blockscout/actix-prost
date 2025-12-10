@@ -5,6 +5,9 @@ mod impls;
 #[cfg(feature = "conv-address")]
 mod address;
 
+#[cfg(feature = "conv-hash")]
+mod hash;
+
 #[cfg(feature = "conv-bytes")]
 mod bytes;
 

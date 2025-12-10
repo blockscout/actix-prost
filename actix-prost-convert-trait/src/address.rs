@@ -1,6 +1,6 @@
 use crate::{impl_try_convert_from_string, TryConvert};
-use ethers_core::{types::Address, utils::to_checksum};
 use alloy::primitives::Address as AlloyAddress;
+use ethers_core::{types::Address, utils::to_checksum};
 
 impl_try_convert_from_string!(Address);
 
