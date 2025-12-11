@@ -1,4 +1,4 @@
-use crate::{impl_try_convert_from_string, impl_try_convert_to_string, TryConvert};
+use crate::{impl_try_convert_from_string, impl_try_convert_to_string};
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
 impl_try_convert_from_string!(IpAddr);
@@ -13,6 +13,7 @@ impl_try_convert_to_string!(Ipv6Addr);
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::TryConvert;
 
     #[test]
     fn test_conversion_ip() {

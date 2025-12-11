@@ -26,6 +26,8 @@ pub struct ConversionsRequest {
     pub query: ::prost::alloc::string::String,
     #[prost(string, repeated, tag = "3")]
     pub addresses: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    #[prost(string, repeated, tag = "17")]
+    pub alloy_addresses: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     #[prost(enumeration = "conversions_request::NestedEnum", tag = "4")]
     pub nested_enum: i32,
     #[prost(message, optional, tag = "5")]
@@ -58,6 +60,10 @@ pub struct ConversionsRequest {
     pub decimal_field: ::prost::alloc::string::String,
     #[prost(message, repeated, tag = "16")]
     pub repeated: ::prost::alloc::vec::Vec<RepeatedValue>,
+    #[prost(string, tag = "18")]
+    pub block_hash: ::prost::alloc::string::String,
+    #[prost(string, tag = "19")]
+    pub tx_hash: ::prost::alloc::string::String,
 }
 /// Nested message and enum types in `ConversionsRequest`.
 pub mod conversions_request {
@@ -104,6 +110,8 @@ pub mod conversions_request {
 pub struct ConversionsResponse {
     #[prost(string, tag = "1")]
     pub address: ::prost::alloc::string::String,
+    #[prost(string, tag = "11")]
+    pub alloy_address: ::prost::alloc::string::String,
     #[prost(message, optional, tag = "2")]
     pub nested: ::core::option::Option<Nested>,
     #[prost(map = "string, message", tag = "3")]
@@ -475,6 +483,8 @@ pub mod conversions_rpc_actix {
         pub query: ::prost::alloc::string::String,
         #[prost(string, repeated, tag = "3")]
         pub addresses: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+        #[prost(string, repeated, tag = "17")]
+        pub alloy_addresses: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
         #[prost(enumeration = "conversions_request::NestedEnum", tag = "4")]
         pub nested_enum: i32,
         #[prost(message, optional, tag = "5")]
@@ -507,6 +517,10 @@ pub mod conversions_rpc_actix {
         pub decimal_field: ::prost::alloc::string::String,
         #[prost(message, repeated, tag = "16")]
         pub repeated: ::prost::alloc::vec::Vec<RepeatedValue>,
+        #[prost(string, tag = "18")]
+        pub block_hash: ::prost::alloc::string::String,
+        #[prost(string, tag = "19")]
+        pub tx_hash: ::prost::alloc::string::String,
     }
     async fn call_convert_rpc(
         service: ::actix_web::web::Data<dyn ConversionsRpc + Sync + Send + 'static>,
@@ -527,6 +541,7 @@ pub mod conversions_rpc_actix {
             map_field: json.map_field,
             query: json.query,
             addresses: json.addresses,
+            alloy_addresses: json.alloy_addresses,
             nested_enum: json.nested_enum,
             nested: json.nested,
             utc_datetime: json.utc_datetime,
@@ -540,6 +555,8 @@ pub mod conversions_rpc_actix {
             duration_seconds: json.duration_seconds,
             decimal_field: json.decimal_field,
             repeated: json.repeated,
+            block_hash: json.block_hash,
+            tx_hash: json.tx_hash,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.convert_rpc(request).await?;
@@ -617,6 +634,7 @@ pub struct ConversionsRequestInternal {
     >,
     pub query: ::prost::alloc::string::String,
     pub addresses: std::collections::HashSet<ethers::types::Address>,
+    pub alloy_addresses: std::collections::HashSet<alloy::primitives::Address>,
     pub nested_enum: conversions_request::NestedEnum,
     pub nested: NestedInternal,
     pub utc_datetime: chrono::DateTime<chrono::Utc>,
@@ -630,6 +648,8 @@ pub struct ConversionsRequestInternal {
     pub duration_seconds: std::time::Duration,
     pub decimal_field: rust_decimal::Decimal,
     pub repeated: ::prost::alloc::vec::Vec<RepeatedValueInternal>,
+    pub block_hash: alloy::primitives::BlockHash,
+    pub tx_hash: alloy::primitives::TxHash,
     pub field1: Option<String>,
     pub field2: Option<i32>,
 }
@@ -639,6 +659,9 @@ impl convert_trait::TryConvert<ConversionsRequest> for ConversionsRequestInterna
             map_field: convert_trait::TryConvert::try_convert(from.map_field)?,
             query: Default::default(),
             addresses: convert_trait::TryConvert::try_convert(from.addresses)?,
+            alloy_addresses: convert_trait::TryConvert::try_convert(
+                from.alloy_addresses,
+            )?,
             nested_enum: conversions_request::NestedEnum::try_from(from.nested_enum)
                 .map_err(|e| e.to_string())?,
             nested: convert_trait::TryConvert::try_convert(
@@ -659,6 +682,8 @@ impl convert_trait::TryConvert<ConversionsRequest> for ConversionsRequestInterna
             )?,
             decimal_field: convert_trait::TryConvert::try_convert(from.decimal_field)?,
             repeated: convert_trait::TryConvert::try_convert(from.repeated)?,
+            block_hash: convert_trait::TryConvert::try_convert(from.block_hash)?,
+            tx_hash: convert_trait::TryConvert::try_convert(from.tx_hash)?,
             field1: None,
             field2: None,
         })
@@ -697,6 +722,7 @@ impl convert_trait::TryConvert<ConfigInternal> for Config {
 #[derive(Clone, Debug)]
 pub struct ConversionsResponseInternal {
     pub address: ethers::types::Address,
+    pub alloy_address: alloy::primitives::Address,
     pub nested: ::core::option::Option<NestedInternal>,
     pub map_field: ::std::collections::HashMap<
         ::prost::alloc::string::String,
@@ -713,6 +739,7 @@ impl convert_trait::TryConvert<ConversionsResponseInternal> for ConversionsRespo
     fn try_convert(from: ConversionsResponseInternal) -> Result<Self, String> {
         Ok(Self {
             address: convert_trait::TryConvert::try_convert(from.address)?,
+            alloy_address: convert_trait::TryConvert::try_convert(from.alloy_address)?,
             nested: convert_trait::TryConvert::try_convert(from.nested)?,
             map_field: convert_trait::TryConvert::try_convert(from.map_field)?,
             config: convert_trait::TryConvert::try_convert(from.config)?,

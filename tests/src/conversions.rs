@@ -1,6 +1,3 @@
-use reqwest::StatusCode;
-use std::{collections::HashMap, net::SocketAddr, sync::Arc, time::Duration};
-
 use crate::{
     proto::conversions::{
         conversions_request::NestedEnum, conversions_rpc_actix::route_conversions_rpc,
@@ -14,7 +11,9 @@ use actix_web::{App, HttpServer};
 use convert_trait::TryConvert;
 use ethers::types::Address;
 use pretty_assertions::assert_eq;
+use reqwest::StatusCode;
 use serde_json::{json, Value};
+use std::{collections::HashMap, net::SocketAddr, sync::Arc, time::Duration};
 use tonic::{Request, Response, Status};
 
 #[derive(Default)]
@@ -31,6 +30,9 @@ impl ConversionsRpc for ConversionsServer {
 
         let internal_response = ConversionsResponseInternal {
             address: Address::from_low_u64_be(0),
+            alloy_address: "0x1234567890123456789012345678901234567890"
+                .parse()
+                .unwrap(),
             nested: Some(internal_request.nested),
             map_field: internal_request.map_field,
             config: None,
@@ -83,6 +85,7 @@ async fn conversions() {
         )]),
         query: "some_string".to_string(),
         addresses: vec!["".to_string()],
+        alloy_addresses: vec!["".to_string()],
         nested_enum: 1,
         nested: Some(Nested {
             address: "".to_string(),
@@ -100,6 +103,8 @@ async fn conversions() {
         repeated: vec![RepeatedValue {
             address: "".to_string(),
         }],
+        block_hash: "".to_string(),
+        tx_hash: "".to_string(),
     };
 
     let (status, res) = send_post(&addr, "/conversions", serde_json::to_value(req).unwrap()).await;
@@ -124,6 +129,8 @@ async fn conversions() {
     let test_path_buf = "/tmp/test";
     let test_duration_seconds = "60m";
     let test_decimal_field = "123.45";
+    let test_block_hash = "0x0000000000000000000000000000000000000000000000000000000000000001";
+    let test_tx_hash = "0x0000000000000000000000000000000000000000000000000000000000000002";
 
     let internal_expected = ConversionsRequestInternal {
         map_field: HashMap::from([(
@@ -135,6 +142,7 @@ async fn conversions() {
         // query is overidded to Default::default() in conversions.proto
         query: Default::default(),
         addresses: vec![test_address.parse().unwrap()].into_iter().collect(),
+        alloy_addresses: vec![test_address.parse().unwrap()].into_iter().collect(),
         nested_enum: NestedEnum::NestedOk,
         nested: NestedInternal {
             address: test_address.parse().unwrap(),
@@ -154,6 +162,8 @@ async fn conversions() {
         repeated: vec![RepeatedValueInternal {
             address: test_address.parse().unwrap(),
         }],
+        block_hash: test_block_hash.parse().unwrap(),
+        tx_hash: test_tx_hash.parse().unwrap(),
     };
 
     let req = ConversionsRequest {
@@ -165,6 +175,7 @@ async fn conversions() {
         )]),
         query: test_query.to_string(),
         addresses: vec![test_address.to_string()],
+        alloy_addresses: vec![test_address.to_string()],
         nested_enum: NestedEnum::NestedOk as i32,
         nested: Some(Nested {
             address: test_address.to_string(),
@@ -182,6 +193,8 @@ async fn conversions() {
         repeated: vec![RepeatedValue {
             address: test_address.to_string(),
         }],
+        block_hash: test_block_hash.to_string(),
+        tx_hash: test_tx_hash.to_string(),
     };
 
     let req_internal = ConversionsRequestInternal::try_convert(req.clone()).unwrap();
