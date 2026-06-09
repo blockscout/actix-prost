@@ -921,6 +921,10 @@ pub mod field_options {
         /// not be able to override it.
         #[prost(enumeration = "super::Edition", optional, tag = "4")]
         pub edition_removed: ::core::option::Option<i32>,
+        /// The removal error text if this feature is used after the edition it was
+        /// removed in.
+        #[prost(string, optional, tag = "5")]
+        pub removal_error: ::core::option::Option<::prost::alloc::string::String>,
     }
     #[actix_prost_macros::serde]
     #[derive(
@@ -1675,6 +1679,7 @@ pub mod feature_set {
         Unknown = 0,
         Style2024 = 1,
         StyleLegacy = 2,
+        Style2026 = 3,
     }
     impl EnforceNamingStyle {
         /// String value of the enum field names used in the ProtoBuf definition.
@@ -1686,6 +1691,7 @@ pub mod feature_set {
                 Self::Unknown => "ENFORCE_NAMING_STYLE_UNKNOWN",
                 Self::Style2024 => "STYLE2024",
                 Self::StyleLegacy => "STYLE_LEGACY",
+                Self::Style2026 => "STYLE2026",
             }
         }
         /// Creates an enum from field names used in the ProtoBuf definition.
@@ -1694,6 +1700,7 @@ pub mod feature_set {
                 "ENFORCE_NAMING_STYLE_UNKNOWN" => Some(Self::Unknown),
                 "STYLE2024" => Some(Self::Style2024),
                 "STYLE_LEGACY" => Some(Self::StyleLegacy),
+                "STYLE2026" => Some(Self::Style2026),
                 _ => None,
             }
         }
@@ -1989,6 +1996,9 @@ pub enum Edition {
     /// comparison.
     Edition2023 = 1000,
     Edition2024 = 1001,
+    Edition2026 = 1002,
+    /// A placeholder edition for developing and testing unscheduled features.
+    Unstable = 9999,
     /// Placeholder editions for testing feature resolution.  These should not be
     /// used or relied on outside of tests.
     Edition1TestOnly = 1,
@@ -2014,6 +2024,8 @@ impl Edition {
             Self::Proto3 => "EDITION_PROTO3",
             Self::Edition2023 => "EDITION_2023",
             Self::Edition2024 => "EDITION_2024",
+            Self::Edition2026 => "EDITION_2026",
+            Self::Unstable => "EDITION_UNSTABLE",
             Self::Edition1TestOnly => "EDITION_1_TEST_ONLY",
             Self::Edition2TestOnly => "EDITION_2_TEST_ONLY",
             Self::Edition99997TestOnly => "EDITION_99997_TEST_ONLY",
@@ -2031,6 +2043,8 @@ impl Edition {
             "EDITION_PROTO3" => Some(Self::Proto3),
             "EDITION_2023" => Some(Self::Edition2023),
             "EDITION_2024" => Some(Self::Edition2024),
+            "EDITION_2026" => Some(Self::Edition2026),
+            "EDITION_UNSTABLE" => Some(Self::Unstable),
             "EDITION_1_TEST_ONLY" => Some(Self::Edition1TestOnly),
             "EDITION_2_TEST_ONLY" => Some(Self::Edition2TestOnly),
             "EDITION_99997_TEST_ONLY" => Some(Self::Edition99997TestOnly),

@@ -14,9 +14,7 @@ use prost_reflect::{
     MessageDescriptor,
 };
 use quote::quote;
-use syn::{
-    punctuated::Punctuated, Attribute, Expr, Field, Fields, Lit, Meta, MetaNameValue, Token, Type,
-};
+use syn::{punctuated::Punctuated, Attribute, Expr, Field, Fields, Lit, Meta, Token, Type};
 
 #[derive(Debug)]
 pub struct ExtraFieldOptions {
@@ -546,25 +544,74 @@ impl ConversionsGenerator {
             }
 
             if let Meta::List(list) = &a.meta {
+                // Parse as generic `Meta` rather than `MetaNameValue` so the bare
+                // `repeated` / `optional` flags don't abort parsing of the prost
+                // attribute (which would silently drop the enum conversion).
                 let meta_list = list
-                    .parse_args_with(Punctuated::<MetaNameValue, Token![,]>::parse_terminated)
+                    .parse_args_with(Punctuated::<Meta, Token![,]>::parse_terminated)
                     .ok()?;
-                let enum_part = meta_list.iter().find(|m| m.path.is_ident("enumeration"))?;
 
-                if let Expr::Lit(expr) = &enum_part.value {
-                    if let Lit::Str(lit) = &expr.lit {
-                        let enum_ident = lit.parse::<syn::Path>().ok();
-                        let conv = match m_type {
-                            MessageType::Input => {
-                                quote!(#enum_ident::try_from(from.#name).map_err(|e| e.to_string())?)
-                            }
-                            MessageType::Output => {
-                                quote!(from.#name.into())
-                            }
-                        };
-                        return Some((quote!(#enum_ident), conv));
+                let enum_ident = meta_list.iter().find_map(|m| {
+                    let Meta::NameValue(nv) = m else { return None };
+                    if !nv.path.is_ident("enumeration") {
+                        return None;
                     }
-                }
+                    match &nv.value {
+                        Expr::Lit(expr) => match &expr.lit {
+                            Lit::Str(lit) => lit.parse::<syn::Path>().ok(),
+                            _ => None,
+                        },
+                        _ => None,
+                    }
+                })?;
+
+                let has_flag = |flag: &str| {
+                    meta_list
+                        .iter()
+                        .any(|m| matches!(m, Meta::Path(path) if path.is_ident(flag)))
+                };
+
+                // Repeated / optional enum fields are stored as `Vec<i32>` /
+                // `Option<i32>`, so both the Internal field type and the conversion
+                // must mirror that container instead of a bare scalar enum.
+                let processed = if has_flag("repeated") {
+                    match m_type {
+                        MessageType::Input => (
+                            quote!(::prost::alloc::vec::Vec<#enum_ident>),
+                            quote!(from.#name
+                                .into_iter()
+                                .map(|v| #enum_ident::try_from(v).map_err(|e| e.to_string()))
+                                .collect::<Result<_, _>>()?),
+                        ),
+                        MessageType::Output => (
+                            quote!(::prost::alloc::vec::Vec<#enum_ident>),
+                            quote!(from.#name.into_iter().map(|v| v.into()).collect()),
+                        ),
+                    }
+                } else if has_flag("optional") {
+                    match m_type {
+                        MessageType::Input => (
+                            quote!(::core::option::Option<#enum_ident>),
+                            quote!(from.#name
+                                .map(|v| #enum_ident::try_from(v).map_err(|e| e.to_string()))
+                                .transpose()?),
+                        ),
+                        MessageType::Output => (
+                            quote!(::core::option::Option<#enum_ident>),
+                            quote!(from.#name.map(|v| v.into())),
+                        ),
+                    }
+                } else {
+                    match m_type {
+                        MessageType::Input => (
+                            quote!(#enum_ident),
+                            quote!(#enum_ident::try_from(from.#name).map_err(|e| e.to_string())?),
+                        ),
+                        MessageType::Output => (quote!(#enum_ident), quote!(from.#name.into())),
+                    }
+                };
+
+                return Some(processed);
             };
 
             None
