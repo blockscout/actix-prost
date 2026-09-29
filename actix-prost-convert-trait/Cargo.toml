@@ -37,7 +37,9 @@ conv-full = [
     "conv-decimal" 
 ]
 conv-bytes = [ "dep:bytes", "dep:hex" ]
-conv-address = [ "dep:ethers-core", "dep:alloy" ]
+conv-address = [ "dep:alloy" ]
+# Conversions for the deprecated `ethers` address type. Not part of `conv-full`.
+conv-address-ethers = [ "dep:ethers-core" ]
 conv-hash = [ "dep:alloy" ]
 conv-url = [ "dep:url" ]
 conv-datetime = [ "dep:chrono" ]

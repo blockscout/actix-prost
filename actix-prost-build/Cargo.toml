@@ -10,7 +10,6 @@ repository.workspace = true
 exclude.workspace = true
 
 [dependencies]
-convert-trait = { workspace = true, optional = true }
 prettyplease = { workspace = true }
 proc-macro2 = { workspace = true }
 prost-build = { workspace = true }
@@ -22,4 +21,5 @@ syn = { workspace = true, features = [ "full" ] }
 thiserror = { workspace = true }
 
 [features]
-conversions = [ "dep:convert-trait" ]
+# Generated code refers to `convert_trait::TryConvert`; the using crate depends on `convert-trait`.
+conversions = []

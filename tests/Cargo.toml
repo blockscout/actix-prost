@@ -14,7 +14,7 @@ actix-prost = { workspace = true }
 actix-prost-macros = { workspace = true }
 async-trait = { workspace = true }
 actix-web = { workspace = true }
-convert-trait = { workspace = true }
+convert-trait = { workspace = true, features = [ "conv-address-ethers" ] }
 ethers = { workspace = true }
 alloy = { workspace = true, default-features = false }
 prost = { workspace = true }
