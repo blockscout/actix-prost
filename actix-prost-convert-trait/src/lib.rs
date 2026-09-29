@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 mod impls;
 
-#[cfg(any(feature = "conv-address", feature = "conv-address-ethers"))]
+#[cfg(feature = "conv-address")]
 mod address;
 
 #[cfg(feature = "conv-hash")]

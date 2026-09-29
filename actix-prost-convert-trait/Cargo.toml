@@ -10,7 +10,6 @@ repository.workspace = true
 exclude.workspace = true
 
 [dependencies]
-ethers-core = { workspace = true, optional = true }
 bytes = { workspace = true, optional = true }
 hex = { workspace = true, optional = true }
 url = { workspace = true, optional = true }
@@ -38,8 +37,6 @@ conv-full = [
 ]
 conv-bytes = [ "dep:bytes", "dep:hex" ]
 conv-address = [ "dep:alloy" ]
-# Conversions for the deprecated `ethers` address type. Not part of `conv-full`.
-conv-address-ethers = [ "dep:ethers-core" ]
 conv-hash = [ "dep:alloy" ]
 conv-url = [ "dep:url" ]
 conv-datetime = [ "dep:chrono" ]

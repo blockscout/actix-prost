@@ -13,7 +13,7 @@ message Nested {
   option (convert_options.derive) = { name: "PartialEq" };
   option (convert_options.derive) = { name: "Eq" };
 
-  string address = 3 [ (convert_options.convert) = { type : "ethers::types::Address" } ];
+  string address = 3 [ (convert_options.convert) = { type : "alloy::primitives::Address" } ];
 }
 
 message MapValue {
@@ -22,7 +22,7 @@ message MapValue {
   option (convert_options.derive) = { name: "PartialEq" };
   option (convert_options.derive) = { name: "Eq" };
 
-  string address = 1 [ (convert_options.convert) = { type : "ethers::types::Address" } ];
+  string address = 1 [ (convert_options.convert) = { type : "alloy::primitives::Address" } ];
 }
 
 message RepeatedValue {
@@ -32,7 +32,7 @@ message RepeatedValue {
   option (convert_options.derive) = { name: "Eq" };
 
   string address = 1
-      [ (convert_options.convert) = {type : "ethers::types::Address"} ];
+      [ (convert_options.convert) = {type : "alloy::primitives::Address"} ];
 }
 
 message ConversionsRequest {
@@ -48,7 +48,7 @@ message ConversionsRequest {
   string query = 2
       [ (convert_options.convert) = {override : "Default::default()"} ];
   repeated string addresses = 3 [ (convert_options.convert) = {
-    type : "std::collections::HashSet<ethers::types::Address>"
+    type : "std::collections::HashSet<alloy::primitives::Address>"
   } ];
   repeated string alloy_addresses = 17 [ (convert_options.convert) = {
     type : "std::collections::HashSet<alloy::primitives::Address>"
@@ -90,7 +90,7 @@ message ConversionsRequest {
 }
 
 message ConversionsResponse {
-  string address = 1 [ (convert_options.convert) = { type : "ethers::types::Address" } ];
+  string address = 1 [ (convert_options.convert) = { type : "alloy::primitives::Address" } ];
   string alloy_address = 11 [ (convert_options.convert) = { type : "alloy::primitives::Address" } ];
   Nested nested = 2;
   map<string, MapValue> map_field = 3;

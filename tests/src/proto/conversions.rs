@@ -583,7 +583,7 @@ pub mod conversions_rpc_actix {
 #[derive(Eq)]
 #[derive(Clone, Debug)]
 pub struct MapValueInternal {
-    pub address: ethers::types::Address,
+    pub address: alloy::primitives::Address,
 }
 impl convert_trait::TryConvert<MapValue> for MapValueInternal {
     fn try_convert(from: MapValue) -> Result<Self, String> {
@@ -598,7 +598,7 @@ impl convert_trait::TryConvert<MapValue> for MapValueInternal {
 #[derive(Eq)]
 #[derive(Clone, Debug)]
 pub struct NestedInternal {
-    pub address: ethers::types::Address,
+    pub address: alloy::primitives::Address,
 }
 impl convert_trait::TryConvert<Nested> for NestedInternal {
     fn try_convert(from: Nested) -> Result<Self, String> {
@@ -613,7 +613,7 @@ impl convert_trait::TryConvert<Nested> for NestedInternal {
 #[derive(Eq)]
 #[derive(Clone, Debug)]
 pub struct RepeatedValueInternal {
-    pub address: ethers::types::Address,
+    pub address: alloy::primitives::Address,
 }
 impl convert_trait::TryConvert<RepeatedValue> for RepeatedValueInternal {
     fn try_convert(from: RepeatedValue) -> Result<Self, String> {
@@ -633,7 +633,7 @@ pub struct ConversionsRequestInternal {
         MapValueInternal,
     >,
     pub query: ::prost::alloc::string::String,
-    pub addresses: std::collections::HashSet<ethers::types::Address>,
+    pub addresses: std::collections::HashSet<alloy::primitives::Address>,
     pub alloy_addresses: std::collections::HashSet<alloy::primitives::Address>,
     pub nested_enum: conversions_request::NestedEnum,
     pub nested: NestedInternal,
@@ -721,7 +721,7 @@ impl convert_trait::TryConvert<ConfigInternal> for Config {
 }
 #[derive(Clone, Debug)]
 pub struct ConversionsResponseInternal {
-    pub address: ethers::types::Address,
+    pub address: alloy::primitives::Address,
     pub alloy_address: alloy::primitives::Address,
     pub nested: ::core::option::Option<NestedInternal>,
     pub map_field: ::std::collections::HashMap<
