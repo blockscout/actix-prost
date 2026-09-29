@@ -15,7 +15,6 @@ actix-prost-macros = { workspace = true }
 async-trait = { workspace = true }
 actix-web = { workspace = true }
 convert-trait = { workspace = true }
-ethers = { workspace = true }
 alloy = { workspace = true, default-features = false }
 prost = { workspace = true }
 serde = { workspace = true, features = [ "derive" ] }

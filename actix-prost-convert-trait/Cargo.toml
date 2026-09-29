@@ -10,7 +10,6 @@ repository.workspace = true
 exclude.workspace = true
 
 [dependencies]
-ethers-core = { workspace = true, optional = true }
 bytes = { workspace = true, optional = true }
 hex = { workspace = true, optional = true }
 url = { workspace = true, optional = true }
@@ -37,7 +36,7 @@ conv-full = [
     "conv-decimal" 
 ]
 conv-bytes = [ "dep:bytes", "dep:hex" ]
-conv-address = [ "dep:ethers-core", "dep:alloy" ]
+conv-address = [ "dep:alloy" ]
 conv-hash = [ "dep:alloy" ]
 conv-url = [ "dep:url" ]
 conv-datetime = [ "dep:chrono" ]

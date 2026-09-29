@@ -9,7 +9,7 @@ use crate::{
 };
 use actix_web::{App, HttpServer};
 use convert_trait::TryConvert;
-use ethers::types::Address;
+use alloy::primitives::Address;
 use pretty_assertions::assert_eq;
 use reqwest::StatusCode;
 use serde_json::{json, Value};
@@ -29,7 +29,7 @@ impl ConversionsRpc for ConversionsServer {
             .map_err(|err| Status::invalid_argument(format!("invalid request: {}", err)))?;
 
         let internal_response = ConversionsResponseInternal {
-            address: Address::from_low_u64_be(0),
+            address: Address::ZERO,
             alloy_address: "0x1234567890123456789012345678901234567890"
                 .parse()
                 .unwrap(),
@@ -113,7 +113,7 @@ async fn conversions() {
     let res: Value = serde_json::from_str(&res).unwrap();
     assert_eq!(
         &res["message"],
-        "invalid request: failed to parse '' as Address: Invalid input length"
+        "invalid request: failed to parse '' as Address: invalid string length"
     );
 
     // Valid request
