@@ -901,7 +901,7 @@ pub mod types_rpc_actix {
         let mut json_response = ::actix_web::web::Json(response).customize();
         for (key, value) in headers.iter() {
             json_response = json_response
-                .insert_header((key.as_str(), value.as_bytes()));
+                .append_header((key.as_str(), value.as_bytes()));
         }
         Ok(json_response)
     }
@@ -934,7 +934,7 @@ pub mod types_rpc_actix {
         let mut json_response = ::actix_web::web::Json(response).customize();
         for (key, value) in headers.iter() {
             json_response = json_response
-                .insert_header((key.as_str(), value.as_bytes()));
+                .append_header((key.as_str(), value.as_bytes()));
         }
         Ok(json_response)
     }
@@ -961,7 +961,7 @@ pub mod types_rpc_actix {
         let mut json_response = ::actix_web::web::Json(response).customize();
         for (key, value) in headers.iter() {
             json_response = json_response
-                .insert_header((key.as_str(), value.as_bytes()));
+                .append_header((key.as_str(), value.as_bytes()));
         }
         Ok(json_response)
     }
@@ -988,7 +988,7 @@ pub mod types_rpc_actix {
         let mut json_response = ::actix_web::web::Json(response).customize();
         for (key, value) in headers.iter() {
             json_response = json_response
-                .insert_header((key.as_str(), value.as_bytes()));
+                .append_header((key.as_str(), value.as_bytes()));
         }
         Ok(json_response)
     }
@@ -1015,7 +1015,7 @@ pub mod types_rpc_actix {
         let mut json_response = ::actix_web::web::Json(response).customize();
         for (key, value) in headers.iter() {
             json_response = json_response
-                .insert_header((key.as_str(), value.as_bytes()));
+                .append_header((key.as_str(), value.as_bytes()));
         }
         Ok(json_response)
     }
@@ -1042,7 +1042,7 @@ pub mod types_rpc_actix {
         let mut json_response = ::actix_web::web::Json(response).customize();
         for (key, value) in headers.iter() {
             json_response = json_response
-                .insert_header((key.as_str(), value.as_bytes()));
+                .append_header((key.as_str(), value.as_bytes()));
         }
         Ok(json_response)
     }
@@ -1075,7 +1075,7 @@ pub mod types_rpc_actix {
         let mut json_response = ::actix_web::web::Json(response).customize();
         for (key, value) in headers.iter() {
             json_response = json_response
-                .insert_header((key.as_str(), value.as_bytes()));
+                .append_header((key.as_str(), value.as_bytes()));
         }
         Ok(json_response)
     }
